@@ -104,10 +104,6 @@ int main()
 	ncPrint("[Finished]");
 	ncNewline();
 
-	ncPrint("Hola: ");
-	ncPrintDec(123);
-	ncNewline();
-
 	ncPrint("Date: ");
 	ncPrintBCD(getDay());
 	ncPrint("/");
