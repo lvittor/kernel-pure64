@@ -1,9 +1,7 @@
 GLOBAL cpuVendor
 GLOBAL getYear, getMonth, getDay
-GLOBAL getHour
-GLOBAL getMinutes
-GLOBAL getSeconds
-
+GLOBAL getHour, getMinutes, getSeconds
+GLOBAL getKey:
 section .text
 	
 cpuVendor:
@@ -65,4 +63,16 @@ getSeconds:
     mov al, 0x00
     out 70h, al
     in al, 71h
+	ret
+
+getKey:
+	xor rax, rax
+.loop:
+	in al, 0x64
+	and al, 0x01
+    cmp al, 0
+	je .loop
+
+	in al, 0x60
+
 	ret

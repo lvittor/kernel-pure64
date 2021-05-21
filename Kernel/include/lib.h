@@ -14,5 +14,6 @@ uint8_t getDay();
 uint8_t getHour();
 uint8_t getMinutes();
 uint8_t getSeconds();
+uint8_t getKey();
 
 #endif

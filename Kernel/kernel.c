@@ -101,6 +101,10 @@ int main()
 	ncPrint((char*)sampleDataModuleAddress);
 	ncNewline();
 
+	load_idt();
+	ncPrint("  IDT loaded ");
+	ncNewline();
+
 	ncPrint("[Finished]");
 	ncNewline();
 
@@ -119,6 +123,8 @@ int main()
 	ncPrint(":");
 	ncPrintBCD(getSeconds());
 	ncNewline();
+
+	while(1);
 
 	return 0;
 }
