@@ -80,6 +80,8 @@ void * initializeKernelBinary()
 	return getStackBase();
 }
 
+
+
 int main()
 {	
 	ncPrint("[Kernel Main]");
@@ -100,5 +102,27 @@ int main()
 	ncNewline();
 
 	ncPrint("[Finished]");
+	ncNewline();
+
+	ncPrint("Hola: ");
+	ncPrintDec(123);
+	ncNewline();
+
+	ncPrint("Date: ");
+	ncPrintBCD(getDay());
+	ncPrint("/");
+	ncPrintBCD(getMonth());
+	ncPrint("/");
+	ncPrintBCD(getYear());
+	ncNewline();
+
+	ncPrint("Time: ");
+	ncPrintBCD(getHour()); //TODO: fix the hour
+	ncPrint(":");
+	ncPrintBCD(getMinutes());
+	ncPrint(":");
+	ncPrintBCD(getSeconds());
+	ncNewline();
+
 	return 0;
 }

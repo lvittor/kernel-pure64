@@ -8,4 +8,11 @@ void * memcpy(void * destination, const void * source, uint64_t length);
 
 char *cpuVendor(char *result);
 
+uint8_t getYear();
+uint8_t getMonth();
+uint8_t getDay();
+uint8_t getHour();
+uint8_t getMinutes();
+uint8_t getSeconds();
+
 #endif

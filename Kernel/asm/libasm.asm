@@ -1,4 +1,8 @@
 GLOBAL cpuVendor
+GLOBAL getYear, getMonth, getDay
+GLOBAL getHour
+GLOBAL getMinutes
+GLOBAL getSeconds
 
 section .text
 	
@@ -24,4 +28,41 @@ cpuVendor:
 
 	mov rsp, rbp
 	pop rbp
+	ret
+
+; RTC functions
+getYear:
+    mov al, 0x09
+    out 70h, al
+    in al, 71h
+	ret
+
+getMonth:
+    mov al, 0x08
+    out 70h, al
+    in al, 71h
+	ret
+
+getDay:
+    mov al, 0x07
+    out 70h, al
+    in al, 71h
+	ret
+
+getHour:
+    mov al, 0x04
+    out 70h, al
+    in al, 71h
+	ret
+
+getMinutes:
+    mov al, 0x02
+    out 70h, al
+    in al, 71h
+	ret
+
+getSeconds:
+    mov al, 0x00
+    out 70h, al
+    in al, 71h
 	ret
