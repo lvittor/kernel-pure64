@@ -84,6 +84,10 @@ void * initializeKernelBinary()
 
 int main()
 {	
+	load_idt();
+	ncPrint("  IDT loaded ");
+	ncNewline();
+
 	ncPrint("[Kernel Main]");
 	ncNewline();
 	ncPrint("  Sample code module at 0x");
@@ -99,10 +103,6 @@ int main()
 	ncNewline();
 	ncPrint("  Sample data module contents: ");
 	ncPrint((char*)sampleDataModuleAddress);
-	ncNewline();
-
-	load_idt();
-	ncPrint("  IDT loaded ");
 	ncNewline();
 
 	ncPrint("[Finished]");

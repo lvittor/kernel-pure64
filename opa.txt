@@ -1,0 +1,250 @@
+diff --git a/Kernel/interruptions/idtLoader.c b/Kernel/interruptions/idtLoader.c
+index f07386c..781d784 100755
+--- a/Kernel/interruptions/idtLoader.c
++++ b/Kernel/interruptions/idtLoader.c
+@@ -25,10 +25,12 @@ static void setup_IDT_entry (int index, uint64_t offset);
+ void load_idt() {
+   _cli();
+ 
+-  setup_IDT_entry (0x20, (uint64_t)&_irq00Handler);
+-  setup_IDT_entry (0x21, (uint64_t)&_irq01Handler);
++  setup_IDT_entry (0x20, (uint64_t)&_irq00Handler); // 0x20 -> timer_handler
++  setup_IDT_entry (0x21, (uint64_t)&_irq01Handler); // 0x21 -> keyboard_handler
+   setup_IDT_entry (0x00, (uint64_t)&_exception0Handler);
+ 
++  setup_IDT_entry (0x80, (uint64_t)&_int80Handler);
++
+ 
+ 	// 0xFE = 0b1111-1100
+ 	picMasterMask(0xFC);
+diff --git a/Kernel/interruptions/interrupts.asm b/Kernel/interruptions/interrupts.asm
+index e9c2947..4ec0912 100755
+--- a/Kernel/interruptions/interrupts.asm
++++ b/Kernel/interruptions/interrupts.asm
+@@ -14,9 +14,11 @@ GLOBAL _irq04Handler
+ GLOBAL _irq05Handler
+ 
+ GLOBAL _exception0Handler
++GLOBAL _int80Handler
+ 
+ EXTERN irqDispatcher
+ EXTERN exceptionDispatcher
++EXTERN sys_write
+ 
+ SECTION .text
+ 
+@@ -56,6 +58,40 @@ SECTION .text
+ 	pop rax
+ %endmacro
+ 
++%macro pushStateWithoutAX 0
++	push rbx
++	push rcx
++	push rdx
++	push rbp
++	push rdi
++	push rsi
++	push r8
++	push r9
++	push r10
++	push r11
++	push r12
++	push r13
++	push r14
++	push r15
++%endmacro
++
++%macro popStateWithoutAX 0
++	pop r15
++	pop r14
++	pop r13
++	pop r12
++	pop r11
++	pop r10
++	pop r9
++	pop r8
++	pop rsi
++	pop rdi
++	pop rbp
++	pop rdx
++	pop rcx
++	pop rbx
++%endmacro
++
+ %macro irqHandlerMaster 1
+ 	pushState
+ 
+@@ -70,8 +106,6 @@ SECTION .text
+ 	iretq
+ %endmacro
+ 
+-
+-
+ %macro exceptionHandler 1
+ 	pushState
+ 
+@@ -143,6 +177,18 @@ _irq05Handler:
+ _exception0Handler:
+ 	exceptionHandler 0
+ 
++_int80Handler:
++	pushStateWithoutAX
++	cmp rax, 1
++	je .write
++	jmp .end
++.write:
++	call sys_write
++	jmp .end
++.end:
++	popStateWithoutAX
++	ret
++
+ haltcpu:
+ 	cli
+ 	hlt
+diff --git a/Kernel/interruptions/interrupts.h b/Kernel/interruptions/interrupts.h
+index 13c7279..e5097a0 100755
+--- a/Kernel/interruptions/interrupts.h
++++ b/Kernel/interruptions/interrupts.h
+@@ -19,6 +19,9 @@ void _irq05Handler(void);
+ 
+ void _exception0Handler(void);
+ 
++// TODO: Chequear voids
++void _int80Handler(void);
++
+ void _cli(void);
+ 
+ void _sti(void);
+diff --git a/Kernel/interruptions/irqDispatcher.c b/Kernel/interruptions/irqDispatcher.c
+index d926a38..d7032ac 100755
+--- a/Kernel/interruptions/irqDispatcher.c
++++ b/Kernel/interruptions/irqDispatcher.c
+@@ -3,27 +3,17 @@
+ #include <stdint.h>
+ #include <naiveConsole.h>
+ 
+-static void int_20();
+-static void int_21();
++#define NULL 0
++
++void (*handlers[15])(void) = {
++	timer_handler, 				// int 20h
++	keyboard_handler, 			// int 21h
++	NULL
++};
+ 
+ void irqDispatcher(uint64_t irq) {
+-	// ncPrintAtt("[Debug] ",0x00, 0xFF);
+-	switch (irq) {
+-		case 0:
+-			int_20();
+-			break;
+-		case 1:
+-			int_21();
+-			break;
+-	}
++	void (*interruptionHandler)(void) = handlers[irq];
++	if (interruptionHandler != NULL)
++		(*interruptionHandler)();
+ 	return;
+-}
+-
+-void int_20() {
+-	// ncPrintAtt("[Debug] TIMER", 0x00, 0xFF);
+-	timer_handler();
+-}
+-
+-void int_21() {
+-	keyboard_handler();
+ }
+\ No newline at end of file
+diff --git a/Kernel/kernel.c b/Kernel/kernel.c
+index 29216d9..9e06c43 100644
+--- a/Kernel/kernel.c
++++ b/Kernel/kernel.c
+@@ -84,6 +84,10 @@ void * initializeKernelBinary()
+ 
+ int main()
+ {	
++	load_idt();
++	ncPrint("  IDT loaded ");
++	ncNewline();
++
+ 	ncPrint("[Kernel Main]");
+ 	ncNewline();
+ 	ncPrint("  Sample code module at 0x");
+@@ -101,10 +105,6 @@ int main()
+ 	ncPrint((char*)sampleDataModuleAddress);
+ 	ncNewline();
+ 
+-	load_idt();
+-	ncPrint("  IDT loaded ");
+-	ncNewline();
+-
+ 	ncPrint("[Finished]");
+ 	ncNewline();
+ 
+diff --git a/Userland/Makefile.inc b/Userland/Makefile.inc
+index 5ce813d..0f88519 100644
+--- a/Userland/Makefile.inc
++++ b/Userland/Makefile.inc
+@@ -7,3 +7,4 @@ ASM=nasm
+ GCCFLAGS=-m64 -fno-exceptions -std=c99 -Wall -ffreestanding -nostdlib -fno-common -mno-red-zone -mno-mmx -mno-sse -mno-sse2 -fno-builtin-malloc -fno-builtin-free -fno-builtin-realloc
+ ARFLAGS=rvs
+ ASMFLAGS=-felf64
++LDFLAGS=--warn-common -z max-page-size=0x1000
+\ No newline at end of file
+diff --git a/Userland/SampleCodeModule/Makefile b/Userland/SampleCodeModule/Makefile
+index 3caaabc..857c73a 100644
+--- a/Userland/SampleCodeModule/Makefile
++++ b/Userland/SampleCodeModule/Makefile
+@@ -1,12 +1,24 @@
+ include ../Makefile.inc
+ 
+ MODULE=0000-sampleCodeModule.bin
+-SOURCES=$(wildcard [^_]*.c)
++SOURCES=$(wildcard *.c)
++# SOURCES=$(wildcard [^_]*.c)
++SOURCES_ASM=$(wildcard *.asm)
++OBJECTS=$(SOURCES:.c=.o)
++OBJECTS_ASM=$(SOURCES_ASM:.asm=.o)
++
++ALL_OBJECTS= $(OBJECTS) $(OBJECTS_ASM)
+ 
+ all: $(MODULE)
+ 
+-$(MODULE): $(SOURCES)
+-	$(GCC) $(GCCFLAGS) -T sampleCodeModule.ld _loader.c $(SOURCES) -o ../$(MODULE)
++$(MODULE): $(ALL_OBJECTS)
++	$(LD) $(LDFLAGS) -T sampleCodeModule.ld $(ALL_OBJECTS) -o ../$(MODULE)
++
++%.o: %.c
++	$(GCC) $(GCCFLAGS) -I. -c $< -o $@
++
++%.o : %.asm
++	$(ASM) $(ASMFLAGS) $< -o $@
+ 
+ clean:
+ 	rm -rf *.o
+diff --git a/Userland/SampleCodeModule/sampleCodeModule.c b/Userland/SampleCodeModule/sampleCodeModule.c
+index 6c612d8..ffd0b7d 100644
+--- a/Userland/SampleCodeModule/sampleCodeModule.c
++++ b/Userland/SampleCodeModule/sampleCodeModule.c
+@@ -1,4 +1,5 @@
+ /* sampleCodeModule.c */
++#include <stdint.h>
+ 
+ char * v = (char*)0xB8000 + 79 * 2;
+ 
+@@ -9,7 +10,9 @@ static int var2 = 0;
+ int main() {
+ 	//All the following code may be removed 
+ 	*v = 'X';
+-	*(v+1) = 0x74;
++	*(v+1) = 0x74; // 0b0111.0100
++
++	// print(1, "HOLA", 4);
+ 
+ 	//Test if BSS is properly set up
+ 	if (var1 == 0 && var2 == 0)

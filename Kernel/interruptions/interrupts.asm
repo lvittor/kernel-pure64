@@ -14,9 +14,11 @@ GLOBAL _irq04Handler
 GLOBAL _irq05Handler
 
 GLOBAL _exception0Handler
+GLOBAL _int80Handler
 
 EXTERN irqDispatcher
 EXTERN exceptionDispatcher
+EXTERN sys_write
 
 SECTION .text
 
@@ -56,6 +58,40 @@ SECTION .text
 	pop rax
 %endmacro
 
+%macro pushStateWithoutAX 0
+	push rbx
+	push rcx
+	push rdx
+	push rbp
+	push rdi
+	push rsi
+	push r8
+	push r9
+	push r10
+	push r11
+	push r12
+	push r13
+	push r14
+	push r15
+%endmacro
+
+%macro popStateWithoutAX 0
+	pop r15
+	pop r14
+	pop r13
+	pop r12
+	pop r11
+	pop r10
+	pop r9
+	pop r8
+	pop rsi
+	pop rdi
+	pop rbp
+	pop rdx
+	pop rcx
+	pop rbx
+%endmacro
+
 %macro irqHandlerMaster 1
 	pushState
 
@@ -69,8 +105,6 @@ SECTION .text
 	popState
 	iretq
 %endmacro
-
-
 
 %macro exceptionHandler 1
 	pushState
@@ -142,6 +176,18 @@ _irq05Handler:
 ;Zero Division Exception
 _exception0Handler:
 	exceptionHandler 0
+
+_int80Handler:
+	pushStateWithoutAX
+	cmp rax, 1
+	je .write
+	jmp .end
+.write:
+	call sys_write
+	jmp .end
+.end:
+	popStateWithoutAX
+	iretq
 
 haltcpu:
 	cli
