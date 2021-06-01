@@ -43,9 +43,13 @@ void ncPrintChar(char character) {
 **/
 void ncPrintCharAtt(char character, char attribute) {
 	checkPosition();
-	*currentVideo = character;
-	*(currentVideo + 1) = attribute;
-	currentVideo += 2;
+	if (character == '\n') {
+		ncNewline();
+	} else {
+		*currentVideo = character;
+		*(currentVideo + 1) = attribute;
+		currentVideo += 2;
+	}
 }
 
 void ncNewline() {
