@@ -28,7 +28,8 @@ void load_idt() {
 
   setup_IDT_entry (0x20, (uint64_t)&_irq00Handler); // 0x20 -> timer_handler
   setup_IDT_entry (0x21, (uint64_t)&_irq01Handler); // 0x21 -> keyboard_handler
-  setup_IDT_entry (0x00, (uint64_t)&_exception0Handler);
+  setup_IDT_entry (0x00, (uint64_t)&_exception0Handler); // 0x00 -> zero_division
+  setup_IDT_entry (0x06, (uint64_t)&_exception6Handler); // 0x06 -> invalid_opcode
 
   setup_IDT_entry (0x80, (uint64_t)&_int80Handler);
 

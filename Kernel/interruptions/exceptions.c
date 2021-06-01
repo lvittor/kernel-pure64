@@ -5,14 +5,16 @@
 #define INVALID_OPCODE_ID	0x06
 
 static void zero_division();
+static void invalid_opcode();
+
 char * exceptionMessages[EXCEPTION_COUNT] = {
-	"Division By Zero Exception", /* 0x00 */
+	"[Exception] Division By Zero", /* 0x00 */
 	0,
 	0,
 	0,
 	0,
 	0,
-	"Invalid OpCode Exception", /* 0x06 */
+	"[Exception] Invalid OpCode", /* 0x06 */
 	0,
 };
 
@@ -24,13 +26,15 @@ void exceptionDispatcher(int exception) {
 	// Mostrar mensaje de qué excepción ocurrió
 	char * message = exceptionMessages[exception];
 	if (message != 0) {
-		ncPrint(message);
+		ncPrintAtt(message, 4, 0);
 		ncNewline();
 	}
 
 	if (exception == ZERO_EXCEPTION_ID)
 	 	zero_division();
 
+	if (exception == INVALID_OPCODE_ID)
+	 	invalid_opcode();
 	
 	// Esperar tecla
 	while(1);
@@ -38,5 +42,9 @@ void exceptionDispatcher(int exception) {
 }
 
 static void zero_division() {
+	// Handler para manejar excepción
+}
+
+static void invalid_opcode() {
 	// Handler para manejar excepción
 }
