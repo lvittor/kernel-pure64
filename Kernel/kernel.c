@@ -3,6 +3,7 @@
 #include <lib.h>
 #include <moduleLoader.h>
 #include <naiveConsole.h>
+#include <idtLoader.h>
 
 extern uint8_t text;
 extern uint8_t rodata;

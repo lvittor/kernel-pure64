@@ -19,7 +19,7 @@ GLOBAL _int80Handler
 EXTERN irqDispatcher
 EXTERN exceptionDispatcher
 EXTERN sys_write
-
+EXTERN printReg
 SECTION .text
 
 %macro pushState 0
@@ -108,6 +108,8 @@ SECTION .text
 
 %macro exceptionHandler 1
 	pushState
+	
+	call printReg
 
 	mov rdi, %1 ; pasaje de parametro
 	call exceptionDispatcher
