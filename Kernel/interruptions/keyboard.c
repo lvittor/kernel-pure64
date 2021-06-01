@@ -7,6 +7,11 @@
 #define RIGHT_SHIFT 0x36
 #define RIGHT_SHIFT_FLAG 0b00000010
 
+//#define BUFFER_SIZE 128
+//static char buffer[BUFFER_SIZE];
+
+
+
 // https://stanislavs.org/helppc/make_codes.html
 unsigned char lowerScancodeToAscii[128] = {
 
@@ -43,9 +48,11 @@ void keyboard_handler() {
         flags |= RIGHT_SHIFT_FLAG;
       } else {
         if ((flags & LEFT_SHIFT_FLAG) || (flags & RIGHT_SHIFT_FLAG))
-          ncPrintChar(upperScancodeToAscii[scancode]);
+          ncPrintChar(upperScancodeToAscii[scancode]); // en vez de imprimir habria que guardarlo en un buffer
+          //appendBuffer(upperScancodeToAscii[scancode]);
         else
-          ncPrintChar(lowerScancodeToAscii[scancode]);
+          ncPrintChar(lowerScancodeToAscii[scancode]); // en vez de imprimir habria que guardarlo en un buffer
+          //appendBuffer(lowerScancodeToAscii[scancode]);
       }
     } else { // Break/Released
       scancode -= 0x80;
