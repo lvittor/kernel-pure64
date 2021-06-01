@@ -5,6 +5,8 @@
 #define INVALID_OPCODE_ID	0x06
 
 static void zero_division();
+static void invalid_opcode();
+
 char * exceptionMessages[EXCEPTION_COUNT] = {
 	"Division By Zero Exception", /* 0x00 */
 	0,
@@ -31,6 +33,8 @@ void exceptionDispatcher(int exception) {
 	if (exception == ZERO_EXCEPTION_ID)
 	 	zero_division();
 
+	if (exception == INVALID_OPCODE_ID)
+	 	invalid_opcode();
 	
 	// Esperar tecla
 	while(1);
@@ -38,5 +42,9 @@ void exceptionDispatcher(int exception) {
 }
 
 static void zero_division() {
+	// Handler para manejar excepción
+}
+
+static void invalid_opcode() {
 	// Handler para manejar excepción
 }
