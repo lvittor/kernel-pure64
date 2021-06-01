@@ -16,7 +16,7 @@ int main() {
 	*v = 'X';
 	*(v+1) = 0x74; // 0b0111.0100
 
-	print(1, "HOLA", 4);
+	print_f(1, "HOLA1: %d\n HOLA2: %s\n %c \%\n", 100000, "STRING", 'a');
 	return 0;
 	//Test if BSS is properly set up
 	if (var1 == 0 && var2 == 0)

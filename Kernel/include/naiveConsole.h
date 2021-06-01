@@ -3,6 +3,9 @@
 
 #include <stdint.h>
 
+#define WHITE_ON_BLACK	0x07
+#define RED_ON_BLACK	0x04
+
 void ncPrint(const char * string);
 void ncPrintAtt(const char * string, char frontColor, char backColor);
 void ncPrintChar(char character);
