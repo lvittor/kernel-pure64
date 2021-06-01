@@ -1,6 +1,7 @@
 /* sampleCodeModule.c */
 #include <stdint.h>
 #include <lib.h>
+#include <utils.h>
 
 char * v = (char*)0xB8000 + 79 * 2;
 
@@ -9,8 +10,8 @@ static int var2 = 0;
 
 
 int main() {
-	print(1, "DIVIDIR POR CERO", 16);
-	setReg();
+	print_f(1, "DIVIDIR POR CERO\n");
+	throwInvalidOpcodeException();
 	print(1, "LO HICE", 7);
 	//All the following code may be removed 
 	*v = 'X';
