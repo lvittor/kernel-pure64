@@ -15,6 +15,13 @@ void sys_write(uint8_t fd, char * buffer, uint64_t count) {
 		ncPrintCharAtt(buffer[i], attribute);
 }
 
-	// return ret;
-	return 0;
-}
+
+// https://github.com/codyjack/pintos-3/blob/master/userprog/syscall.c
+// void sys_read(uint8_t fd, char * buffer, uint64_t count){
+// 	for (int i = 0; i < count && buffer[i]; i++){
+// 		char c = getchar();
+// 		buffer[i] = c;
+// 		if (c == EOF) return i;
+// 	}
+// 	return count;
+// }
