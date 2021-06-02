@@ -109,38 +109,6 @@ int main()
 	ncPrint("[Finished]");
 	ncNewline();
 
-	ncPrint("Date: ");
-	ncPrintBCD(getDay());
-	ncPrint("/");
-	ncPrintBCD(getMonth());
-	ncPrint("/");
-	ncPrintBCD(getYear());
-	ncNewline();
-
-	ncPrint("Date: ");
-	ncPrintDec(getDay());
-	ncPrint("/");
-	ncPrintDec(getMonth());
-	ncPrint("/");
-	ncPrintDec(getYear());
-	ncNewline();
-
-	ncPrint("Time: ");
-	ncPrintDec(getHour()); //TODO: fix the hour
-	ncPrint(":");
-	ncPrintDec(getMinute());
-	ncPrint(":");
-	ncPrintDec(getSecond());
-	ncNewline();
-
-	ncPrint("Time: ");
-	ncPrintBCD(getHour()); //TODO: fix the hour
-	ncPrint(":");
-	ncPrintBCD(getMinute());
-	ncPrint(":");
-	ncPrintBCD(getSecond());
-	ncNewline();
-
 	while(1);
 
 	return 0;
