@@ -3,6 +3,5 @@
 
 void throwInvalidOpcodeException(void);
 void throwDivisionByZeroException(void);
-void printDate(void);
 
 #endif
