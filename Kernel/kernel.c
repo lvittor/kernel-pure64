@@ -117,12 +117,28 @@ int main()
 	ncPrintBCD(getYear());
 	ncNewline();
 
+	ncPrint("Date: ");
+	ncPrintDec(getDay());
+	ncPrint("/");
+	ncPrintDec(getMonth());
+	ncPrint("/");
+	ncPrintDec(getYear());
+	ncNewline();
+
+	ncPrint("Time: ");
+	ncPrintDec(getHour()); //TODO: fix the hour
+	ncPrint(":");
+	ncPrintDec(getMinute());
+	ncPrint(":");
+	ncPrintDec(getSecond());
+	ncNewline();
+
 	ncPrint("Time: ");
 	ncPrintBCD(getHour()); //TODO: fix the hour
 	ncPrint(":");
-	ncPrintBCD(getMinutes());
+	ncPrintBCD(getMinute());
 	ncPrint(":");
-	ncPrintBCD(getSeconds());
+	ncPrintBCD(getSecond());
 	ncNewline();
 
 	while(1);
