@@ -1,6 +1,6 @@
 GLOBAL cpuVendor
 GLOBAL getYear, getMonth, getDay
-GLOBAL getHour, getMinutes, getSeconds
+GLOBAL getHour, getMinute, getSecond
 GLOBAL getKey:
 section .text
 	
@@ -53,13 +53,13 @@ getHour:
     in al, 71h
 	ret
 
-getMinutes:
+getMinute:
     mov al, 0x02
     out 70h, al
     in al, 71h
 	ret
 
-getSeconds:
+getSecond:
     mov al, 0x00
     out 70h, al
     in al, 71h

@@ -19,7 +19,7 @@ GLOBAL _int80Handler
 
 EXTERN irqDispatcher
 EXTERN exceptionDispatcher
-EXTERN sys_write
+EXTERN syscallDispatcher
 EXTERN printReg
 SECTION .text
 
@@ -186,13 +186,8 @@ _exception6Handler:
 
 _int80Handler:
 	pushStateWithoutAX
-	cmp rax, 1
-	je .write
-	jmp .end
-.write:
-	call sys_write
-	jmp .end
-.end:
+	mov rcx, rax
+	call syscallDispatcher
 	popStateWithoutAX
 	iretq
 

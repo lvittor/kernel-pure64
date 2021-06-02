@@ -5,7 +5,13 @@
 #include <stdarg.h>
 #include <stdint.h>
 
+typedef struct dateType {
+	uint8_t year, month, day;
+	uint8_t hour, minute, second;
+} dateType;
+
 void print(uint8_t fd, char * s, uint64_t count);
+uint64_t fillDate(dateType * pDate);
 void setReg(void);
 int print_f(uint8_t fd, const char * format, ...);
 void put_char(uint8_t fd, const char character);

@@ -8,11 +8,8 @@ char * v = (char*)0xB8000 + 79 * 2;
 static int var1 = 0;
 static int var2 = 0;
 
-
 int main() {
-	print_f(1, "DIVIDIR POR CERO\n");
-	throwInvalidOpcodeException();
-	print(1, "LO HICE", 7);
+	printDate();
 	//All the following code may be removed 
 	*v = 'X';
 	*(v+1) = 0x74; // 0b0111.0100
