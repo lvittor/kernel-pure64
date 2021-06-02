@@ -1,8 +1,14 @@
 GLOBAL print
 GLOBAL setReg
+GLOBAL fillDate
 
 print:
     mov rax, 1
+    int 80h
+    ret
+
+fillDate:
+    mov rax, 3
     int 80h
     ret
 

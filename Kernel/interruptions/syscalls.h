@@ -6,7 +6,6 @@
 #define STD_OUT 1
 #define STD_ERR 2
 
-void sys_write(uint8_t fd, char * buffer, uint64_t count);
-void sys_read(uint8_t fd, char * buffer, uint64_t count);
+uint64_t syscallDispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx);
 
 #endif
