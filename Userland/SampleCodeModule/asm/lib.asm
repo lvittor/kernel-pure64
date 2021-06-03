@@ -2,6 +2,7 @@ GLOBAL print
 GLOBAL setReg
 GLOBAL fillDate
 GLOBAL inforeg
+GLOBAL fillMem
 
 EXTERN print_f
 
@@ -12,6 +13,11 @@ print:
 
 fillDate:
     mov rax, 3
+    int 80h
+    ret
+
+fillMem:
+    mov rax, 4
     int 80h
     ret
 

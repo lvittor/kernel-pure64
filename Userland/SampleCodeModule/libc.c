@@ -32,7 +32,7 @@ static uint32_t uintToBase(uint64_t value, char * buffer, uint32_t base) {
 	return digits;
 }
 
-//http://www.firmcodes.com/write-printf-function-c/
+// http://www.firmcodes.com/write-printf-function-c/
 int print_f(uint8_t fd, const char * format, ...) {
     va_list arg;
     va_start(arg, format);
@@ -102,4 +102,48 @@ void printDate() {
                                                          currDate.hour, 
                                                          currDate.minute, 
                                                          currDate.second);
+}
+
+/////////////USER_STRING.H/////////////
+
+int8_t strcmp (const char *p1, const char *p2) {
+  const unsigned char *s1 = (const unsigned char *) p1;
+  const unsigned char *s2 = (const unsigned char *) p2;
+  unsigned char c1, c2;
+  do {
+      c1 = (unsigned char) *s1++;
+      c2 = (unsigned char) *s2++;
+      if (c1 == '\0')
+        return c1 - c2;
+    } while (c1 == c2);
+  return c1 - c2;
+}
+
+uint8_t strlen(const char *str) {
+	const char *s;
+	for (s = str; *s; ++s);
+	return (s - str);
+}
+
+/////////////COMANDITOS RIKIS/////////////
+
+void help() {
+    print_f(1, "Los comandos disponibles son: help, inforeg, printmem, date, divisionByZero, invalidOpCode.\n");
+}
+
+void printmem() {
+    uint8_t arr[32];
+    print_f(1, "Ingrese la direccion a partir de la cual quiere leer: ");
+    uint64_t dir;
+    // Leer dir
+
+    fillMem(0x200000FF, arr, 32);
+
+    //512M = 512 * 2^20 = 2^29 = 1 1111 1111 1111 1111 1111 1111 1111 = 1FFFFFFF
+
+    print_f(1, "Memoria a partir de 0x%x: ", dir);
+    for (int i = 0; i < 32; i++) {
+        print_f(1, "%xh, ", arr[i]);
+    }
+    print_f(1, "\n");
 }

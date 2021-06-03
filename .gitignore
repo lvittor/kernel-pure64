@@ -9,3 +9,8 @@
 
 #Object files
 *.o
+
+#vscode
+.vscode
+
+.bash_history

@@ -8,13 +8,15 @@ static int var1 = 0;
 static int var2 = 0;
 
 int main() {
-	printDate();
-	inforeg();
+	print_f(1, "Estamos en userland.\n");
+	printmem();
+	//printDate();
+	//inforeg();
 	//All the following code may be removed 
 	*v = 'X';
 	*(v+1) = 0x74; // 0b0111.0100
 
-	print_f(1, "HOLA1: %d\n HOLA2: %s\n %c \%\n", 100000, "STRING", 'a');
+	//print_f(1, "HOLA1: %d\n HOLA2: %s\n %c \%\n", 100000, "STRING", 'a');
 	return 0;
 	//Test if BSS is properly set up
 	if (var1 == 0 && var2 == 0)

@@ -12,6 +12,7 @@ typedef struct dateType {
 uint64_t sys_write(uint8_t fd, char * buffer, uint64_t count);
 void sys_read(uint8_t fd, char * buffer, uint64_t count);
 uint64_t sys_date(dateType * pDate);
+uint64_t sys_mem(uint64_t rdi, uint64_t rsi, uint8_t rdx);
 
 
 uint64_t syscallDispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx) {
@@ -21,6 +22,9 @@ uint64_t syscallDispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rc
 			break;
 		case 3:
 			return sys_date(rdi);
+			break;
+		case 4:
+			return sys_mem(rdi, rsi, rdx);
 			break;
 	}
 	return 0;
@@ -65,4 +69,12 @@ uint64_t sys_date(dateType * pDate){
 	pDate->minute = BCDToDec(getMinute());
 	pDate->second = BCDToDec(getSecond());
 	return 1;
+}
+
+uint64_t sys_mem(uint64_t rdi, uint64_t rsi, uint8_t rdx){
+	uint8_t * src = rdi;
+	uint8_t * dst = rsi;
+	for (uint8_t i = 0; i < rdx; i++) {
+		dst[i] = src[i];
+	}
 }
