@@ -1,7 +1,7 @@
 GLOBAL cpuVendor
 GLOBAL getYear, getMonth, getDay
 GLOBAL getHour, getMinute, getSecond
-GLOBAL getKey:
+GLOBAL getKey
 section .text
 	
 cpuVendor:
