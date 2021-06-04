@@ -72,9 +72,15 @@ uint64_t sys_date(dateType * pDate){
 }
 
 uint64_t sys_mem(uint64_t rdi, uint64_t rsi, uint8_t rdx){
-	uint8_t * src = rdi;
-	uint8_t * dst = rsi;
-	for (uint8_t i = 0; i < rdx; i++) {
+	uint8_t * src = (uint8_t *)rdi;
+	uint8_t * dst = (uint8_t *)rsi;
+	
+	if (src >= 0x1000000000 || src - 1 + rdx >= 0x1000000000)
+		return 1;
+
+	uint8_t i;
+	for (i = 0; i < rdx; i++) {
 		dst[i] = src[i];
 	}
+	return i;
 }
