@@ -18,7 +18,7 @@ void put_char(uint8_t fd, const char character);
 void put_s(uint8_t fd, const char * s);
 void printDate(void);
 void inforeg(void);
-void fillMem(uint64_t src, uint8_t * dst, uint8_t size);
+int64_t fillMem(uint64_t src, uint8_t * dst, uint8_t size);
 //////////////
 uint8_t strlen(const char *str);
 int8_t strcmp (const char *p1, const char *p2);

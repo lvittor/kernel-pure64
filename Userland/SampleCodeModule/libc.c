@@ -3,7 +3,7 @@
 #include <lib.h>
 #include <stdint.h>
 
-static uint32_t uintToBase(uint64_t value, char * buffer, uint32_t base) {
+static uint64_t uintToBase(uint64_t value, char * buffer, uint32_t base) {
 	char *p = buffer;
 	char *p1, *p2;
 	uint32_t digits = 0;
@@ -37,7 +37,7 @@ int print_f(uint8_t fd, const char * format, ...) {
     va_list arg;
     va_start(arg, format);
     
-    int i;
+    int64_t i;
     char buff[24];
     char * s;
     const char * traverse;
@@ -64,7 +64,7 @@ int print_f(uint8_t fd, const char * format, ...) {
                 put_s(fd, s);
                 break;
             case 'd':
-                i = va_arg(arg, int);
+                i = va_arg(arg, int64_t);
                 if (i < 0) {
                     i = -i;
                     put_char(fd, '-');
@@ -72,7 +72,7 @@ int print_f(uint8_t fd, const char * format, ...) {
                 if(uintToBase(i, buff, 10) > 0) put_s(fd, buff);
                 break;
             case 'x':
-                i = va_arg(arg, uint64_t);
+                i = va_arg(arg, int64_t);
                 if(uintToBase(i, buff, 16) > 0) put_s(fd, buff);
                 break;
             case '\0':
@@ -131,19 +131,32 @@ void help() {
     print_f(1, "Los comandos disponibles son: help, inforeg, printmem, date, divisionByZero, invalidOpCode.\n");
 }
 
+#define BYTES_TO_READ   1
+
 void printmem() {
-    uint8_t arr[32];
-    print_f(1, "Ingrese la direccion a partir de la cual quiere leer: ");
-    uint64_t dir;
-    // Leer dir
-
-    fillMem(0x200000FF, arr, 32);
-
+    uint8_t arr[BYTES_TO_READ] = {0};
+    print_f(1, "Ingrese la dirección a partir de la cual quiere leer: ");
     //512M = 512 * 2^20 = 2^29 = 1 1111 1111 1111 1111 1111 1111 1111 = 1FFFFFFF
+    //16GB = 2^4 * 2^30 = 2^34 = 11 1111 1111 1111 1111 1111 1111 1111 1111 = 3FFFFFFFF
 
+    print_f(1, "ANTES\n");
+
+    uint64_t dir = 0x0000001000000000;
+
+    // Leer dirección dada por el usuario
+    print_f(1, "%x\n", fillMem(dir, arr, BYTES_TO_READ));
+
+    for (int i = 0; i < BYTES_TO_READ; i++)
+        print_f(1, "%x ", arr[i]);
+
+    print_f(1, "DESPUES\n");
+
+/*     
     print_f(1, "Memoria a partir de 0x%x: ", dir);
-    for (int i = 0; i < 32; i++) {
+    for (int i = 0; i < BYTES_TO_READ; i++) {
         print_f(1, "%xh, ", arr[i]);
     }
     print_f(1, "\n");
+
+    */
 }
