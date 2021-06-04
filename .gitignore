@@ -10,7 +10,12 @@
 #Object files
 *.o
 
+#Executable files
+*.elf
+
 #vscode
 .vscode
 
+#History
 .bash_history
+.gdb_history
