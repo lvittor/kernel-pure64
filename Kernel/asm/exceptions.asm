@@ -1,4 +1,4 @@
-GLOBAL printReg 
+GLOBAL printRegs
 
 extern ncPrint
 extern ncNewline
@@ -43,50 +43,75 @@ section .text
 %endmacro
 
 %macro printOneReg 2
-    pushState
     mov rdi, %1
     call ncPrint
-    popState
-    pushState
-    mov rdi, %2
+    mov rdi, [rbp + %2 * 8 + 8]
     call ncPrintHex
-    popState
-    pushState
     call ncNewline
-    popState 
 %endmacro
 
-; Should print:
-; rax, rbx, rcx, rdx, rbp, rsp, rsi, rdi,
-; r8, r9, r10, r11, r12, r13, r14, r15
-; The called function preserves rsp, rbp, rbx, r12, r13, r14, r15
-printReg:
-    printOneReg srax, rax
-    printOneReg srbx, rbx
-    printOneReg srcx, rcx
-    printOneReg srdx, rdx
-    printOneReg srsi, rsi
-    printOneReg srdi, rdi
-    printOneReg srsp, rsp
-    printOneReg srbp, rbp
-    printOneReg sr8, r8
-    printOneReg sr9, r9
-    printOneReg sr10, r10
-    printOneReg sr11, r11
-    printOneReg sr12, r12
-    printOneReg sr13, r13
-    printOneReg sr14, r14
-    printOneReg sr15, r15
-    ret
+; This function expects the following stack:
+;	RBP
+;	RIP <-- From the calling function
+;	R15
+;	R14
+;	R13
+;	R12
+;	R11
+;	R10
+;	R9
+;	R8
+;	RSI
+;	RDI
+;	RBP
+;	RDX
+;	RCX
+;	RBX
+;	RAX
+;	RIP <-- From the instruction that caused the exception
+;	CS
+;	RFLAGS
+;	RSP
+;	SS
+printRegs:
+	push rbp
+	mov rbp, rsp
+	pushState
+
+	printOneReg srsp, 19
+	printOneReg srflags, 18
+    printOneReg srip, 16
+    printOneReg srax, 15
+    printOneReg srbx, 14
+    printOneReg srcx, 13
+    printOneReg srdx, 12
+    printOneReg srbp, 11
+    printOneReg srdi, 10
+    printOneReg srsi, 9
+    printOneReg sr8,  8
+    printOneReg sr9,  7
+    printOneReg sr10, 6
+    printOneReg sr11, 5
+    printOneReg sr12, 4
+    printOneReg sr13, 3
+    printOneReg sr14, 2
+    printOneReg sr15, 1
+
+	popState
+	mov rsp, rbp
+	pop rbp
+	ret
 
 section .data
+srsp db "rsp: ", 0
+srflags db "rflags: ", 0
+srip db "rip: ", 0
 srax db "rax: ", 0
 srbx db "rbx: ", 0
 srcx db "rcx: ", 0
 srdx db "rdx: ", 0
 srsi db "rsi: ", 0
 srdi db "rdi: ", 0
-srsp db "rsp: ", 0
 srbp db "rbp: ", 0
 sr8 db "r8: ", 0
 sr9 db "r9: ", 0

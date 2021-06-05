@@ -1,6 +1,7 @@
 /* sampleCodeModule.c */
 #include <stdint.h>
 #include <lib.h>
+#include <exceptions.h>
 
 char * v = (char*)0xB8000 + 79 * 2;
 
@@ -9,9 +10,15 @@ static int var2 = 0;
 
 int main() {
 	print_f(1, "Estamos en userland.\n");
-	printmem();
-	//printDate();
-	//inforeg();
+
+	while(1) {
+		int64_t c = getChar();
+		if (c != -1)
+			put_char(1, c);
+	}
+
+	inforeg();
+
 	//All the following code may be removed 
 	*v = 'X';
 	*(v+1) = 0x74; // 0b0111.0100

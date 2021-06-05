@@ -1,4 +1,5 @@
 GLOBAL print
+GLOBAL getChar
 GLOBAL setReg
 GLOBAL fillDate
 GLOBAL inforeg
@@ -8,6 +9,11 @@ EXTERN print_f
 
 print:
     mov rax, 1
+    int 80h
+    ret
+
+getChar:
+    mov rax, 2
     int 80h
     ret
 
@@ -75,44 +81,74 @@ setReg:
 %endmacro
 
 %macro printOneReg 2
-    pushState
     mov rdi, 1          ; file descriptor = 1
-    mov rsi, fmt        ; format: "%s:  %d/n"
+    mov rsi, fmt        ; format: "%s:  %x/n"
     mov rdx, %1         ; nombre del registro
-    mov rcx, %2         ; valor del registro
+    mov rcx, [rbp + %2 * 8]         ; valor del registro
     call print_f
-    popState 
 %endmacro
 
+; Después de armarte el stack frame, tenés el stack de la siguiente manera:
+;   rbp
+;   r15
+;   r14
+;   r13
+;   r12
+;   r11
+;   r10
+;   r9
+;   r8
+;   rsi
+;   rdi
+;   rbp
+;   rdx
+;   rcx
+;   rbx
+;   rax
+;   rflags
+;   rip
+
 inforeg:
-    printOneReg srax, rax
-    printOneReg srbx, rbx
-    printOneReg srcx, rcx
-    printOneReg srdx, rdx
-    printOneReg srsi, rsi
-    printOneReg srdi, rdi
-    printOneReg srsp, rsp
-    printOneReg srbp, rbp
-    printOneReg sr8, r8
-    printOneReg sr9, r9
-    printOneReg sr10, r10
-    printOneReg sr11, r11
-    printOneReg sr12, r12
-    printOneReg sr13, r13
-    printOneReg sr14, r14
-    printOneReg sr15, r15
+    pushf
+    pushState
+    push rbp
+    mov rbp, rsp
+
+    printOneReg srip, 17
+    printOneReg srflags, 16
+    printOneReg srax, 15
+    printOneReg srbx, 14
+    printOneReg srcx, 13
+    printOneReg srdx, 12
+    printOneReg srbp, 11
+    printOneReg srdi, 10
+    printOneReg srsi, 9
+    printOneReg sr8, 8
+    printOneReg sr9, 7
+    printOneReg sr10, 6
+    printOneReg sr11, 5
+    printOneReg sr12, 4
+    printOneReg sr13, 3
+    printOneReg sr14, 2
+    printOneReg sr15, 1
+
+    mov rsp, rbp
+    pop rbp
+    popState
+    popf
     ret
 
 section .data
 fmt db "%s: %xh", 10, 0
+srip db "rip", 0
+srflags db "rflags", 0
 srax db "rax", 0
 srbx db "rbx", 0
 srcx db "rcx", 0
 srdx db "rdx", 0
-srsi db "rsi", 0
-srdi db "rdi", 0
-srsp db "rsp", 0
 srbp db "rbp", 0
+srdi db "rdi", 0
+srsi db "rsi", 0
 sr8 db "r8", 0
 sr9 db "r9", 0
 sr10 db "r10", 0

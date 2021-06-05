@@ -2,8 +2,8 @@ GLOBAL throwInvalidOpcodeException
 GLOBAL throwDivisionByZeroException
 
 throwInvalidOpcodeException:
-    ud2
-    ret ; no debería llegar acá, porque se reinicia la shell
+    ud2 ; Undefined instruction: raises invalid opcode
+    ret
 
 throwDivisionByZeroException:
     mov rax, 0xFF
