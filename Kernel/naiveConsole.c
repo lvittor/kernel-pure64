@@ -45,6 +45,11 @@ void ncPrintCharAtt(char character, char attribute) {
 	checkPosition();
 	if (character == '\n') {
 		ncNewline();
+	} else if (character == '\b') {
+		if (currentVideo > video) {
+			currentVideo -= 2;
+			*currentVideo = ' ';
+		}
 	} else {
 		*currentVideo = character;
 		*(currentVideo + 1) = attribute;

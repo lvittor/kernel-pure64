@@ -86,7 +86,7 @@ int64_t getChar(void) {
     char ans = buffer[tail++];
     if (tail == BUFFER_SIZE)
       tail = 0;
-      return ans;
+      return ans == 0 ? -1 : ans;
   }
   return -1;
 }
