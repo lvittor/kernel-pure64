@@ -1,7 +1,4 @@
-#include <stdio.h>
-#include <stdarg.h>
 #include <lib.h>
-#include <stdint.h>
 
 static uint64_t uintToBase(uint64_t value, char * buffer, uint32_t base) {
 	char *p = buffer;
@@ -91,72 +88,4 @@ void put_char(uint8_t fd, const char character) {
 
 void put_s(uint8_t fd, const char * s) {
     while(*s) put_char(fd, *s++);
-}
-
-void printDate() {
-	dateType currDate;
-	fillDate(&currDate);
-	print_f(1, "Date: %d/%d/%d\nTime: %d:%d:%d (UTC)\n", currDate.day, 
-                                                         currDate.month, 
-                                                         currDate.year + 2000, 
-                                                         currDate.hour, 
-                                                         currDate.minute, 
-                                                         currDate.second);
-}
-
-/////////////USER_STRING.H/////////////
-
-int8_t strcmp (const char *p1, const char *p2) {
-  const unsigned char *s1 = (const unsigned char *) p1;
-  const unsigned char *s2 = (const unsigned char *) p2;
-  unsigned char c1, c2;
-  do {
-      c1 = (unsigned char) *s1++;
-      c2 = (unsigned char) *s2++;
-      if (c1 == '\0')
-        return c1 - c2;
-    } while (c1 == c2);
-  return c1 - c2;
-}
-
-uint8_t strlen(const char *str) {
-	const char *s;
-	for (s = str; *s; ++s);
-	return (s - str);
-}
-
-/////////////COMANDITOS RIKIS/////////////
-
-void help() {
-    print_f(1, "Los comandos disponibles son: help, inforeg, printmem, date, divisionByZero, invalidOpCode.\n");
-}
-
-#define BYTES_TO_READ   1
-
-void printmem() {
-    uint8_t arr[BYTES_TO_READ] = {0};
-    print_f(1, "Ingrese la dirección a partir de la cual quiere leer: ");
-    //512M = 512 * 2^20 = 2^29 = 1 1111 1111 1111 1111 1111 1111 1111 = 1FFFFFFF
-    //16GB = 2^4 * 2^30 = 2^34 = 11 1111 1111 1111 1111 1111 1111 1111 1111 = 3FFFFFFFF
-
-    print_f(1, "ANTES\n");
-
-    uint64_t dir = 0x0000001000000000;
-
-    // Leer dirección dada por el usuario
-    print_f(1, "%x\n", fillMem(dir, arr, BYTES_TO_READ));
-
-    for (int i = 0; i < BYTES_TO_READ; i++)
-        print_f(1, "%x ", arr[i]);
-
-    print_f(1, "DESPUES\n");
-
-/*     
-    print_f(1, "Memoria a partir de 0x%x: ", dir);
-    for (int i = 0; i < BYTES_TO_READ; i++) {
-        print_f(1, "%xh, ", arr[i]);
-    }
-    print_f(1, "\n");
-
-    */
 }

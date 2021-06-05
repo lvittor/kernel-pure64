@@ -1,4 +1,5 @@
 GLOBAL print
+GLOBAL getChar
 GLOBAL setReg
 GLOBAL fillDate
 GLOBAL inforeg
@@ -8,6 +9,11 @@ EXTERN print_f
 
 print:
     mov rax, 1
+    int 80h
+    ret
+
+getChar:
+    mov rax, 2
     int 80h
     ret
 

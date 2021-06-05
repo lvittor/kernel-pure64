@@ -2,30 +2,25 @@
 #include <naiveConsole.h>
 #include <stdint.h>
 #include <lib.h>
+#include <keyboard.h>
 
 typedef struct dateType {
 	uint8_t year, month, day;
 	uint8_t hour, minute, second;
 } dateType;
 
-
 uint64_t sys_write(uint8_t fd, char * buffer, uint64_t count);
-void sys_read(uint8_t fd, char * buffer, uint64_t count);
+int64_t sys_read(void);
 uint64_t sys_date(dateType * pDate);
 uint64_t sys_mem(uint64_t rdi, uint64_t rsi, uint8_t rdx);
 
 // TODO: Usar un arreglo y no switch case
 uint64_t syscallDispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx) {
 	switch(rcx) {
-		case 1:
-			return sys_write(rdi, rsi, rdx);
-			break;
-		case 3:
-			return sys_date(rdi);
-			break;
-		case 4:
-			return sys_mem(rdi, rsi, rdx);
-			break;
+		case 1: return sys_write(rdi, rsi, rdx);
+		case 2: return sys_read();
+		case 3: return sys_date(rdi);
+		case 4: return sys_mem(rdi, rsi, rdx);
 	}
 	return 0;
 }
@@ -45,15 +40,9 @@ uint64_t sys_write(uint8_t fd, char * buffer, uint64_t count) {
 	return count;
 }
 
-// https://github.com/codyjack/pintos-3/blob/master/userprog/syscall.c
-// void sys_read(uint8_t fd, char * buffer, uint64_t count){
-// 	for (int i = 0; i < count && buffer[i]; i++){
-// 		char c = getchar();
-// 		buffer[i] = c;
-// 		if (c == EOF) return i;
-// 	}
-// 	return count;
-// }
+int64_t sys_read(void) {
+  	return getChar();
+}
 
 uint8_t BCDToDec(uint8_t bcd) {
 	return ((bcd & 0xF0) >> 4) * 10 + (bcd & 0x0F);
@@ -79,8 +68,8 @@ uint64_t sys_mem(uint64_t rdi, uint64_t rsi, uint8_t rdx){
 		return 1;
 
 	uint8_t i;
-	for (i = 0; i < rdx; i++) {
+	for (i = 0; i < rdx; i++) 
 		dst[i] = src[i];
-	}
+	
 	return i;
 }
