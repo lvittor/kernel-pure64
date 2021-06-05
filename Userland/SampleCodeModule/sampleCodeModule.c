@@ -35,7 +35,6 @@ int main() {
 	print_f(2, "\n>> ");
 
 	while(1) {
-
 		// Leer hasta \n
 		// Ejecutar comando
 

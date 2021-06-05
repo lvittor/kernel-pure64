@@ -1,6 +1,7 @@
 #include <keyboard.h>
 #include <lib.h>
 #include <naiveConsole.h>
+#include <multitasking.h>
 
 #define LEFT_SHIFT  0x2A
 #define LEFT_SHIFT_FLAG 0b00000001
@@ -16,6 +17,10 @@ uint64_t tail = 0, head = 0; // head escribe, tail lee
 // {0, 0, 0, 0, 0, 0, 0, 0, 0}
 //  t                       h
 //              h  t
+
+extern uint8_t currentTask;
+extern uint64_t task1RSP;
+extern uint64_t task2RSP;
 
 
 // https://stanislavs.org/helppc/make_codes.html
@@ -62,6 +67,18 @@ void keyboard_handler() {
     if (scancode < 0x80) { // Make/Pressed
       if (scancode == LEFT_SHIFT) {
         flags |= LEFT_SHIFT_FLAG;
+        if (currentTask == 1) {
+          // Me paso a la 2
+          task1RSP = getRSP();
+          currentTask = 2;
+          if (task2RSP == 0) {
+            create_task(2, 0x700000, 0x400000);
+          } else {
+            setRSP(task2RSP);
+          }
+        } else {
+          // Me paso a la 1
+        }
       } else if (scancode == RIGHT_SHIFT) {
         flags |= RIGHT_SHIFT_FLAG;
       } else {
