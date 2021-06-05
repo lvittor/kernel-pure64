@@ -4,18 +4,10 @@
 #include <utils.h>
 #include <exceptions.h>
 
-#define BUFFER_SIZE 255 // Habria que achicarlo
+#define BUFFER_SIZE 15 // Habria que achicarlo
 #define MODULES_SIZE 6
 
 typedef void (*commandType)(void);
-
-char * v = (char*)0xB8000 + 79 * 2;
-
-static int var1 = 0;
-static int var2 = 0;
-
-char buffer[BUFFER_SIZE]; // Podemos ver si hacerlo de alguna otra forma (como en keyboard.c x ejemplo)
-int counter = 0;
 
 static char * commandStrings[MODULES_SIZE] = {
 	"help",
@@ -35,8 +27,12 @@ static commandType commandFunctions[MODULES_SIZE] = {
 };
 
 int main() {
+	char buffer[BUFFER_SIZE+1];
+	int32_t counter = 0;
+
 	print_f(1, "Estamos en userland.\n");
 	help();
+	print_f(2, "\n>> ");
 
 	while(1) {
 
@@ -44,21 +40,40 @@ int main() {
 		// Ejecutar comando
 
 		int64_t c = getChar();
-		if (c != -1){
-			if (c == '\b') { // Backspace
-				if (counter == 0)
-					continue; // Borrar
-				counter--;
-			} else if (c == '\n') { // Nueva línea
-				buffer[counter++] = 0;
- 				checkModule(buffer);
-				counter = 0;
-			} else { // Letra o caracter imprimible
-				buffer[counter++] = c; // Falta checkeo counter == BUFFER_SIZE
+		if (c != -1) {
+			if (counter < BUFFER_SIZE) {
+				if (c == '\n') { // Nueva linea, proceso comando
+					put_char(1, c);
+					buffer[counter++] = 0;
+					checkModule(buffer);
+					counter = 0;
+					put_char(1, c);
+					print_f(2, ">> ");
+				} else {
+					if (c == '\b') { // Backspace
+						if (counter == 0)
+							continue; 
+						counter--;
+					} else { // Letra o caracter imprimible
+						buffer[counter++] = c; // Falta checkeo counter == BUFFER_SIZE
+					}
+					put_char(1, c);
+				}
+			} else {
+				if (c == '\n') { // Nueva linea, proceso comando
+					put_char(1, c);
+					counter = 0;
+					put_char(1, c);
+					print_f(2, ">> ");
+				} else  if (c == '\b') { // Backspace
+					counter--;
+					put_char(1, c);
+				} else {
+					counter++;
+					put_char(1, c);
+				}
 			}
-			put_char(1, c);
 		}
-			
 	}
 }
 
