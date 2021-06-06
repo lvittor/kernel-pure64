@@ -5,7 +5,7 @@
 #include <exceptions.h>
 
 #define BUFFER_SIZE 15 // Habria que achicarlo
-#define MODULES_SIZE 6
+#define MODULES_SIZE 7
 
 typedef void (*commandType)(void);
 
@@ -15,7 +15,8 @@ static char * commandStrings[MODULES_SIZE] = {
 	"printmem",
 	"printDate",
 	"divisionByZero",
-	"invalidOpcode"
+	"invalidOpcode",
+	"printFeatures"
 };
 static commandType commandFunctions[MODULES_SIZE] = {
 	help,
@@ -23,7 +24,8 @@ static commandType commandFunctions[MODULES_SIZE] = {
 	printmem,
 	printDate,
 	throwDivisionByZeroException,
-	throwInvalidOpcodeException
+	throwInvalidOpcodeException,
+	printFeatures
 };
 
 int main() {
@@ -52,7 +54,7 @@ int main() {
 				} else {
 					if (c == '\b') { // Backspace
 						if (counter == 0)
-							continue; 
+							continue;
 						counter--;
 					} else { // Letra o caracter imprimible
 						buffer[counter++] = c; // Falta checkeo counter == BUFFER_SIZE
