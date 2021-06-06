@@ -5,7 +5,7 @@ GLOBAL supports_f16c
 GLOBAL supports_fma
 GLOBAL supports_avx2
 
-//https://www.youtube.com/watch?v=p5X1Sf5ejCc
+;https://www.youtube.com/watch?v=p5X1Sf5ejCc
 supports_cpuid:
     push rbx            
     pushfq
