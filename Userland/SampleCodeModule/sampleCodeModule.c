@@ -82,8 +82,8 @@ int main() {
 void checkModule(char * string){
 	for (int i = 0; i < MODULES_SIZE; i++){
 		if (!strcmp(string, commandStrings[i])){
-		 	commandFunctions[i]();
-		 	return;
+			commandFunctions[i]();
+			return;
 		}
 	}
 }
