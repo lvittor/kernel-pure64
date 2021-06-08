@@ -8,13 +8,13 @@ static void zero_division();
 static void invalid_opcode();
 
 char * exceptionMessages[EXCEPTION_COUNT] = {
-	"[Exception] Division By Zero", /* 0x00 */
+	"[Exception] Division By Zero\n", /* 0x00 */
 	0,
 	0,
 	0,
 	0,
 	0,
-	"[Exception] Invalid OpCode", /* 0x06 */
+	"[Exception] Invalid OpCode\n", /* 0x06 */
 	0,
 };
 
