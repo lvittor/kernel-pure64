@@ -11,6 +11,7 @@ create_task:
     push rdx    ; RIP
 
     ; signal pic EOI (End of Interrupt)
+    ; 
 	mov al, 20h
 	out 20h, al
 

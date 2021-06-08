@@ -122,5 +122,3 @@ sr13 db "r13: ", 0
 sr14 db "r14: ", 0
 sr15 db "r15: ", 0
 ; len equ $-srax
-
-
