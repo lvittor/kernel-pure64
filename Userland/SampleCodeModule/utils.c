@@ -20,7 +20,7 @@ void help() {
 
 void printmem() {
     uint8_t arr[BYTES_TO_READ] = {0};
-    print_f(1, "Ingrese la dirección a partir de la cual quiere leer: ");
+    print_f(1, "Ingrese la direccion a partir de la cual quiere leer: ");
 
     // TODO: Hacer la lectura de la dirección de memoria a leer
     uint64_t dir = 0x0000001000000000; // Habría que leer

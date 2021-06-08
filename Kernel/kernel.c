@@ -4,6 +4,7 @@
 #include <moduleLoader.h>
 #include <naiveConsole.h>
 #include <idtLoader.h>
+#include <multitasking.h>
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -11,6 +12,12 @@ extern uint8_t data;
 extern uint8_t bss;
 extern uint8_t endOfKernelBinary;
 extern uint8_t endOfKernel;
+
+// TODO: BORRAR
+extern uint8_t currentTask;
+extern uint64_t task1RSP;
+extern uint64_t task2RSP;
+
 
 static const uint64_t PageSize = 0x1000;
 
@@ -83,8 +90,7 @@ void * initializeKernelBinary()
 
 
 
-int main()
-{	
+int main() {	
 	load_idt();
 	ncPrint("  IDT loaded ");
 	ncNewline();
@@ -95,8 +101,15 @@ int main()
 	ncPrintHex((uint64_t)sampleCodeModuleAddress);
 	ncNewline();
 	ncPrint("  Calling the sample code module returned: ");
-	ncPrintHex(((EntryPoint)sampleCodeModuleAddress)());
-	ncNewline();
+	// ncPrintHex(((EntryPoint)sampleCodeModuleAddress)());
+	currentTask = 1;
+	task1RSP = 0x600000;
+	create_task(1, 0x600000, sampleCodeModuleAddress);
+	// uint64_t task2RSP = create_task(2, 0x700000, sampleCodeModuleAddress);
+	// setOtherRSP(task2RSP);
+	// init_task(task1RSP);
+	
+	ncNewline(); 
 	ncNewline();
 
 	ncPrint("  Sample data module at 0x");

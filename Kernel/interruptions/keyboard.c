@@ -1,11 +1,13 @@
 #include <keyboard.h>
 #include <lib.h>
 #include <naiveConsole.h>
+#include <multitasking.h>
 
 #define LEFT_SHIFT  0x2A
 #define LEFT_SHIFT_FLAG 0b00000001
 #define RIGHT_SHIFT 0x36
 #define RIGHT_SHIFT_FLAG 0b00000010
+#define CAPS_LOCK 0x3A
 
 #define BUFFER_SIZE 128
 
@@ -16,6 +18,10 @@ uint64_t tail = 0, head = 0; // head escribe, tail lee
 // {0, 0, 0, 0, 0, 0, 0, 0, 0}
 //  t                       h
 //              h  t
+
+extern uint8_t currentTask;
+extern uint64_t task1RSP;
+extern uint64_t task2RSP;
 
 
 // https://stanislavs.org/helppc/make_codes.html
@@ -59,6 +65,7 @@ static void appendBuffer(char c) {
 
 void keyboard_handler() {
     uint8_t scancode = getKey();
+    // ncPrintHex(scancode);
     if (scancode < 0x80) { // Make/Pressed
       if (scancode == LEFT_SHIFT) {
         flags |= LEFT_SHIFT_FLAG;
@@ -78,6 +85,8 @@ void keyboard_handler() {
         flags &= ~LEFT_SHIFT_FLAG;
       else if (scancode == RIGHT_SHIFT) 
         flags &= ~RIGHT_SHIFT_FLAG;
+      else if (scancode == CAPS_LOCK)
+        switchTasks();
     }    
 }
 
@@ -90,7 +99,3 @@ int64_t getChar(void) {
   }
   return -1;
 }
-
-// void cleanBuffer(void){
-//   head = tail;
-// }

@@ -8,13 +8,13 @@ static void zero_division();
 static void invalid_opcode();
 
 char * exceptionMessages[EXCEPTION_COUNT] = {
-	"[Exception] Division By Zero", /* 0x00 */
+	"[Exception] Division By Zero\n", /* 0x00 */
 	0,
 	0,
 	0,
 	0,
 	0,
-	"[Exception] Invalid OpCode", /* 0x06 */
+	"[Exception] Invalid OpCode\n", /* 0x06 */
 	0,
 };
 
@@ -36,9 +36,16 @@ void exceptionDispatcher(int exception) {
 	if (exception == INVALID_OPCODE_ID)
 	 	invalid_opcode();
 	
+	// Llego y están apagadas las interrupciones
+	// Pooling -> leer directo del puerto del teclado
+	// while(1) hlt; readBuffer != -1
 	// Esperar tecla
-	while(1);
+	ncPrint("Presione enter para continuar\n");
+	while(getChar() != '\n') 
+		_hlt();
+	
 	// Reiniciar shell (Ojalá)
+	rebootTask();
 }
 
 static void zero_division() {

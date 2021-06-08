@@ -86,4 +86,5 @@ void checkModule(char * string){
 			return;
 		}
 	}
+	print_f(1, "Comando no válido\n");
 }
