@@ -36,9 +36,16 @@ void exceptionDispatcher(int exception) {
 	if (exception == INVALID_OPCODE_ID)
 	 	invalid_opcode();
 	
+	// Llego y están apagadas las interrupciones
+	// Pooling -> leer directo del puerto del teclado
+	// while(1) hlt; readBuffer != -1
 	// Esperar tecla
-	while(1);
+	ncPrint("Presione enter para continuar\n");
+	while(getChar() != '\n') 
+		_hlt();
+	
 	// Reiniciar shell (Ojalá)
+	rebootTask();
 }
 
 static void zero_division() {
