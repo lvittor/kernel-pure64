@@ -67,18 +67,6 @@ void keyboard_handler() {
     if (scancode < 0x80) { // Make/Pressed
       if (scancode == LEFT_SHIFT) {
         flags |= LEFT_SHIFT_FLAG;
-        if (currentTask == 1) {
-          // Me paso a la 2
-          task1RSP = getRSP();
-          currentTask = 2;
-          if (task2RSP == 0) {
-            create_task(2, 0x700000, 0x400000);
-          } else {
-            setRSP(task2RSP);
-          }
-        } else {
-          // Me paso a la 1
-        }
       } else if (scancode == RIGHT_SHIFT) {
         flags |= RIGHT_SHIFT_FLAG;
       } else {

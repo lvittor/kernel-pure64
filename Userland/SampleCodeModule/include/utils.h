@@ -6,5 +6,6 @@
 void printDate(void);
 void help(void);
 void printmem(void);
+void printFeatures(void);
 
 #endif
