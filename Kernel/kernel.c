@@ -5,6 +5,7 @@
 #include <naiveConsole.h>
 #include <idtLoader.h>
 #include <multitasking.h>
+#include <video.h>
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -85,12 +86,16 @@ void * initializeKernelBinary()
 	ncPrint("[Done]");
 	ncNewline();
 	ncNewline();
+
+	//init_video();
+
 	return getStackBase();
 }
 
 
 
 int main() {	
+	//init_video();
 	load_idt();
 	ncPrint("  IDT loaded ");
 	ncNewline();
@@ -121,6 +126,8 @@ int main() {
 
 	ncPrint("[Finished]");
 	ncNewline();
+
+	pintarNashe();
 
 	while(1);
 
