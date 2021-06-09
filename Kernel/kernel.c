@@ -13,12 +13,6 @@ extern uint8_t bss;
 extern uint8_t endOfKernelBinary;
 extern uint8_t endOfKernel;
 
-// TODO: BORRAR
-extern uint8_t currentTask;
-extern uint64_t task1RSP;
-extern uint64_t task2RSP;
-
-
 static const uint64_t PageSize = 0x1000;
 
 static void * const sampleCodeModuleAddress = (void*)0x400000;
@@ -101,10 +95,13 @@ int main() {
 	ncPrintHex((uint64_t)sampleCodeModuleAddress);
 	ncNewline();
 	ncPrint("  Calling the sample code module returned: ");
+	loadTask(0, sampleCodeModuleAddress, 0x600000);
+	loadTask(1, sampleCodeModuleAddress, 0x700000);
+	initTasks();
 	// ncPrintHex(((EntryPoint)sampleCodeModuleAddress)());
-	currentTask = 1;
-	task1RSP = 0x600000;
-	create_task(1, 0x600000, sampleCodeModuleAddress);
+	// currentTask = 1;
+	// task1RSP = 0x600000;
+	// create_task(1, 0x600000, sampleCodeModuleAddress);
 	// uint64_t task2RSP = create_task(2, 0x700000, sampleCodeModuleAddress);
 	// setOtherRSP(task2RSP);
 	// init_task(task1RSP);

@@ -51,11 +51,11 @@ void printFeatures() {
         print_f(1, "AESNI: %s\n", ecx & CPUID_FEAT_ECX_AES == 0 ? "NO":"YES");
         print_f(1, "PCLMULQDQ: %s\n", ecx & CPUID_FEAT_ECX_PCLMUL == 0 ? "NO":"YES");
         print_f(1, "AVX: %s\n", ecx & CPUID_FEAT_ECX_AVX == 0 ? "NO":"YES");
-        print_f(1, "VAESNI: %s\n",  supports_vaesni() == 0 ? "NO":"YES");
-        print_f(1, "VPCLMULQDQ: %s\n",  supports_vpclmulqdq() == 0 ? "NO":"YES");
-        print_f(1, "F16C: %s\n",  supports_f16c() == 0 ? "NO":"YES");
-        print_f(1, "FMA: %s\n",  supports_fma() == 0 ? "NO":"YES");
-        print_f(1, "AVX2: %s\n",  supports_avx2() == 0 ? "NO":"YES");
+        print_f(1, "VAESNI: %s\n", supports_vaesni() == 0 ? "NO":"YES");
+        print_f(1, "VPCLMULQDQ: %s\n", supports_vpclmulqdq() == 0 ? "NO":"YES");
+        print_f(1, "F16C: %s\n", supports_f16c() == 0 ?  "NO":"YES");
+        print_f(1, "FMA: %s\n", supports_fma() == 0 ? "NO":"YES");
+        print_f(1, "AVX2: %s\n", supports_avx2() == 0 ? "NO":"YES");
     } else {
         print_f(1, "CPUID: NO\n");
     }

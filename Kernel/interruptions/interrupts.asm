@@ -21,6 +21,7 @@ EXTERN irqDispatcher
 EXTERN exceptionDispatcher
 EXTERN syscallDispatcher
 EXTERN printRegs
+EXTERN setCurrRSP, getCurrRSP
 SECTION .text
 
 %macro pushState 0
@@ -94,7 +95,9 @@ SECTION .text
 %endmacro
 
 %macro irqHandlerMaster 1
-	pushState
+	pushState ; <-- Save rsp
+	mov rdi, rsp
+	call setCurrRSP
 
 	mov rdi, %1 ; pasaje de parametro
 	call irqDispatcher
@@ -102,6 +105,9 @@ SECTION .text
 	; signal pic EOI (End of Interrupt)
 	mov al, 20h
 	out 20h, al
+
+	call getCurrRSP
+	mov rsp, rax
 
 	popState
 	iretq

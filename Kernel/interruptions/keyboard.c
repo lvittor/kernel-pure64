@@ -87,7 +87,7 @@ void keyboard_handler() {
         flags &= ~RIGHT_SHIFT_FLAG;
       else if (scancode == CAPS_LOCK)
         switchTasks();
-    }    
+    }
 }
 
 int64_t getChar(void) {
