@@ -1,4 +1,5 @@
 #include <naiveConsole.h>
+#include <video.h>
 
 #define EXCEPTION_COUNT		32
 #define ZERO_EXCEPTION_ID	0x00
@@ -8,13 +9,13 @@ static void zero_division();
 static void invalid_opcode();
 
 char * exceptionMessages[EXCEPTION_COUNT] = {
-	"[Exception] Division By Zero\n", /* 0x00 */
+	"[Exception] Division By Zero", /* 0x00 */
 	0,
 	0,
 	0,
 	0,
 	0,
-	"[Exception] Invalid OpCode\n", /* 0x06 */
+	"[Exception] Invalid OpCode", /* 0x06 */
 	0,
 };
 
@@ -26,7 +27,8 @@ void exceptionDispatcher(int exception) {
 	// Mostrar mensaje de qué excepción ocurrió
 	char * message = exceptionMessages[exception];
 	if (message != 0) {
-		ncPrintAtt(message, 4, 0);
+		ncPrintAtt(message, &RED, &BLACK);
+		ncNewline();
 		ncNewline();
 	}
 

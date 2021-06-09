@@ -12,7 +12,7 @@ typedef struct vbe_mode_info {
     uint16_t granularity;        
     uint16_t window_size;
     uint16_t segment_a, segment_b;
-    uint32_t win_func_ptr;       
+    uint32_t win_func_ptr;
     uint16_t pitch; // // number of bytes per horizontal line
 
     uint16_t width, height;
@@ -20,7 +20,7 @@ typedef struct vbe_mode_info {
 
     uint8_t planes;
     uint8_t bpp;    // bits per pixel in this mode             
-    uint8_t banks; 
+    uint8_t banks;
 
     uint8_t memory_model;
     uint8_t bank_size;           
@@ -53,11 +53,13 @@ typedef const struct Color{
 extern Color PURPLE;
 extern Color WHITE;
 extern Color BLACK;
+extern Color RED;
 
 // ESCRIBIR EN PANTALLA
 void fillScreen(Color * color);
 void drawShellBorder(Color * color);
 void drawChar(prompt_info * p, char c, Color * fontColor, Color * backgroundColor);
+void newLine(prompt_info * p, Color * backgronudColor);
 
 // FUNCIONES AUXILIARES
 void init_screen(void);

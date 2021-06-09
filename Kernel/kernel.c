@@ -18,7 +18,7 @@ extern uint8_t endOfKernel;
 extern uint8_t currentTask;
 extern uint64_t task1RSP;
 extern uint64_t task2RSP;
-
+extern prompt_info prompt;
 
 static const uint64_t PageSize = 0x1000;
 
@@ -46,46 +46,46 @@ void * initializeKernelBinary()
 {
 	char buffer[10];
 
-	ncPrint("[x64BareBones]");
-	ncNewline();
+	// ncPrint("[x64BareBones]");
+	// ncNewline();
 
-	ncPrint("CPU Vendor:");
-	ncPrint(cpuVendor(buffer));
-	ncNewline();
+	// ncPrint("CPU Vendor:");
+	// ncPrint(cpuVendor(buffer));
+	// ncNewline();
 
-	ncPrint("[Loading modules]");
-	ncNewline();
+	// ncPrint("[Loading modules]");
+	// ncNewline();
 	void * moduleAddresses[] = {
 		sampleCodeModuleAddress,
 		sampleDataModuleAddress
 	};
 
 	loadModules(&endOfKernelBinary, moduleAddresses);
-	ncPrint("[Done]");
-	ncNewline();
-	ncNewline();
+	// ncPrint("[Done]");
+	// ncNewline();
+	// ncNewline();
 
-	ncPrint("[Initializing kernel's binary]");
-	ncNewline();
+	// ncPrint("[Initializing kernel's binary]");
+	// ncNewline();
 
 	clearBSS(&bss, &endOfKernel - &bss);
 
-	ncPrint("  text: 0x");
-	ncPrintHex((uint64_t)&text);
-	ncNewline();
-	ncPrint("  rodata: 0x");
-	ncPrintHex((uint64_t)&rodata);
-	ncNewline();
-	ncPrint("  data: 0x");
-	ncPrintHex((uint64_t)&data);
-	ncNewline();
-	ncPrint("  bss: 0x");
-	ncPrintHex((uint64_t)&bss);
-	ncNewline();
+	// ncPrint("  text: 0x");
+	// ncPrintHex((uint64_t)&text);
+	// ncNewline();
+	// ncPrint("  rodata: 0x");
+	// ncPrintHex((uint64_t)&rodata);
+	// ncNewline();
+	// ncPrint("  data: 0x");
+	// ncPrintHex((uint64_t)&data);
+	// ncNewline();
+	// ncPrint("  bss: 0x");
+	// ncPrintHex((uint64_t)&bss);
+	// ncNewline();
 
-	ncPrint("[Done]");
-	ncNewline();
-	ncNewline();
+	// ncPrint("[Done]");
+	// ncNewline();
+	// ncNewline();
 
 	init_screen();
 
@@ -97,42 +97,17 @@ void * initializeKernelBinary()
 int main() {	
 	//fillScreen(PURPLE);
 	drawShellBorder(&WHITE);
-	prompt_info prompt = {0, 0, 0, 0, getScreenWidth()/2 - 2, getScreenHeight()};
-	for (int i = 0; i < 16; i++) {
-		drawChar(&prompt, 2, &WHITE, &BLACK);
-		drawChar(&prompt, ' ', &WHITE, &BLACK);
-		drawChar(&prompt, 1, &WHITE, &BLACK);
-		drawChar(&prompt, ' ', &WHITE, &BLACK);
-	}
 
-	for (int i = 0; i < 16; i++){
-		drawChar(&prompt, 'A', &WHITE, &BLACK);
-		drawChar(&prompt, ' ', &WHITE, &BLACK);
-		drawChar(&prompt, 'A', &WHITE, &BLACK);
-		drawChar(&prompt, ' ', &WHITE, &BLACK);
-	}
-
-	for (int i = 0; i < 728; i++){
-		drawChar(&prompt, 0, &WHITE, &BLACK);
-		drawChar(&prompt, 0, &WHITE, &BLACK);
-		drawChar(&prompt, 0, &WHITE, &BLACK);
-		drawChar(&prompt, 0, &WHITE, &BLACK);
-	}
-	// drawChar(&prompt, 'p', &WHITE, &BLACK);
-	// drawChar(&prompt, 'R', &WHITE, &BLACK);
-	// drawChar(&prompt, 'I', &WHITE, &BLACK);
-	// drawChar(&prompt, 'n', &WHITE, &BLACK);
-	// drawChar(&prompt, 'T', &WHITE, &BLACK);
-	// drawChar(&prompt, ' ', &WHITE, &BLACK);
-	// drawChar(&prompt, '1', &WHITE, &BLACK);
-	// drawChar(&prompt, '2', &WHITE, &BLACK);
-	// drawChar(&prompt, '3', &WHITE, &BLACK);
-	
+	prompt.x = 0;
+	prompt.y = 0;
+	prompt.baseX = 0;
+	prompt.baseY = 0;
+	prompt.windowWidth = getScreenWidth()/2 - 2;
+	prompt.windowHeight = getScreenHeight();
 
 	load_idt();
-	ncPrint("  IDT loaded ");
+	ncPrint("  IDT loaded");
 	ncNewline();
-
 	ncPrint("[Kernel Main]");
 	ncNewline();
 	ncPrint("  Sample code module at 0x");
@@ -144,18 +119,21 @@ int main() {
 	task1RSP = 0x600000;
 	create_task(1, 0x600000, sampleCodeModuleAddress);
 	
-	ncNewline(); 
+	ncNewline();
 	ncNewline();
 
 	ncPrint("  Sample data module at 0x");
 	ncPrintHex((uint64_t)sampleDataModuleAddress);
+	
 	ncNewline();
 	ncPrint("  Sample data module contents: ");
 	ncPrint((char*)sampleDataModuleAddress);
 	ncNewline();
-
+	
 	ncPrint("[Finished]");
 	ncNewline();
+
+	
 
 
 	while(1);

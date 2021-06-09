@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <lib.h>
 #include <keyboard.h>
+#include <video.h>
 
 typedef struct dateType {
 	uint8_t year, month, day;
@@ -32,10 +33,10 @@ uint64_t sys_write(uint8_t fd, char * buffer, uint64_t count) {
 	if (fd > 2)
 		return -1;
 
-	char attribute = (fd == STD_ERR) ? RED_ON_BLACK : WHITE_ON_BLACK;
+	Color * fontColor = (fd == STD_ERR) ? &RED : &WHITE;
     
 	for (int i = 0; i < count && buffer[i]; i++)
-		ncPrintCharAtt(buffer[i], attribute);
+		ncPrintCharAtt(buffer[i], fontColor, &BLACK);
 	
 	return count;
 }

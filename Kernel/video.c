@@ -1,11 +1,13 @@
 #include <video.h>
 #include <font.h>
+#include <lib.h>
 
 vbe_mode_info * vbeInfo = 0x5C00;
 
 Color PURPLE = {.r = 0x88, .g = 0x00, .b = 0xFF};
 Color WHITE = {.r = 0xFF, .g = 0xFF, .b = 0xFF};
 Color BLACK = {.r = 0x00, .g = 0x00, .b = 0x00};
+Color RED = {.r = 0xFF, .g = 0x00, .b = 0x00};
 
 void init_screen(void){
     vbeInfo = (vbe_mode_info *) VBEModeInfoBlockAddress;
@@ -19,12 +21,12 @@ uint16_t getScreenHeight() {
     return vbeInfo->height;
 }
 
-int getBaseXPixel(prompt_info * p){
+int getXPixel(prompt_info * p){
     return p->x * font.Width;
 }
 
 
-int getBaseYPixel(prompt_info * p){
+int getYPixel(prompt_info * p){
     return p->y * font.Height;
 }
 
@@ -47,29 +49,38 @@ void fillScreen(Color * color) {
             setPixel(i, j, color);
 }
 
-void scrollUp(prompt_info * p, Color * backgroundColor){
-    for (int dy = 0; dy < p->windowHeight - font.Height; dy++) {
-        for (int dx = 0; dx < p->windowWidth; dx++) {
-            int x = p->baseX + dx;
-            int yTo = p->baseY + dy;
-            int yFrom = p->baseY + dy + font.Height;
-            uint8_t * screenTo = (uint8_t *) ((uint64_t) vbeInfo->framebuffer + x * vbeInfo->bpp / 8 + (int) yTo * vbeInfo->pitch);
-            uint8_t * screenFrom = (uint8_t *) ((uint64_t) vbeInfo->framebuffer + x * vbeInfo->bpp / 8 + (int) yFrom * vbeInfo->pitch);
-            for (int i = 0; i < 3; i++)
-                screenTo[i] = screenFrom[i];
-        }
+static void scrollUp(prompt_info * p, Color * backgroundColor) {
+    for (int dy = 0; dy < p->windowHeight - font.Height; dy++){
+        int x = p->baseX;
+        int yTo = p->baseY + dy;
+        int yFrom = p->baseY + dy + font.Height;
+        uint8_t * to = (uint8_t *) ((uint64_t) vbeInfo->framebuffer + x * vbeInfo->bpp / 8 + (int) yTo * vbeInfo->pitch);
+        uint8_t * from = (uint8_t *) ((uint64_t) vbeInfo->framebuffer + x * vbeInfo->bpp / 8 + (int) yFrom * vbeInfo->pitch);
+        memcpy(to, from, p->windowWidth * vbeInfo->bpp / 8);
     }
+    
+    for (int y = p->windowHeight - font.Height; y < p->windowHeight; y++)
+        for (int x = 0; x < p->windowWidth; x++) 
+            setPixel(x, y, backgroundColor);
+}
+
+static char isPromptOutOfWindowWidth(prompt_info * p) {
+    return getXPixel(p) + font.Width - 1 >= p->windowWidth;
+}
+
+static char isPromptOutOfWindowHeight(prompt_info * p) {
+    return getYPixel(p) + font.Height - 1 >= p->windowHeight;
 }
 
 void drawChar(prompt_info * p, char c, Color * fontColor, Color * backgroundColor) {
-    if (getBaseXPixel(p) + font.Width - 1 >= p->windowWidth) {
+    if (isPromptOutOfWindowWidth(p)) {
         p->x = 0;
         p->y++;
     }
 
-    if (getBaseYPixel(p) + font.Height - 1 >= p->windowHeight) {
+    if (isPromptOutOfWindowHeight(p)) {
         scrollUp(p, backgroundColor);
-        // TODO: clear last line and decrease p->y;
+        p->y--;
     }
 
     
@@ -85,4 +96,30 @@ void drawChar(prompt_info * p, char c, Color * fontColor, Color * backgroundColo
         }
     }
     p->x++;
+}
+
+void newLine(prompt_info * p, Color * backgroundColor) {
+    p->x = 0;
+    p->y++;
+    if (isPromptOutOfWindowHeight(p)) {
+        scrollUp(p, backgroundColor);
+        p->y--;
+    }
+}
+
+void eraseChar(prompt_info * p, Color * backgroundColor) {
+    if (p->x == 0 && p->y == 0)
+        return;
+
+    if (p->x == 0) {
+        p->x = p->windowWidth / font.Width - 1;
+        p->y--;
+    } else 
+        p->x--;
+    
+    int baseXPixel = p->baseX + getXPixel(p); // Coordenadas absolutas
+    int baseYPixel = p->baseY + getYPixel(p);
+    for (int y = baseYPixel; y < baseYPixel + font.Height; y++)
+        for (int x = baseXPixel; x < baseXPixel + font.Width; x++)
+            setPixel(x, y, backgroundColor);
 }
