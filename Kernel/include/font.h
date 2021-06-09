@@ -17,6 +17,10 @@ typedef struct bitmap_font {
 	const unsigned char *Bitmap;	///< bitmap of all characters
 } bitmap_font;
 
+extern bitmap_font font;
+
+unsigned char * bitMap(unsigned char c);
+
 	/// @{ defines to have human readable font files
 #define ________ 0x00
 #define _______X 0x01

@@ -3,9 +3,6 @@
 
 #include <stdint.h>
 
-#define WIDHT   1920
-#define HEIGHT  1080
-
 #define VBEModeInfoBlockAddress 0x0000000000005C00	
 
 // https://wiki.osdev.org/VESA_Video_Modes
@@ -16,13 +13,13 @@ typedef struct vbe_mode_info {
     uint16_t window_size;
     uint16_t segment_a, segment_b;
     uint32_t win_func_ptr;       
-    uint16_t pitch;
+    uint16_t pitch; // // number of bytes per horizontal line
 
-    uint16_t width, height;             
+    uint16_t width, height;
     uint8_t w_char, y_char;
 
     uint8_t planes;
-    uint8_t bpp;                 
+    uint8_t bpp;    // bits per pixel in this mode             
     uint8_t banks; 
 
     uint8_t memory_model;
@@ -44,17 +41,27 @@ typedef struct vbe_mode_info {
 
 
 typedef struct prompt_info{
-    unsigned char x, y;
+    unsigned char x, y; // Posición de un cursor. NO PIXEL!
+    uint8_t * baseX, baseY; // Comienzo de la ventana
+    uint16_t windowWidth, windowHeight; // De cada ventana
 } prompt_info;
 
-typedef struct Color{
+typedef const struct Color{
     uint8_t r, g, b;
 } Color;
 
+extern Color PURPLE;
+extern Color WHITE;
+extern Color BLACK;
+
 // ESCRIBIR EN PANTALLA
-void pintarNashe(void);
+void fillScreen(Color * color);
+void drawShellBorder(Color * color);
+void drawChar(prompt_info * p, char c, Color * fontColor, Color * backgroundColor);
 
 // FUNCIONES AUXILIARES
-//void init_video(void);
+void init_screen(void);
+uint16_t getScreenWidth();
+uint16_t getScreenHeight();
 
 #endif

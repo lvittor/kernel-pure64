@@ -15656,7 +15656,7 @@ static const unsigned short __font_index__[] = {
 };
 
 // bitmap font structure
-const bitmap_font font = {
+bitmap_font font = {
 	.Width = 8, .Height = 16,
 	.Chars = 782,
 	.Widths = __font_widths__,

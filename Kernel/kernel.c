@@ -87,7 +87,7 @@ void * initializeKernelBinary()
 	ncNewline();
 	ncNewline();
 
-	//init_video();
+	init_screen();
 
 	return getStackBase();
 }
@@ -95,7 +95,40 @@ void * initializeKernelBinary()
 
 
 int main() {	
-	//init_video();
+	//fillScreen(PURPLE);
+	drawShellBorder(&WHITE);
+	prompt_info prompt = {0, 0, 0, 0, getScreenWidth()/2 - 2, getScreenHeight()};
+	for (int i = 0; i < 16; i++) {
+		drawChar(&prompt, 2, &WHITE, &BLACK);
+		drawChar(&prompt, ' ', &WHITE, &BLACK);
+		drawChar(&prompt, 1, &WHITE, &BLACK);
+		drawChar(&prompt, ' ', &WHITE, &BLACK);
+	}
+
+	for (int i = 0; i < 16; i++){
+		drawChar(&prompt, 'A', &WHITE, &BLACK);
+		drawChar(&prompt, ' ', &WHITE, &BLACK);
+		drawChar(&prompt, 'A', &WHITE, &BLACK);
+		drawChar(&prompt, ' ', &WHITE, &BLACK);
+	}
+
+	for (int i = 0; i < 728; i++){
+		drawChar(&prompt, 0, &WHITE, &BLACK);
+		drawChar(&prompt, 0, &WHITE, &BLACK);
+		drawChar(&prompt, 0, &WHITE, &BLACK);
+		drawChar(&prompt, 0, &WHITE, &BLACK);
+	}
+	// drawChar(&prompt, 'p', &WHITE, &BLACK);
+	// drawChar(&prompt, 'R', &WHITE, &BLACK);
+	// drawChar(&prompt, 'I', &WHITE, &BLACK);
+	// drawChar(&prompt, 'n', &WHITE, &BLACK);
+	// drawChar(&prompt, 'T', &WHITE, &BLACK);
+	// drawChar(&prompt, ' ', &WHITE, &BLACK);
+	// drawChar(&prompt, '1', &WHITE, &BLACK);
+	// drawChar(&prompt, '2', &WHITE, &BLACK);
+	// drawChar(&prompt, '3', &WHITE, &BLACK);
+	
+
 	load_idt();
 	ncPrint("  IDT loaded ");
 	ncNewline();
@@ -110,9 +143,6 @@ int main() {
 	currentTask = 1;
 	task1RSP = 0x600000;
 	create_task(1, 0x600000, sampleCodeModuleAddress);
-	// uint64_t task2RSP = create_task(2, 0x700000, sampleCodeModuleAddress);
-	// setOtherRSP(task2RSP);
-	// init_task(task1RSP);
 	
 	ncNewline(); 
 	ncNewline();
@@ -127,7 +157,6 @@ int main() {
 	ncPrint("[Finished]");
 	ncNewline();
 
-	pintarNashe();
 
 	while(1);
 
