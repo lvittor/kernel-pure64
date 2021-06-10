@@ -19,10 +19,6 @@ uint64_t tail = 0, head = 0; // head escribe, tail lee
 //  t                       h
 //              h  t
 
-extern uint8_t currentTask;
-extern uint64_t task1RSP;
-extern uint64_t task2RSP;
-
 
 // https://stanislavs.org/helppc/make_codes.html
 unsigned char lowerScancodeToAscii[128] = {
@@ -87,7 +83,7 @@ void keyboard_handler() {
         flags &= ~RIGHT_SHIFT_FLAG;
       else if (scancode == CAPS_LOCK)
         switchTasks();
-    }    
+    }
 }
 
 int64_t getChar(void) {

@@ -41,11 +41,11 @@ void exceptionDispatcher(int exception) {
 	// while(1) hlt; readBuffer != -1
 	// Esperar tecla
 	ncPrint("Presione enter para continuar\n");
-	while(getChar() != '\n') 
-		_hlt();
+	while(getChar() != '\n')
+		_hlt(); // Para la máquina pero prende las interrupciones
 	
 	// Reiniciar shell (Ojalá)
-	rebootTask();
+	rebootCurrentTask();
 }
 
 static void zero_division() {
