@@ -1,5 +1,4 @@
 GLOBAL printRegs
-GLOBAL pushState
 
 extern ncPrint
 extern ncNewline
