@@ -1,5 +1,6 @@
 #include <naiveConsole.h>
 #include <video.h>
+#include <multitasking.h>
 
 static uint32_t uintToBase(uint64_t value, char * buffer, uint32_t base);
 
@@ -8,8 +9,6 @@ static uint8_t * const video = (uint8_t*)0xB8000;
 static uint8_t * currentVideo = (uint8_t*)0xB8000;
 static const uint32_t width = 80;
 static const uint32_t height = 25;
-
-prompt_info prompt;
 
 void ncPrint(const char * string) {
 	for (int i = 0; string[i] != 0; i++)
@@ -43,12 +42,13 @@ void ncPrintChar(char character) {
 **/
 
 void ncPrintCharAtt(char character, Color * fontColor, Color * backgroundColor) {
+	prompt_info * pPrompt = getCurrentPrompt();
 	if (character == '\n') 
-		newLine(&prompt, backgroundColor);
+		newLine(pPrompt, backgroundColor);
 	else if (character == '\b')
-		eraseChar(&prompt, backgroundColor);
+		eraseChar(pPrompt, backgroundColor);
 	else
-		drawChar(&prompt, character, fontColor, backgroundColor);
+		drawChar(pPrompt, character, fontColor, backgroundColor);
 }
 
 // https://stackoverflow.com/questions/28133020/how-to-convert-bcd-to-decimal
@@ -104,5 +104,6 @@ static uint32_t uintToBase(uint64_t value, char * buffer, uint32_t base) {
 }
 
 void ncNewline() {
-	newLine(&prompt, &BLACK);
+	prompt_info * pPrompt = getCurrentPrompt();
+	newLine(pPrompt, &BLACK);
 }
