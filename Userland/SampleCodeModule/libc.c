@@ -4,12 +4,6 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
-#define IN_RANGE(x, a, b) ((x) >= (a) && (x) <= (b))
-#define ISUPPER(x) IN_RANGE(x, 'A', 'Z')
-#define ISLOWER(x)  IN_RANGE(x, 'a', 'z')
-#define ISALPHA(x) (ISUPPER(x) || ISLOWER(x))
-#define ISDIGIT(x)  IN_RANGE(x, '0', '9')
-
 static uint64_t uintToBase(uint64_t value, char * buffer, uint32_t base) {
 	char *p = buffer;
 	char *p1, *p2;
@@ -48,6 +42,7 @@ int print_f(uint8_t fd, const char * format, ...) {
     char buff[24];
     char * s;
     const char * traverse;
+    double g;
     
     for(traverse = format; *traverse != '\0'; traverse++) {
         while(*traverse != '%') {
@@ -71,7 +66,7 @@ int print_f(uint8_t fd, const char * format, ...) {
                 put_s(fd, s);
                 break;
             case 'd':
-                i = va_arg(arg, int64_t);
+                i = (int32_t)va_arg(arg, int64_t);
                 if (i < 0) {
                     i = -i;
                     put_char(fd, '-');
@@ -81,6 +76,19 @@ int print_f(uint8_t fd, const char * format, ...) {
             case 'x':
                 i = va_arg(arg, int64_t);
                 if(uintToBase(i, buff, 16) > 0) put_s(fd, buff);
+                break;
+            case 'g':
+                g = va_arg(arg, double);
+                if (g < 0) {
+                    g = -g;
+                    put_char(fd, '-');
+                }
+                i = (uint64_t)g;
+                if (uintToBase(i, buff, 10) > 0) put_s(fd, buff);
+                put_char(fd, '.');
+                g -= i;
+                i = (uint64_t)(g * 1000); // cantidad de decimales significativos (1000 -> 3 decimales significativos)
+                if (uintToBase(i, buff, 10) > 0) put_s(fd, buff);
                 break;
             case '\0':
                 va_end(arg);
@@ -125,6 +133,8 @@ int64_t get_s(char * buffer, uint64_t maxLength) {
         }
     }
 
+    put_char(1, c);
+
     if (counter > maxLength) {
         buffer[maxLength] = '\0';
         return -1;
@@ -135,46 +145,44 @@ int64_t get_s(char * buffer, uint64_t maxLength) {
 }
 
 // https://iq.opengenus.org/how-printf-and-scanf-function-works-in-c-internally/
-int scan(char * str, ...) {
+int sscan(char * buff, char * fmt, ...) {
     va_list vl;
-    int i = 0, j=0, ret = 0;
-    char buff[100] = {0}, tmp[20], c = 0;
+    int i = 0, j = 0, ret = 0;
     char *out_loc;
-    while(c != '\n') {
-        if ((c = getChar()) != -1) {
-            put_char(1, c);
-            buff[i] = c;
-            i++;
- 	    }
- 	}
- 	va_start(vl, str);
- 	i = 0;
- 	while (str && str[i]) {
- 	    if (str[i] == '%') {
+ 	va_start(vl, fmt);
+ 	while (fmt && fmt[i]) {
+ 	    if (fmt[i] == '%') {
  	       i++;
- 	       switch (str[i]) {
- 	           case 'c': {
-	 	           *(char *)va_arg(vl, char*) = buff[j];
-	 	           j++;
-	 	           ret ++;
-	 	           break;
- 	           }
- 	           case 'd': {
-	 	           *(int *)va_arg(vl, int*) = strtol(&buff[j], &out_loc, 10);
-	 	           j+=out_loc -&buff[j];
-	 	           ret++;
-	 	           break;
+ 	       switch (fmt[i]) {
+ 	            case 'c': {
+	 	            *(char *)va_arg(vl, char*) = buff[j];
+	 	            j++;
+	 	            ret ++;
+	 	            break;
+ 	            }
+ 	            case 'd': {
+	 	            *(int64_t *)va_arg(vl, int64_t*) = strtoint(&buff[j], &out_loc, 10);
+	 	            j += out_loc -&buff[j];
+	 	            ret++;
+	 	            break;
  	            }
  	            case 'x': {
-	 	           *(int *)va_arg(vl, int*) = strtol(&buff[j], &out_loc, 16);
-	 	           j+=out_loc -&buff[j];
-	 	           ret++;
-	 	           break;
+                    *(int64_t *)va_arg(vl, int64_t*) = strtoint(&buff[j], &out_loc, 16);
+                    j += out_loc -&buff[j];
+                    ret++;
+	 	            break;
  	            }
+                case 'g': {
+                    *(double *)va_arg(vl, double*) = strtodouble(&buff[j], &out_loc);
+                    j += out_loc - &buff[j];
+                    ret++;
+                    break;
+                }
+                
  	        }
  	    } 
  	    else {
- 	        buff[j] =str[i];
+ 	        buff[j] = fmt[i];
             j++;
         }
         i++;
@@ -184,10 +192,44 @@ int scan(char * str, ...) {
     return ret;
 }
 
+double strtodouble(const char * start, char ** end) {
+    char flagOnDecimal = 0;
+    char flagNegative = 0;
+    double ans = 0;
+    double decimalPower = 1;
+    
+    while (*start == ' ') {
+        start++;
+    }
+
+    if (*start == '-') {
+        flagNegative = 1;
+        start++;
+    }
+    while (ISDIGIT(*start) || *start == '.') {
+        if (*start == '.') {
+            if (flagOnDecimal)
+                break;
+            else
+                flagOnDecimal = 1;
+        } else { // Digito
+            if (! flagOnDecimal) {
+                ans = ans * 10 + (*start - '0');
+            } else {
+                decimalPower /= 10;
+                ans += (*start - '0') * decimalPower;
+            }
+        }
+        start++;
+    }
+    *end = start;
+    return (flagNegative) ? -ans : ans;
+}
+
 // https://code.woboq.org/gcc/libiberty/strtol.c.html
-long strtol(const char *nptr, char **endptr, register int base) {
+int64_t strtoint(const char *nptr, char **endptr, register int base) {
         register const char *s = nptr;
-        register unsigned long acc;
+        register int64_t acc;
         register int c;
         register unsigned long cutoff;
         register int neg = 0, any, cutlim;

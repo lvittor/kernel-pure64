@@ -7,5 +7,6 @@ void printDate(void);
 void help(void);
 void printmem(void);
 void printFeatures(void);
+void printQuadraticRoots(void);
 
 #endif

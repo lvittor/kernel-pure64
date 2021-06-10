@@ -1,1 +1,1 @@
-qemu-system-x86_64.exe -hda Image/x64BareBonesImage.qcow2
+qemu-system-x86_64.exe -hda Image/x64BareBonesImage.qcow2 -cpu qemu64,sse4.1=on,sse4.2=on,pclmulqdq=on,avx=on

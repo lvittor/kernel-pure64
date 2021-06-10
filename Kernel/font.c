@@ -44,6 +44,7 @@ static const unsigned char __font_bitmap__[] = {
 //   2 $02 'uni0002'
 //	width 8, bbx 0, bby -2, bbw 8, bbh 16
 	_XXXXXX_,
+
 	_XXXXXX_,
 	XXXXXXXX,
 	XXXXXXXX,

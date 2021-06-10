@@ -65,6 +65,9 @@ uint64_t sys_mem(uint64_t rdi, uint64_t rsi, uint8_t rdx){
 	uint8_t * src = (uint8_t *)rdi;
 	uint8_t * dst = (uint8_t *)rsi;
 	
+	// qemu tiene 64GB mapeados en memoria, asi que en el emulador
+	// incluso con sólo 512MB de memoria
+	// Podés acceder a todas las direcciones hasta 0x1000000000 - 1
 	if (src >= 0x1000000000 || src - 1 + rdx >= 0x1000000000)
 		return 1;
 

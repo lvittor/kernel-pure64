@@ -44,9 +44,12 @@ section .text
 
 %macro printOneReg 2
     mov rdi, %1
+
     call ncPrint
     mov rdi, [rbp + %2 * 8 + 8]
     call ncPrintHex
+	mov rdi, sh
+	call ncPrint
     call ncNewline
 %endmacro
 
@@ -103,6 +106,7 @@ printRegs:
 	ret
 
 section .data
+sh db "h", 0
 srsp db "rsp: ", 0
 srflags db "rflags: ", 0
 srip db "rip: ", 0

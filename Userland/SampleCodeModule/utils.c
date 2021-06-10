@@ -3,6 +3,10 @@
 #include <cpuid.h>
 #include <cpuidflags.h>
 
+#define BUFFER_SIZE 16
+
+#define ISHEXA(x) (((x) >= 'a' && (x) <= 'f') || ((x) >= 'A' && (x) <= 'F') || ISDIGIT(x))
+
 void printDate() {
 	dateType currDate;
 	fillDate(&currDate);
@@ -15,21 +19,43 @@ void printDate() {
 }
 
 void help() {
-    print_f(1, "Los comandos disponibles son: help, inforeg, printmem, printDate, divisionByZero, invalidOpcode, printFeatures.\n");
+    print_f(1, "Los comandos disponibles son:\n");
+    print_f(1, " - help: Muestra los comandos disponibles\n");
+    print_f(1, " - inforeg: Muestra el estado de los registros\n");
+    print_f(1, " - printmem: Imprime la memoria a partir de la direccion dada\n");
+    print_f(1, " - printDate: Imprime informacion acerca del tiempo\n");
+    print_f(1, " - printFeatures: Muestra caracteristicas del microprocesador\n");
+    print_f(1, " - printQuadraticRoots: Resuelve una funcion cuadratica\n");
+    print_f(1, " - invalidOpcode: Genera excepcion por operacion invalida\n");
+    print_f(1, " - divisionByZero: Genera excepcion por division por 0\n");
 }
 
 void printmem() {
     uint8_t arr[BYTES_TO_READ] = {0};
-    print_f(1, "Ingrese la direccion a partir de la cual quiere leer: ");
+    char buffer[BUFFER_SIZE + 1] = {0};
+    uint64_t dir = 0;
+    int ans;
 
-    // TODO: Hacer la lectura de la dirección de memoria a leer
-    uint64_t dir = 0x0000001000000000; // Habría que leer
+    do {
+        print_f(1, "Ingrese una direccion de 64 bits a partir de la cual leer:\n0x");
+        ans = get_s(buffer, BUFFER_SIZE);
+    } while (ans == -1);
+    
+    for (int i = 0; i < ans; i++) {
+        if (!ISHEXA(buffer[i])) {
+            print_f(1, "\nNo es una direccion valida\n");
+            return;
+        }
+    }
 
-    // Leer dirección dada por el usuario
-    print_f(1, "%x\n", fillMem(dir, arr, BYTES_TO_READ));
+    sscan(buffer, "%x", &dir);
 
+    // fillMem debería devolver la cantidad de bytes leídos correctamente
+    // Actualmente como no hay validación, siempre es 32
+    // print_f(1, "%x\n", fillMem(dir, arr, BYTES_TO_READ));
+    fillMem(dir, arr, BYTES_TO_READ);
     for (int i = 0; i < BYTES_TO_READ; i++)
-        print_f(1, "%x ", arr[i]);
+        print_f(1, "\n0x%x: %xh", dir + i, arr[i]);
     
     print_f(1, "\n");
 }
@@ -42,15 +68,15 @@ void printFeatures() {
         print_f(1, "CPUID: YES\n");
 
         __get_cpuid(1, &eax, &ebx, &ecx, &edx);
-        print_f(1, "MX: %s\n", edx & CPUID_FEAT_EDX_MMX == 0 ? "NO":"YES");
-        print_f(1, "SSE: %s\n", edx & CPUID_FEAT_EDX_SSE == 0 ? "NO":"YES");
-        print_f(1, "SSE2: %s\n", edx & CPUID_FEAT_EDX_SSE2 == 0 ? "NO":"YES");
-        print_f(1, "SSE3: %s\n", ecx & CPUID_FEAT_ECX_SSE3 == 0 ? "NO":"YES");
-        print_f(1, "SSE41: %s\n", ecx & CPUID_FEAT_ECX_SSE4_1 == 0 ? "NO":"YES");
-        print_f(1, "SSE42: %s\n", ecx & CPUID_FEAT_ECX_SSE4_2 == 0 ? "NO":"YES");
-        print_f(1, "AESNI: %s\n", ecx & CPUID_FEAT_ECX_AES == 0 ? "NO":"YES");
-        print_f(1, "PCLMULQDQ: %s\n", ecx & CPUID_FEAT_ECX_PCLMUL == 0 ? "NO":"YES");
-        print_f(1, "AVX: %s\n", ecx & CPUID_FEAT_ECX_AVX == 0 ? "NO":"YES");
+        print_f(1, "MX: %s\n", (edx & CPUID_FEAT_EDX_MMX) == 0 ? "NO":"YES");
+        print_f(1, "SSE: %s\n", (edx & CPUID_FEAT_EDX_SSE) == 0 ? "NO":"YES");
+        print_f(1, "SSE2: %s\n", (edx & CPUID_FEAT_EDX_SSE2) == 0 ? "NO":"YES");
+        print_f(1, "SSE3: %s\n", (ecx & CPUID_FEAT_ECX_SSE3) == 0 ? "NO":"YES");
+        print_f(1, "SSE41: %s\n", (ecx & CPUID_FEAT_ECX_SSE4_1) == 0 ? "NO":"YES");
+        print_f(1, "SSE42: %s\n", (ecx & CPUID_FEAT_ECX_SSE4_2) == 0 ? "NO":"YES");
+        print_f(1, "AESNI: %s\n", (ecx & CPUID_FEAT_ECX_AES) == 0 ? "NO":"YES");
+        print_f(1, "PCLMULQDQ: %s\n", (ecx & CPUID_FEAT_ECX_PCLMUL) == 0 ? "NO":"YES");
+        print_f(1, "AVX: %s\n", (ecx & CPUID_FEAT_ECX_AVX) == 0 ? "NO":"YES");
         print_f(1, "VAESNI: %s\n", supports_vaesni() == 0 ? "NO":"YES");
         print_f(1, "VPCLMULQDQ: %s\n", supports_vpclmulqdq() == 0 ? "NO":"YES");
         print_f(1, "F16C: %s\n", supports_f16c() == 0 ?  "NO":"YES");
@@ -58,6 +84,27 @@ void printFeatures() {
         print_f(1, "AVX2: %s\n", supports_avx2() == 0 ? "NO":"YES");
     } else {
         print_f(1, "CPUID: NO\n");
+    }
+
+}
+
+void printQuadraticRoots(){
+    double a, b, c, x1, x2;
+    int ans;
+    char buffer[100 + 1] = {0};
+
+    do {
+        print_f(1, "Ingresar coeficientes a, b y c: ");
+        ans = get_s(buffer, 100);
+    } while (ans == -1);
+
+    sscan(buffer, "%g %g %g", &a, &b, &c);
+
+    //print_f(1, "f(x) = %dx^2 %s %dx %s %d", a, b >= 0 ? "+":"", b, c >= 0 ? "+":"", c);
+    if (!_quadratic(&a, &b, &c, &x1, &x2)){
+        print_f(1, "%g %g\n", x1, x2);
+    } else {
+        print_f(1, "f no tiene raices reales.\n");
     }
     
 }
