@@ -14,6 +14,8 @@ typedef struct dateType {
 int print_f(uint8_t fd, const char * format, ...);
 void put_char(uint8_t fd, const char character);
 void put_s(uint8_t fd, const char * s);
+int scan (char * str, ...);
+long strtol(const char *nptr, char **endptr, register int base);
 
 // ASM
 void print(uint8_t fd, char * s, uint64_t count);

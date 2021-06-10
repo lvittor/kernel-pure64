@@ -1,4 +1,14 @@
 #include <lib.h>
+#include <limits.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdarg.h>
+
+#define IN_RANGE(x, a, b) ((x) >= (a) && (x) <= (b))
+#define ISUPPER(x) IN_RANGE(x, 'A', 'Z')
+#define ISLOWER(x)  IN_RANGE(x, 'a', 'z')
+#define ISALPHA(x) (ISUPPER(x) || ISLOWER(x))
+#define ISDIGIT(x)  IN_RANGE(x, '0', '9')
 
 static uint64_t uintToBase(uint64_t value, char * buffer, uint32_t base) {
 	char *p = buffer;
@@ -88,4 +98,143 @@ void put_char(uint8_t fd, const char character) {
 
 void put_s(uint8_t fd, const char * s) {
     while(*s) put_char(fd, *s++);
+}
+
+// maxLength = Letras a leer sin contar el \0 al final
+int64_t get_s(char * buffer, uint64_t maxLength) {
+    int32_t counter = 0;
+    int64_t c;
+    while ((c = getChar()) != '\n') {
+        if (c == -1)
+            continue;
+        if (counter < maxLength) {
+            if (c == '\b') { // Backspace
+                if (counter == 0)
+                    continue;
+                counter--;
+            } else {
+                buffer[counter++] = c;
+            }
+            put_char(1, c);
+        } else {
+            if (c == '\b')
+                counter--;
+            else
+                counter++;
+            put_char(1, c);
+        }
+    }
+
+    if (counter > maxLength) {
+        buffer[maxLength] = '\0';
+        return -1;
+    }
+
+    buffer[counter] = '\0';
+    return counter;
+}
+
+// https://iq.opengenus.org/how-printf-and-scanf-function-works-in-c-internally/
+int scan(char * str, ...) {
+    va_list vl;
+    int i = 0, j=0, ret = 0;
+    char buff[100] = {0}, tmp[20], c = 0;
+    char *out_loc;
+    while(c != '\n') {
+        if ((c = getChar()) != -1) {
+            put_char(1, c);
+            buff[i] = c;
+            i++;
+ 	    }
+ 	}
+ 	va_start(vl, str);
+ 	i = 0;
+ 	while (str && str[i]) {
+ 	    if (str[i] == '%') {
+ 	       i++;
+ 	       switch (str[i]) {
+ 	           case 'c': {
+	 	           *(char *)va_arg(vl, char*) = buff[j];
+	 	           j++;
+	 	           ret ++;
+	 	           break;
+ 	           }
+ 	           case 'd': {
+	 	           *(int *)va_arg(vl, int*) = strtol(&buff[j], &out_loc, 10);
+	 	           j+=out_loc -&buff[j];
+	 	           ret++;
+	 	           break;
+ 	            }
+ 	            case 'x': {
+	 	           *(int *)va_arg(vl, int*) = strtol(&buff[j], &out_loc, 16);
+	 	           j+=out_loc -&buff[j];
+	 	           ret++;
+	 	           break;
+ 	            }
+ 	        }
+ 	    } 
+ 	    else {
+ 	        buff[j] =str[i];
+            j++;
+        }
+        i++;
+    }
+    va_end(vl);
+
+    return ret;
+}
+
+// https://code.woboq.org/gcc/libiberty/strtol.c.html
+long strtol(const char *nptr, char **endptr, register int base) {
+        register const char *s = nptr;
+        register unsigned long acc;
+        register int c;
+        register unsigned long cutoff;
+        register int neg = 0, any, cutlim;
+
+        do {
+            c = *s++;
+        } while (c == ' ');
+        
+        if (c == '-') {
+                neg = 1;
+                c = *s++;
+        } else if (c == '+')
+                c = *s++;
+        if ((base == 0 || base == 16) &&
+            c == '0' && (*s == 'x' || *s == 'X')) {
+                c = s[1];
+                s += 2;
+                base = 16;
+        }
+        if (base == 0)
+                base = c == '0' ? 8 : 10;
+
+        cutoff = neg ? -(unsigned long) LONG_MIN : LONG_MAX;
+        cutlim = cutoff % (unsigned long)base;
+        cutoff /= (unsigned long)base;
+        for (acc = 0, any = 0;; c = *s++) {
+                if (ISDIGIT(c))
+                        c -= '0';
+                else if (ISALPHA(c))
+                        c -= ISUPPER(c) ? 'A' - 10 : 'a' - 10;
+                else
+                        break;
+                if (c >= base)
+                        break;
+                if (any < 0 || acc > cutoff || (acc == cutoff && c > cutlim))
+                        any = -1;
+                else {
+                        any = 1;
+                        acc *= base;
+                        acc += c;
+                }
+        }
+        if (any < 0) {
+                acc = neg ? LONG_MIN : LONG_MAX;
+        } else if (neg)
+                acc = -acc;
+        if (endptr != 0)
+                *endptr = (char *) (any ? s - 1 : nptr);
+        return (acc);
 }

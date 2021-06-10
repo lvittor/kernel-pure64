@@ -4,7 +4,11 @@
 #include <utils.h>
 #include <exceptions.h>
 
-#define BUFFER_SIZE 15 // Habria que achicarlo
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdarg.h>
+
+#define MAX_COMMAND 14 // Habria que achicarlo
 #define MODULES_SIZE 7
 
 typedef void (*commandType)(void);
@@ -28,58 +32,36 @@ static commandType commandFunctions[MODULES_SIZE] = {
 	printFeatures
 };
 
+void checkModule(char * string);
+
 int main() {
-	char buffer[BUFFER_SIZE+1];
+
+	/*char c;
+	int i;
+	int h;
+	int ret = 0;
+	ret = scan("%c %x %d", &c, &i, &h);
+	print_f(1, "C = %c, I = %d, H = %x, Return %d", c, i, h, ret);
+	return 0;*/
+
+	char buffer[MAX_COMMAND + 1];
 	int32_t counter = 0;
 
 	print_f(1, "Estamos en userland.\n");
 	help();
-	print_f(2, "\n>> ");
 
 	while(1) {
-
-		// Leer hasta \n
-		// Ejecutar comando
-
-		int64_t c = getChar();
-		if (c != -1) {
-			if (counter < BUFFER_SIZE) {
-				if (c == '\n') { // Nueva linea, proceso comando
-					put_char(1, c);
-					buffer[counter++] = 0;
-					checkModule(buffer);
-					counter = 0;
-					put_char(1, c);
-					print_f(2, ">> ");
-				} else {
-					if (c == '\b') { // Backspace
-						if (counter == 0)
-							continue;
-						counter--;
-					} else { // Letra o caracter imprimible
-						buffer[counter++] = c; // Falta checkeo counter == BUFFER_SIZE
-					}
-					put_char(1, c);
-				}
-			} else {
-				if (c == '\n') { // Nueva linea, proceso comando
-					put_char(1, c);
-					counter = 0;
-					put_char(1, c);
-					print_f(2, ">> ");
-				} else  if (c == '\b') { // Backspace
-					counter--;
-					put_char(1, c);
-				} else {
-					counter++;
-					put_char(1, c);
-				}
-			}
-		}
+		print_f(2, "\n>> ");
+		int64_t ans = get_s(&buffer, MAX_COMMAND);
+		put_char(1, '\n');
+		if (ans != -1)
+			checkModule(buffer);
+		else
+			print_f(1, "Comando no valido\n");
 	}
 }
 
-void checkModule(char * string){
+void checkModule(char * string) {
 	for (int i = 0; i < MODULES_SIZE; i++){
 		if (!strcmp(string, commandStrings[i])){
 			commandFunctions[i]();
