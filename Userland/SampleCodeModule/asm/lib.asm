@@ -85,7 +85,9 @@ setReg:
     mov rsi, fmt        ; format: "%s:  %x/n"
     mov rdx, %1         ; nombre del registro
     mov rcx, [rbp + %2 * 8]         ; valor del registro
+    pushState
     call print_f
+    popState
 %endmacro
 
 ; Después de armarte el stack frame, tenés el stack de la siguiente manera:
