@@ -89,27 +89,33 @@ void * initializeKernelBinary()
 
 
 int main() {	
-	//fillScreen(PURPLE);
+	//fillScreen(&PURPLE);
 	drawShellBorder(&WHITE);
-
-	prompt.x = 0;
-	prompt.y = 0;
-	prompt.baseX = 0;
-	prompt.baseY = 0;
-	prompt.windowWidth = getScreenWidth()/2 - 2;
-	prompt.windowHeight = getScreenHeight();
-
 	load_idt();
-	ncPrint("  IDT loaded");
-	ncNewline();
-	ncPrint("[Kernel Main]");
-	ncNewline();
-	ncPrint("  Sample code module at 0x");
-	ncPrintHex((uint64_t)sampleCodeModuleAddress);
-	ncNewline();
-	ncPrint("  Calling the sample code module returned: ");
-	loadTask(0, sampleCodeModuleAddress, 0x600000);
-	loadTask(1, sampleCodeModuleAddress, 0x700000);
+	// ncPrint("  IDT loaded");
+	// ncNewline();
+	// ncPrint("[Kernel Main]");
+	// ncNewline();
+	// ncPrint("  Sample code module at 0x");
+	// ncPrintHex((uint64_t)sampleCodeModuleAddress);
+	// ncNewline();
+	// ncPrint("  Calling the sample code module returned: ");
+	prompt_info leftPrompt = {	.x = 0,
+								.y = 0,
+							  	.baseX = 0,
+							  	.baseY = 0,
+							  	.windowWidth = getScreenWidth()/2 - 4,
+							  	.windowHeight = getScreenHeight()};
+
+	prompt_info rightPrompt = {	.x = 0,
+								.y = 0,
+								.baseX = getScreenWidth() / 2 + 4,
+								.baseY = 0,
+								.windowWidth = getScreenWidth()/2 - 4, 
+								.windowHeight = getScreenHeight()};
+
+	loadTask(0, sampleCodeModuleAddress, 0x600000, leftPrompt);
+	loadTask(1, sampleCodeModuleAddress, 0x700000, rightPrompt);
 	initCurrentTask();
 	// ncPrintHex(((EntryPoint)sampleCodeModuleAddress)());
 	// currentTask = 1;

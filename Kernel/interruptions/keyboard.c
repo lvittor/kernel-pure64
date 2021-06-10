@@ -7,7 +7,7 @@
 #define LEFT_SHIFT_FLAG 0b00000001
 #define RIGHT_SHIFT 0x36
 #define RIGHT_SHIFT_FLAG 0b00000010
-#define CAPS_LOCK 0x3A
+#define LEFT_ALT 0x38
 
 #define BUFFER_SIZE 128
 
@@ -81,7 +81,7 @@ void keyboard_handler() {
         flags &= ~LEFT_SHIFT_FLAG;
       else if (scancode == RIGHT_SHIFT) 
         flags &= ~RIGHT_SHIFT_FLAG;
-      else if (scancode == CAPS_LOCK)
+      else if (scancode == LEFT_ALT)
         switchTasks();
     }
 }

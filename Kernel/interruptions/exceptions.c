@@ -46,6 +46,8 @@ void exceptionDispatcher(int exception) {
 	while(getChar() != '\n')
 		_hlt(); // Para la máquina pero prende las interrupciones
 	
+	// Clear window
+	clearWindow(getCurrentPrompt(), &BLACK);
 	// Reiniciar shell (Ojalá)
 	rebootCurrentTask();
 }

@@ -60,6 +60,7 @@ void fillScreen(Color * color);
 void drawShellBorder(Color * color);
 void drawChar(prompt_info * p, char c, Color * fontColor, Color * backgroundColor);
 void newLine(prompt_info * p, Color * backgronudColor);
+void clearWindow(prompt_info * p, Color * backgroundColor);
 
 // FUNCIONES AUXILIARES
 void init_screen(void);

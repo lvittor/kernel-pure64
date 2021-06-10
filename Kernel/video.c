@@ -60,8 +60,17 @@ static void scrollUp(prompt_info * p, Color * backgroundColor) {
     }
     
     for (int y = p->windowHeight - font.Height; y < p->windowHeight; y++)
-        for (int x = 0; x < p->windowWidth; x++) 
+        for (int x = p->baseX; x < p->baseX + p->windowWidth; x++) 
             setPixel(x, y, backgroundColor);
+}
+
+void clearWindow(prompt_info * p, Color * backgroundColor) {
+    for (int x = 0; x < p->windowWidth; x++)
+        for (int y = 0; y < p->y * font.Height; y++)
+            setPixel(p->baseX + x, p->baseY + y, backgroundColor);
+
+    p->y = 0;
+    p->x = 0;
 }
 
 static char isPromptOutOfWindowWidth(prompt_info * p) {
