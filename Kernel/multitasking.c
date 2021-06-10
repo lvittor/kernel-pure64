@@ -2,6 +2,9 @@
 
 #define TASK_COUNT 2
 
+void _openContext(uint64_t baseRSP);
+uint64_t _buildContext(uint64_t baseRSP, uint64_t functionAddress);
+
 typedef struct processControlBlock {
     uint64_t taskRSP;
     uint64_t functionAddress;
@@ -22,15 +25,15 @@ void loadTask(uint8_t id, uint64_t functionAddress, uint64_t baseRSP) {
     tasks[id].taskRSP = _buildContext(baseRSP, functionAddress);
 }
 
-void initTasks() {
-    _openContext(tasks[0].taskRSP);
+void initCurrentTask() {
+    _openContext(tasks[currentTask].taskRSP);
 }
 
-void setCurrRSP(uint64_t rsp) {
+void setCurrentRSP(uint64_t rsp) {
     tasks[currentTask].taskRSP = rsp;
 }
 
-uint64_t getCurrRSP() {
+uint64_t getCurrentRSP() {
     return tasks[currentTask].taskRSP;
 }
 
@@ -38,16 +41,8 @@ void switchTasks() {
     currentTask = (currentTask + 1) % TASK_COUNT;
 }
 
-
-void rebootTask() {
-    /*
-    if (currentTask == 1) {
-        task1RSP = 0x600000;
-        create_task(1, 0x600000, 0x400000);
-    } else {
-        task1RSP = 0x700000;
-        create_task(2, 0x700000, 0x400000);
-    }
-    */
+void rebootCurrentTask() {
+    tasks[currentTask].taskRSP = _buildContext(tasks[currentTask].baseRSP, tasks[currentTask].functionAddress);
+    initCurrentTask();
 }
 

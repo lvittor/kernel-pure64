@@ -21,7 +21,7 @@ EXTERN irqDispatcher
 EXTERN exceptionDispatcher
 EXTERN syscallDispatcher
 EXTERN printRegs
-EXTERN setCurrRSP, getCurrRSP
+EXTERN setCurrentRSP, getCurrentRSP
 SECTION .text
 
 %macro pushState 0
@@ -95,9 +95,7 @@ SECTION .text
 %endmacro
 
 %macro irqHandlerMaster 1
-	pushState ; <-- Save rsp
-	mov rdi, rsp
-	call setCurrRSP
+	pushState
 
 	mov rdi, %1 ; pasaje de parametro
 	call irqDispatcher
@@ -105,9 +103,6 @@ SECTION .text
 	; signal pic EOI (End of Interrupt)
 	mov al, 20h
 	out 20h, al
-
-	call getCurrRSP
-	mov rsp, rax
 
 	popState
 	iretq
@@ -163,7 +158,22 @@ _irq00Handler:
 
 ;Keyboard
 _irq01Handler:
-	irqHandlerMaster 1
+	pushState ; <-- Save rsp
+	mov rdi, rsp
+	call setCurrentRSP
+
+	mov rdi, 1 ; pasaje de parametro
+	call irqDispatcher
+
+	; signal pic EOI (End of Interrupt)
+	mov al, 20h
+	out 20h, al
+
+	call getCurrentRSP
+	mov rsp, rax
+
+	popState
+	iretq
 
 ;Cascade pic never called
 _irq02Handler:

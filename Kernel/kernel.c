@@ -97,7 +97,7 @@ int main() {
 	ncPrint("  Calling the sample code module returned: ");
 	loadTask(0, sampleCodeModuleAddress, 0x600000);
 	loadTask(1, sampleCodeModuleAddress, 0x700000);
-	initTasks();
+	initCurrentTask();
 	// ncPrintHex(((EntryPoint)sampleCodeModuleAddress)());
 	// currentTask = 1;
 	// task1RSP = 0x600000;
