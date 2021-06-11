@@ -17,51 +17,53 @@ _quadratic:
 
     ; (-b +- sqrt(b^2 - 4ac)) / 2a
     ; https://math.stackexchange.com/questions/187242/quadratic-equation-error
-    ; x1,2 = (2c)/(-b +- sqrt(b^2 -4ac))
 
     movsd xmm0, [rdi] ; xmm0 = a
     movsd xmm1, [rsi] ; xmm1 = b
     movsd xmm2, [rdx] ; xmm2 = c
 
+    mov eax, 0
+    cvtsi2sd xmm4, eax
+    ucomisd xmm0, xmm4
+    je .not_quad
+
     mov eax, 4
     cvtsi2sd xmm4, eax ; xmm4 = 4
-    
+    mulsd xmm4, xmm2 ; xmm4 = 4c
+    mulsd xmm4, xmm0 ; xmm4 = 4ac
+
     movsd xmm3, xmm1 ; xmm3 = b
     mulsd xmm3, xmm3 ; xmm3 = b^2
     
-    mulsd xmm0, xmm4 ; xmm0 = 4 * a
-    mulsd xmm0, xmm2 ; xmm0 = 4 * a * c
-    
-    ucomisd xmm3, xmm0
+    ucomisd xmm3, xmm4 ; discriminante
     jb .complex
-    
-    subsd xmm3, xmm0 ; xmm3 = b^2 - 4ac
-    sqrtsd xmm4, xmm3 ; xmm4 = sqrt(b^2 - 4ac)
+
+    subsd xmm3, xmm4 ; xmm3 = b^2 - 4ac
+    sqrtsd xmm3, xmm3 ; xmm3 = sqrt(b^2 - 4ac)
 
     mov eax, -1
-    cvtsi2sd xmm0, eax ; xmm0 = -1
-    mulsd xmm1, xmm0 ; xmm1 = -b
+    cvtsi2sd xmm4, eax ; xmm4 = -1
+    mulsd xmm1, xmm4 ; xmm1 = -b
 
     mov eax, 2
-    cvtsi2sd xmm0, eax ; xmm0 = 2
-    mulsd xmm2, xmm0 ; xmm2 = 2c
+    cvtsi2sd xmm2, eax ; xmm2 = 2
+    mulsd xmm0, xmm2 ; xmm0 = 2a
 
-    ; xmm2 = 2c, xmm1 = -b, xmm4 = sqrt(b^2 - 4ac)
-    ; xmm2 / (xmm1 +- xmm4)
-
-    movsd xmm3, xmm1 ; xmm3 = -b
-    addsd xmm3, xmm4 ; xmm3 = -b + sqrt(b^2 - 4ac) 
-    movsd xmm0, xmm2 ; xmm0 = 2c
-    divsd xmm0, xmm3 ; xmm0 = 2c / (-b + sqrt(b^2 - 4ac))
-    movsd [rcx], xmm0
-
-    movsd xmm3, xmm1 ; xmm3 = -b
-    subsd xmm3, xmm4 ; xmm3 = -b - sqrt(b^2 - 4ac) 
-    movsd xmm0, xmm2 ; xmm0 = 2c
-    divsd xmm0, xmm3 ; xmm0 = 2c / (-b - sqrt(b^2 - 4ac))
-    movsd [r8], xmm0
+    movsd xmm2, xmm1 ; xmm2 = -b
+    addsd xmm2, xmm3 ; xmm2 = -b + sqrt(b^2 - 4ac)
+    divsd xmm2, xmm0 ; xmm2 = (-b + sqrt(b^2 - 4ac)) / 2a
+    movsd [rcx], xmm2
+    
+    movsd xmm2, xmm1 ; xmm2 = -b
+    subsd xmm2, xmm3 ; xmm2 = -b - sqrt(b^2 - 4ac)
+    divsd xmm2, xmm0 ; xmm2 = (-b - sqrt(b^2 - 4ac)) / 2a
+    movsd [r8], xmm2
     
     mov rax, 0
+    jmp .end
+
+.not_quad:
+    mov rax, 2
     jmp .end
 
 .complex:

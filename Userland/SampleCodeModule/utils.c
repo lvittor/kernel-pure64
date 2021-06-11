@@ -90,8 +90,8 @@ void printFeatures() {
 
 void printQuadraticRoots(){
     double a, b, c, x1, x2;
-    int ans;
     char buffer[100 + 1] = {0};
+    int ans;
 
     do {
         print_f(1, "Ingresar coeficientes a, b y c: ");
@@ -100,11 +100,19 @@ void printQuadraticRoots(){
 
     sscan(buffer, "%g %g %g", &a, &b, &c);
 
-    //print_f(1, "f(x) = %dx^2 %s %dx %s %d", a, b >= 0 ? "+":"", b, c >= 0 ? "+":"", c);
-    if (!_quadratic(&a, &b, &c, &x1, &x2)){
-        print_f(1, "%g %g\n", x1, x2);
-    } else {
-        print_f(1, "f no tiene raices reales.\n");
-    }
-    
+    put_char(1, '\n');
+
+    print_f(1, "%c(x) = %gx%c%c%gx%c%g\n\n", 13, a, 14, b >= 0 ? '+':0, b, c >= 0 ? '+':0, c);
+    ans = _quadratic(&a, &b, &c, &x1, &x2);
+    switch (ans){
+        case 0:
+            print_f(1, "Sol = {x%c = %g, x%c = %g}\n", 11, x1, 12, x2);
+            break;
+        case 1:
+            print_f(1, "%c tiene raices complejas.\n", 13);
+            break;
+        case 2:
+            print_f(1, "%c no es una funcion cuadratica.\n", 13);
+            break;
+    };
 }
