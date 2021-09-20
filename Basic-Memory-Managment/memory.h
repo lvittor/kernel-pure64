@@ -3,7 +3,14 @@
 
 #include <stddef.h>
 
-#define MAX_MEM_LENGTH
+#define MAX_MEM_LENGTH 1024
+
+typedef struct h_mem {
+    void *base;
+    void *top;
+    void* current;
+    char memory[MAX_MEM_LENGTH];
+} h_mem;
 
 int initMemory(void);
 
