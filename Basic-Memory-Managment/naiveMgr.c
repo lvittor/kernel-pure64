@@ -1,4 +1,5 @@
-#include "memory.h"
+#include "mmgr.h"
+#define MEM_SIZE 1024
 
 static h_mem my_mem = {0};
 
@@ -9,7 +10,6 @@ int initMemory(void) {
     return 0;
 }
 
- 
 void *alloc(size_t bytes){
     if (bytes == 0 || (size_t) ((char *) my_mem.current + bytes) > (size_t) my_mem.top)
         return NULL;
