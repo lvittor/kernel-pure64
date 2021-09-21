@@ -1,21 +1,22 @@
 #include "mmgr.h"
 #define MEM_SIZE 1024
 
-static h_mem my_mem = {0};
+static mptr mem = {0};
+static char to_alloc[1024];
 
-int initMemory(void) {
-    my_mem.base = my_mem.memory;
-    my_mem.top = (char *) my_mem.memory + MAX_MEM_LENGTH;
-    my_mem.current = my_mem.base;
+int initMgr(void) {
+    mem.base = to_alloc;
+    mem.top = (char *) mem.base + MEM_SIZE;
+    mem.current = mem.base;
     return 0;
 }
 
 void *alloc(size_t bytes){
-    if (bytes == 0 || (size_t) ((char *) my_mem.current + bytes) > (size_t) my_mem.top)
+    if (bytes == 0 || (size_t) ((char *) mem.current + bytes) > (size_t) mem.top)
         return NULL;
     
-    void *tmp = my_mem.current;
-    my_mem.current = (char *) my_mem.current + bytes;
+    void *tmp = mem.current;
+    mem.current = (char *) mem.current + bytes;
     return tmp;
 }
  

@@ -3,19 +3,16 @@
 
 #include <stddef.h>
 
-#define MAX_MEM_LENGTH 1024
-
-typedef struct h_mem {
+typedef struct mptr {
     void *base;
     void *top;
     void* current;
-    char memory[MAX_MEM_LENGTH];
-} h_mem;
+} mptr;
 
-int initMemory(void);
+int initMgr(void);
 
-void *allocm(size_t size);
+void *alloc(size_t size);
 
-int setmem(void *s, int c, size_t n);
+void free(void *ptr);
 
 #endif // MEMORY_ADT_H
