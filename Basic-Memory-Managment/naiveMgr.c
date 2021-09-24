@@ -1,6 +1,12 @@
 #include "mmgr.h"
 #define MEM_SIZE 1024
 
+typedef struct mptr {
+    void *base;
+    void *top;
+    void* current;
+} mptr;
+
 static mptr mem = {0};
 static char to_alloc[1024];
 

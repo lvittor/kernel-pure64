@@ -3,12 +3,6 @@
 
 #include <stddef.h>
 
-typedef struct mptr {
-    void *base;
-    void *top;
-    void* current;
-} mptr;
-
 int initMgr(void);
 
 void *alloc(size_t size);
