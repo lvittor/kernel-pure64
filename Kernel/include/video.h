@@ -64,6 +64,8 @@ void clearWindow(prompt_info * p, Color * backgroundColor);
 
 // FUNCIONES AUXILIARES
 void init_screen(void);
+void declarePrompt(prompt_info *);
+prompt_info *getCurrentPrompt();
 uint16_t getScreenWidth();
 uint16_t getScreenHeight();
 
