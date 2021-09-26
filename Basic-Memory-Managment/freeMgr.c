@@ -33,17 +33,20 @@ int initMgr(){
 }
 
 void *alloc(size_t bytes){
-    BlockLink *iterator = &startBlock, *newBlock;
+    BlockLink *iterator = &startBlock, *previous, *newBlock;
     void *ptr = NULL;
     if(bytes > 0){
         bytes = bytes < minimumAllocableSize? minimumAllocableSize : bytes;
-        while(iterator->blockSize < bytes && iterator->nextFreeBlock != NULL)
+        while(iterator->blockSize < bytes && iterator->nextFreeBlock != NULL) {
+            previous = iterator;
             iterator = iterator->nextFreeBlock;
+        }
         if(iterator != endBlock){
             ptr = (void *) ((uint8_t *) iterator + blockLinkSize);
             newBlock = (void *) ((uint8_t *) ptr + bytes);
             newBlock->blockSize = iterator->blockSize - bytes;
-            addToList(newBlock);
+            newBlock->nextFreeBlock = previous->nextFreeBlock;
+            previous->nextFreeBlock = newBlock;
         }
     }
     return ptr;
