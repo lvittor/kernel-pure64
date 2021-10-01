@@ -2,12 +2,21 @@
 #include <font.h>
 #include <lib.h>
 
-vbe_mode_info * vbeInfo = 0x5C00;
+static vbe_mode_info * vbeInfo;
+static prompt_info *prompt;
 
 Color PURPLE = {.r = 0x88, .g = 0x00, .b = 0xFF};
 Color WHITE = {.r = 0xFF, .g = 0xFF, .b = 0xFF};
 Color BLACK = {.r = 0x00, .g = 0x00, .b = 0x00};
 Color RED = {.r = 0xFF, .g = 0x00, .b = 0x00};
+
+void declarePrompt(prompt_info *p){
+    prompt = p;
+}
+
+prompt_info *getCurrentPrompt(){
+    return prompt;
+}
 
 void init_screen(void){
     vbeInfo = (vbe_mode_info *) VBEModeInfoBlockAddress;

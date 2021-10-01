@@ -1,5 +1,6 @@
 #include <naiveConsole.h>
 #include <video.h>
+#include <userland.h>
 
 #define EXCEPTION_COUNT		32
 #define ZERO_EXCEPTION_ID	0x00
@@ -48,8 +49,7 @@ void exceptionDispatcher(int exception) {
 	
 	// Clear window
 	clearWindow(getCurrentPrompt(), &BLACK);
-	// Reiniciar shell (Ojalá)
-	rebootCurrentTask();
+	((EntryPoint)sampleCodeModuleAddress)();
 }
 
 static void zero_division() {

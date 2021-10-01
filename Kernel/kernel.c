@@ -4,8 +4,8 @@
 #include <moduleLoader.h>
 #include <naiveConsole.h>
 #include <idtLoader.h>
-#include <multitasking.h>
 #include <video.h>
+#include <userland.h>
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -15,11 +15,6 @@ extern uint8_t endOfKernelBinary;
 extern uint8_t endOfKernel;
 
 static const uint64_t PageSize = 0x1000;
-
-static void * const sampleCodeModuleAddress = (void*)0x400000;
-static void * const sampleDataModuleAddress = (void*)0x500000;
-
-typedef int (*EntryPoint)();
 
 
 void clearBSS(void * bssAddress, uint64_t bssSize)
@@ -38,7 +33,7 @@ void * getStackBase()
 
 void * initializeKernelBinary()
 {
-	char buffer[10];
+	// char buffer[10];
 
 	// ncPrint("[x64BareBones]");
 	// ncNewline();
@@ -89,8 +84,6 @@ void * initializeKernelBinary()
 
 
 int main() {	
-	//fillScreen(&PURPLE);
-	drawShellBorder(&WHITE);
 	load_idt();
 	// ncPrint("  IDT loaded");
 	// ncNewline();
@@ -100,30 +93,15 @@ int main() {
 	// ncPrintHex((uint64_t)sampleCodeModuleAddress);
 	// ncNewline();
 	// ncPrint("  Calling the sample code module returned: ");
-	prompt_info leftPrompt = {	.x = 0,
+	prompt_info prompt = {	.x = 0,
 								.y = 0,
 							  	.baseX = 0,
 							  	.baseY = 0,
-							  	.windowWidth = getScreenWidth()/2 - 4,
+							  	.windowWidth = getScreenWidth(),
 							  	.windowHeight = getScreenHeight()};
+	declarePrompt(&prompt);
 
-	prompt_info rightPrompt = {	.x = 0,
-								.y = 0,
-								.baseX = getScreenWidth() / 2 + 4,
-								.baseY = 0,
-								.windowWidth = getScreenWidth()/2 - 4, 
-								.windowHeight = getScreenHeight()};
-
-	loadTask(0, sampleCodeModuleAddress, 0x600000, leftPrompt);
-	loadTask(1, sampleCodeModuleAddress, 0x700000, rightPrompt);
-	initCurrentTask();
-	// ncPrintHex(((EntryPoint)sampleCodeModuleAddress)());
-	// currentTask = 1;
-	// task1RSP = 0x600000;
-	// create_task(1, 0x600000, sampleCodeModuleAddress);
-	// uint64_t task2RSP = create_task(2, 0x700000, sampleCodeModuleAddress);
-	// setOtherRSP(task2RSP);
-	// init_task(task1RSP);
+	(((EntryPoint)sampleCodeModuleAddress)());
 	
 	ncNewline();
 	ncNewline();
@@ -138,11 +116,6 @@ int main() {
 	
 	ncPrint("[Finished]");
 	ncNewline();
-
-	
-
-
-	while(1);
 
 	return 0;
 }
