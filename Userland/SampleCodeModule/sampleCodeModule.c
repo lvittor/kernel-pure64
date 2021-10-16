@@ -38,7 +38,6 @@ void checkModule(char * string);
 
 int main() {
 	char buffer[MAX_COMMAND + 1];
-	int32_t counter = 0;
 
 	print_f(1, "Estamos en userland.\n");
 	help();
