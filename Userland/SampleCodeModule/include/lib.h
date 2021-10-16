@@ -24,6 +24,7 @@ int sscan(char * buff, char * fmt, ...) ;
 int64_t get_s(char * buffer, uint64_t maxLength);
 int64_t strtoint(const char *nptr, char **endptr, register int base);
 double strtodouble(const char * start, char ** end);
+int get_char(void);
 
 // ASM
 void print(uint8_t fd, const char * s, uint64_t count);
@@ -31,7 +32,6 @@ void setReg(void);
 uint64_t fillDate(dateType * pDate);
 void inforeg(void);
 int64_t fillMem(uint64_t src, uint8_t * dst, uint8_t size);
-int64_t getChar(void);
 long read(unsigned int fd, char * buf, size_t count);
 int _quadratic(double * a, double * b, double * c, double * root1, double * root2);
 
