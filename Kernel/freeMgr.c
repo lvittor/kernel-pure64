@@ -66,10 +66,10 @@ int initMgr() {
 }
 
 void *alloc(size_t size) {
-  BlockLink *iterator = &startBlock, *previous, *newBlock;
   void *allocPtr = NULL;
 
   if (size > 0) {
+    BlockLink *iterator = &startBlock, *previous;
     size += blockLinkSize;
 
     if ((size & BYTE_ALIGNMENT_MASK) != 0) {
@@ -94,7 +94,7 @@ void *alloc(size_t size) {
       previous->nextFreeBlock = iterator->nextFreeBlock;
 
       if (iterator->blockSize - size > MINIMUM_ALLOCABLE_SIZE) {
-        newBlock = (void *)((uint8_t *)allocPtr + size);
+        BlockLink *newBlock = (void *)((uint8_t *)allocPtr + size);
         newBlock->blockSize = iterator->blockSize - size;
         iterator->blockSize = size;
         addToFreeList(newBlock);
