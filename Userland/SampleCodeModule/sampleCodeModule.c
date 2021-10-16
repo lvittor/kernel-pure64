@@ -44,7 +44,7 @@ int main() {
 
 	while(1) {
 		print_f(2, "\n>> ");
-		int64_t ans = read(0, buffer, MAX_COMMAND);
+		int64_t ans = get_s(buffer, MAX_COMMAND);
 		if (ans != -1)
 			checkModule(buffer);
 		else
