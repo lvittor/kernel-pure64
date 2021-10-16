@@ -20,6 +20,7 @@ PVS-Studio.log
 *.qcow2
 *.vmdk
 *.bin
+*.sys
 
 ### C ###
 # Prerequisites
