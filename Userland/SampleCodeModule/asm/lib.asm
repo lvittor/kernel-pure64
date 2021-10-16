@@ -5,6 +5,7 @@ GLOBAL fillDate
 GLOBAL inforeg
 GLOBAL fillMem
 GLOBAL _quadratic
+GLOBAL read
 
 EXTERN print_f
 
@@ -82,6 +83,17 @@ print:
 getChar:
     mov rax, 2
     int 80h
+    ret
+
+read:
+    push rbp
+    mov rbp, rsp
+
+    xor rax, rax
+    int 80h
+
+    mov rsp, rbp
+    pop rbp
     ret
 
 fillDate:
