@@ -27,7 +27,7 @@ uint64_t sysCallDispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t ra
 }
 
 uint64_t sys_write(uint8_t fd, char * buffer, uint64_t count) {
-	if (buffer == 0 || count <= 0)
+	if (buffer == NULL || count == 0)
 		return -1;
 		
 	if (fd > 2)
