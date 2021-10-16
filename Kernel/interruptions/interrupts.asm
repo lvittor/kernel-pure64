@@ -15,11 +15,11 @@ GLOBAL _irq05Handler
 
 GLOBAL _exception0Handler
 GLOBAL _exception6Handler
-GLOBAL _int80Handler
+GLOBAL _sysCall80Handler
 
 EXTERN irqDispatcher
 EXTERN exceptionDispatcher
-EXTERN syscallDispatcher
+EXTERN sysCallDispatcher
 EXTERN printRegs
 EXTERN setCurrentRSP, getCurrentRSP
 SECTION .text
@@ -120,6 +120,24 @@ SECTION .text
 	iretq
 %endmacro
 
+%macro sysCallHandlerMaster 1
+	pushStateWithoutAX
+	sti
+
+	mov rcx, rax  ;; TODO: Check this, there has to be a better way of doing it.
+	call sysCallDispatcher
+
+	push rax
+	; signal pic EOI (End of Interrupt)
+	mov al, 20h
+	out 20h, al
+	pop rax
+
+	cli
+	popStateWithoutAX
+	iretq
+%endmacro
+
 
 _hlt:
 	sti
@@ -195,12 +213,8 @@ _exception0Handler:
 _exception6Handler:
 	exceptionHandler 6
 
-_int80Handler:
-	pushStateWithoutAX
-	mov rcx, rax
-	call syscallDispatcher
-	popStateWithoutAX
-	iretq
+_sysCall80Handler:
+    sysCallHandlerMaster 80
 
 haltcpu:
 	cli
