@@ -8,12 +8,14 @@
 #define RIGHT_SHIFT_FLAG 0b00000010
 #define LEFT_ALT 0x38
 
-#define BUFFER_SIZE 128
+#define BUFFER_SIZE 256
 
 uint8_t flags = 0;
 
-static char buffer[BUFFER_SIZE];
-uint64_t tail = 0, head = 0; // head escribe, tail lee
+typedef uint8_t BufferPtr;
+
+static uint8_t buffer[BUFFER_SIZE]={0};
+static BufferPtr w_pointer = 0, r_pointer = 0;
 // {0, 0, 0, 0, 0, 0, 0, 0, 0}
 //  t                       h
 //              h  t
@@ -45,17 +47,8 @@ unsigned char upperScancodeToAscii[128] = {
 };
 
 static void appendBuffer(char c) {
-  buffer[head++] = c;
-
-  if (head == BUFFER_SIZE)
-    head = 0;
-
-  if (head == tail) { // Si me quedo sin espacio, borro el caracter mas antiguo
-    tail++;
-    if (tail == BUFFER_SIZE)
-      tail = 0;
-  }
-
+  buffer[w_pointer++] = c;
+  return;
 }
 
 void keyboard_handler() {
@@ -83,12 +76,25 @@ void keyboard_handler() {
     }
 }
 
-int64_t getChar(void) {
-  if (head != tail) {
-    char ans = buffer[tail++];
-    if (tail == BUFFER_SIZE)
-      tail = 0;
-      return ans == 0 ? -1 : ans;
-  }
-  return -1;
+// int64_t getChar(void) {
+//   if (head != tail) {
+//     char ans = buffer[tail++];
+//     if (tail == BUFFER_SIZE)
+//       tail = 0;
+//       return ans == 0 ? -1 : ans;
+//   }
+//   return -1;
+// }
+
+long copy_from_buffer(char * buf, size_t count) {
+  if (r_pointer == w_pointer) return -1; // TODO: Check what we can do if the buffer "pega la vuelta".
+  
+  if (count > BUFFER_SIZE) {} // TODO: what do we do.
+  
+  long i = 0;
+
+  while (i < count && r_pointer != w_pointer)  // TODO: Check if we keep the last \n
+    buf[i++] = buffer[r_pointer++];
+  
+  return i;
 }
