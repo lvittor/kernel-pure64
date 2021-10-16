@@ -15653,7 +15653,6 @@ static const unsigned short __font_index__[] = {
 	64257,
 	64258,
 	65533,
-	4294967295,
 };
 
 // bitmap font structure

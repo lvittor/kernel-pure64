@@ -30,53 +30,53 @@ uint16_t getScreenHeight() {
     return vbeInfo->height;
 }
 
-int getXPixel(prompt_info * p){
+uint64_t getXPixel(prompt_info * p){
     return p->x * font.Width;
 }
 
 
-int getYPixel(prompt_info * p){
+uint64_t getYPixel(prompt_info * p){
     return p->y * font.Height;
 }
 
-static void setPixel(int x, int y, Color * color) {
-    uint8_t * screen = (uint8_t *) ((uint64_t) vbeInfo->framebuffer + x * vbeInfo->bpp / 8 + (int) y * vbeInfo->pitch);
+static void setPixel(uint64_t x, uint64_t y, Color * color) {
+    uint8_t * screen = (uint8_t *) ((uint64_t) vbeInfo->framebuffer + x * vbeInfo->bpp / 8 + (uint64_t) y * vbeInfo->pitch);
     screen[0] = color->b;
     screen[1] = color->g;
     screen[2] = color->r;
 }
 
 void drawShellBorder(Color * color) {
-    for (int j = 0; j < vbeInfo->height; j++)
-        for (int i = -2; i < 3; i++)
+    for (uint64_t j = 0; j < vbeInfo->height; j++)
+        for (uint64_t i = -2; i < 3; i++)
             setPixel(vbeInfo->width / 2 + i, j, color);
 }
 
 void fillScreen(Color * color) {
-    for (int i = 0; i < vbeInfo->width; i++)
-        for (int j = 0; j < vbeInfo->height; j++)
+    for (uint64_t i = 0; i < vbeInfo->width; i++)
+        for (uint64_t j = 0; j < vbeInfo->height; j++)
             setPixel(i, j, color);
 }
 
 static void scrollUp(prompt_info * p, Color * backgroundColor) {
-    for (int dy = 0; dy < p->windowHeight - font.Height; dy++){
-        int x = p->baseX;
-        int yTo = p->baseY + dy;
-        int yFrom = p->baseY + dy + font.Height;
-        uint8_t * to = (uint8_t *) ((uint64_t) vbeInfo->framebuffer + x * vbeInfo->bpp / 8 + (int) yTo * vbeInfo->pitch);
-        uint8_t * from = (uint8_t *) ((uint64_t) vbeInfo->framebuffer + x * vbeInfo->bpp / 8 + (int) yFrom * vbeInfo->pitch);
+    for (uint64_t dy = 0; dy < p->windowHeight - font.Height; dy++){
+        uint64_t x = (uint64_t) p->baseX;
+        uint64_t yTo = (uint64_t) p->baseY + dy;
+        uint64_t yFrom = p->baseY + dy + font.Height;
+        uint8_t * to = (uint8_t *) ((uint64_t) vbeInfo->framebuffer + x * vbeInfo->bpp / 8 + (uint64_t) yTo * vbeInfo->pitch);
+        uint8_t * from = (uint8_t *) ((uint64_t) vbeInfo->framebuffer + x * vbeInfo->bpp / 8 + (uint64_t) yFrom * vbeInfo->pitch);
         memcpy(to, from, p->windowWidth * vbeInfo->bpp / 8);
     }
     
-    for (int y = p->windowHeight - font.Height; y < p->windowHeight; y++)
-        for (int x = p->baseX; x < p->baseX + p->windowWidth; x++) 
+    for (uint64_t y = p->windowHeight - font.Height; y < p->windowHeight; y++)
+        for (uint64_t x = (uint64_t) p->baseX; x < (uint64_t) p->baseX + p->windowWidth; x++) 
             setPixel(x, y, backgroundColor);
 }
 
 void clearWindow(prompt_info * p, Color * backgroundColor) {
-    for (int x = 0; x < p->windowWidth; x++)
-        for (int y = 0; y < p->y * font.Height; y++)
-            setPixel(p->baseX + x, p->baseY + y, backgroundColor);
+    for (uint64_t x = 0; x < p->windowWidth; x++)
+        for (uint64_t y = 0; y < p->y * font.Height; y++)
+            setPixel((uint64_t) p->baseX + x, (uint64_t) p->baseY + y, backgroundColor);
 
     p->y = 0;
     p->x = 0;
@@ -103,10 +103,10 @@ void drawChar(prompt_info * p, char c, Color * fontColor, Color * backgroundColo
 
     
     uint8_t * bitMapCharacter = bitMap(c);
-    int baseXPixel = p->x * font.Width + p->baseX;
-    int baseYPixel = p->y * font.Height + p->baseY;
-    for (int i = 0; i < font.Height; i++) {
-        for (int j = 0; j < font.Width; j++) {
+    uint64_t baseXPixel = p->x * font.Width + (uint64_t) p->baseX;
+    uint64_t baseYPixel = p->y * font.Height + (uint64_t) p->baseY;
+    for (uint64_t i = 0; i < font.Height; i++) {
+        for (uint64_t j = 0; j < font.Width; j++) {
             if (bitMapCharacter[i] & 1 << (font.Width - j - 1)) // pregunta si el bit numero i esta prendido
                 setPixel(baseXPixel + j, baseYPixel + i, fontColor);
             else
@@ -135,9 +135,9 @@ void eraseChar(prompt_info * p, Color * backgroundColor) {
     } else 
         p->x--;
     
-    int baseXPixel = p->baseX + getXPixel(p); // Coordenadas absolutas
-    int baseYPixel = p->baseY + getYPixel(p);
-    for (int y = baseYPixel; y < baseYPixel + font.Height; y++)
-        for (int x = baseXPixel; x < baseXPixel + font.Width; x++)
+    uint64_t baseXPixel = (uint64_t) p->baseX + getXPixel(p); // Coordenadas absolutas
+    uint64_t baseYPixel = (uint64_t) p->baseY + getYPixel(p);
+    for (uint64_t y = baseYPixel; y < baseYPixel + font.Height; y++)
+        for (uint64_t x = baseXPixel; x < baseXPixel + font.Width; x++)
             setPixel(x, y, backgroundColor);
 }
