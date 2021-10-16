@@ -11,6 +11,10 @@
 #define ISALPHA(x) (ISUPPER(x) || ISLOWER(x))
 #define ISDIGIT(x) IN_RANGE(x, '0', '9')
 
+#define STDIN 0
+#define STDOUT 1
+#define STDERR 2
+
 typedef struct dateType {
 	uint8_t year, month, day;
 	uint8_t hour, minute, second;
