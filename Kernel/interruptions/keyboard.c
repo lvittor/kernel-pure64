@@ -16,10 +16,6 @@ typedef uint8_t BufferPtr;
 
 static uint8_t buffer[BUFFER_SIZE]={0};
 static BufferPtr w_pointer = 0, r_pointer = 0;
-// {0, 0, 0, 0, 0, 0, 0, 0, 0}
-//  t                       h
-//              h  t
-
 
 // https://stanislavs.org/helppc/make_codes.html
 unsigned char lowerScancodeToAscii[128] = {
