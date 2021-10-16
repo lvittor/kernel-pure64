@@ -4,6 +4,9 @@
 #include <lib.h>
 #include <keyboard.h>
 #include <video.h>
+#include <interrupts.h>
+
+typedef uint64_t (*PSysCall)(uint64_t, uint64_t, uint64_t);
 
 typedef struct dateType {
 	uint8_t year, month, day;
@@ -11,19 +14,16 @@ typedef struct dateType {
 } dateType;
 
 uint64_t sys_write(uint8_t fd, char * buffer, uint64_t count);
-int64_t sys_read(void);
+int64_t sys_read(unsigned int fd, char * buf, size_t count);
 uint64_t sys_date(dateType * pDate);
 uint64_t sys_mem(uint64_t rdi, uint64_t rsi, uint8_t rdx);
 
-// TODO: Usar un arreglo y no switch case
-uint64_t syscallDispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx) {
-	switch(rcx) {
-		case 1: return sys_write(rdi, rsi, rdx);
-		case 2: return sys_read();
-		case 3: return sys_date(rdi);
-		case 4: return sys_mem(rdi, rsi, rdx);
-	}
-	return 0;
+static PSysCall sysCalls[255] = {(PSysCall)&sys_read, (PSysCall)&sys_write, (PSysCall)&sys_date};
+
+uint64_t sysCallDispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rax) {
+	PSysCall sysCall = sysCalls[rax];
+    if (sysCall != 0) return sysCall(rdi, rsi, rdx);
+    return 0;
 }
 
 uint64_t sys_write(uint8_t fd, char * buffer, uint64_t count) {
@@ -41,8 +41,13 @@ uint64_t sys_write(uint8_t fd, char * buffer, uint64_t count) {
 	return count;
 }
 
-int64_t sys_read(void) {
-  	return getChar();
+int64_t sys_read(unsigned int fd, char * buf, size_t count) {
+  	long read_count = -1;
+    while ( read_count == -1 ) {
+        if ((read_count = copy_from_buffer(buf, count)) == -1)
+            _hlt();
+    }
+    return read_count;
 }
 
 uint8_t BCDToDec(uint8_t bcd) {
