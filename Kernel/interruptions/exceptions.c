@@ -1,6 +1,7 @@
 #include <naiveConsole.h>
 #include <video.h>
 #include <userland.h>
+#include <keyboard.h>
 
 #define EXCEPTION_COUNT		32
 #define ZERO_EXCEPTION_ID	0x00
@@ -44,9 +45,11 @@ void exceptionDispatcher(int exception) {
 	// while(1) hlt; readBuffer != -1
 	// Esperar tecla
 	ncPrint("Presione enter para continuar\n");
-	while(getChar() != '\n')
-		_hlt(); // Para la máquina pero prende las interrupciones
-	
+	uint8_t sc;
+	do {
+		if (copy_from_buffer(&sc,1)==-1) _hlt();
+    } while(sc != '\n');
+
 	// Clear window
 	clearWindow(getCurrentPrompt(), &BLACK);
 	((EntryPoint)sampleCodeModuleAddress)();

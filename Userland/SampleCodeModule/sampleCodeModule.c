@@ -4,9 +4,9 @@
 #include <utils.h>
 #include <exceptions.h>
 
-#include <stdio.h>
 #include <stdlib.h>
-#include <stdarg.h>
+#include <string.h>
+
 
 #define MAX_COMMAND 19 // Habria que achicarlo
 #define MODULES_SIZE 8
@@ -38,7 +38,6 @@ void checkModule(char * string);
 
 int main() {
 	char buffer[MAX_COMMAND + 1];
-	int32_t counter = 0;
 
 	print_f(1, "Estamos en userland.\n");
 	help();

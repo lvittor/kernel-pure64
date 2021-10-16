@@ -1,10 +1,10 @@
 GLOBAL print
-GLOBAL getChar
 GLOBAL setReg
 GLOBAL fillDate
 GLOBAL inforeg
 GLOBAL fillMem
 GLOBAL _quadratic
+GLOBAL read
 
 EXTERN print_f
 
@@ -79,9 +79,15 @@ print:
     int 80h
     ret
 
-getChar:
-    mov rax, 2
+read:
+    push rbp
+    mov rbp, rsp
+
+    xor rax, rax
     int 80h
+
+    mov rsp, rbp
+    pop rbp
     ret
 
 fillDate:

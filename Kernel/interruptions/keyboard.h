@@ -2,8 +2,9 @@
 #define _KEYBOARD_H_
 
 #include <stdint.h>
+#include <stddef.h>
 
 void keyboard_handler(void);
-int64_t getChar(void);
+long copy_from_buffer(char * buf, size_t count);
 
 #endif

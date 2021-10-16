@@ -21,7 +21,7 @@ void _exception0Handler(void);
 void _exception6Handler(void);
 
 // TODO: Chequear voids
-void _int80Handler(void);
+void _sysCall80Handler(uint64_t rdi, uint64_t rsi, uint64_t rdx);
 
 void _cli(void);
 
