@@ -35,7 +35,7 @@ void load_idt() {
   setup_IDT_entry (0x21, (uint64_t)&_irq01Handler); // 0x21 -> keyboard_handler
 
   // Software Interrupts
-  setup_IDT_entry (0x80, (uint64_t)&_int80Handler); // 0x80 -> syscallDispatcher
+  setup_IDT_entry (0x80, (uint64_t)&_sysCall80Handler); // 0x80 -> syscallDispatcher
 
 	// 0xFE = 0b1111-1100
 	picMasterMask(0xFC);
