@@ -8,7 +8,7 @@
 #define BYTE_ALIGNMENT 8
 #define BYTE_ALIGNMENT_MASK 0x0007
 
-static char to_alloc[TOTAL_HEAP_SIZE];
+static char * to_alloc = 0x20000000 - TOTAL_HEAP_SIZE - 1; // (512MB - 1) - TOTAL_HEAP_SIZE 
 
 typedef struct BlockLink {
   struct BlockLink *nextFreeBlock;
