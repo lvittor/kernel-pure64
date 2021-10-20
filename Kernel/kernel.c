@@ -6,6 +6,7 @@
 #include <string.h>
 #include <userland.h>
 #include <video.h>
+#include <scheduler.h>
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -91,7 +92,10 @@ int main() {
                         .windowHeight = getScreenHeight()};
   declarePrompt(&prompt);
 
-  (((EntryPoint)sampleCodeModuleAddress)());
+  run_process(init_process(200 * 1024 * 1024, sampleCodeModuleAddress));
+
+  
+  //(((EntryPoint)sampleCodeModuleAddress)());
 
   ncNewline();
   ncNewline();
