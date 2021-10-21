@@ -1,10 +1,15 @@
-#ifndef __PROCESS_H__
-#define __PROCESS_H__
-
 #include <stdint.h>
 
-uint64_t get_rsp(void);
-uint64_t init_process(uint64_t stack_base, uint64_t rip);
-void run_process(uint64_t rsp);
+typedef struct process {
+    uint8_t pid, status, priority;
+    uint64_t rsp;
+} Process;
 
-#endif
+typedef uint8_t pid_t;
+
+int8_t saveProcess(uint64_t rsp, uint8_t priority);
+void kill(pid_t pid);
+void remove(pid_t pid);
+uint64_t getRsp(pid_t pid);
+uint8_t getPriority(pid_t pid);
+uint8_t isKilled(pid_t pid);
