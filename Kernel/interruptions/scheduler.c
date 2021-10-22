@@ -4,8 +4,10 @@
 #include <stddef.h>
 
 static Queue ready = NULL;
+static pid_t currentPid;
 
 int8_t initScheduler() {
+    currentPid = -1;
     ready = newQueue();
     if(ready == NULL) {
         return -1;
@@ -13,10 +15,12 @@ int8_t initScheduler() {
     return 0;
 }
 
-int8_t addToReady(pid_t pid) {
-    if (push(ready, pid) < 0) {
-        return -1;
+int8_t addToReady(uint64_t rsp, uint64_t rip, uint8_t priority) {
+    pid_t pid = saveProcess(rsp, rip, priority);
+    if(pid < 0){
+        return pid;
     }
+    push(ready, pid);
     return 0;
 }
 
@@ -24,8 +28,11 @@ int8_t addToBlocked(pid_t proc) {
     // TODO
 }
 
-void scheduler() {
-    // save old state
-    pid_t previous_pid = pop(ready);
-    
+uint64_t scheduler(uint64_t rsp) {
+    if(currentPid > 0){
+        setRsp(currentPid, rsp);
+        push(ready, currentPid);
+    }
+    currentPid = pop(ready);
+    return getRsp(currentPid);
 }
