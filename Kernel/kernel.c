@@ -7,6 +7,7 @@
 #include <userland.h>
 #include <video.h>
 #include <scheduler.h>
+#include <mmgr.h>
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -69,21 +70,13 @@ void *initializeKernelBinary() {
   // ncNewline();
   // ncNewline();
 
-  init_screen();
+  //init_screen();
 
   return getStackBase();
 }
 
 int main() {
-  load_idt();
-  // ncPrint("  IDT loaded");
-  // ncNewline();
-  // ncPrint("[Kernel Main]");
-  // ncNewline();
-  // ncPrint("  Sample code module at 0x");
-  // ncPrintHex((uint64_t)sampleCodeModuleAddress);
-  // ncNewline();
-  // ncPrint("  Calling the sample code module returned: ");
+  init_screen();
   prompt_info prompt = {.x = 0,
                         .y = 0,
                         .baseX = 0,
@@ -92,8 +85,13 @@ int main() {
                         .windowHeight = getScreenHeight()};
   declarePrompt(&prompt);
 
-  run_process(init_process(200 * 1024 * 1024, sampleCodeModuleAddress));
+  initMgr();
+  initScheduler();
 
+  //run_process(init_process(200 * 1024 * 1024, sampleCodeModuleAddress));
+  addToReady((uint64_t) sampleCodeModuleAddress, 0);
+  
+  load_idt();
   
   //(((EntryPoint)sampleCodeModuleAddress)());
 
