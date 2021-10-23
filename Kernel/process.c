@@ -1,8 +1,10 @@
 #include <process.h>
 #include <scheduler.h>
 #include <mmgr.h>
+#include <naiveConsole.h>
 
 #define MAX_PROCESS_COUNT 256
+#define PROCESS_SIZE 4 * 1024
 #define TERMINATED 0x0
 #define ALIVE 0x1
 
@@ -15,11 +17,16 @@ typedef struct process {
 static pid_t processCounter = 0;
 static Process * processes[MAX_PROCESS_COUNT] = {NULL};
 
-int8_t saveProcess(uint64_t rsp, uint64_t rip, uint8_t priority) {
+int8_t saveProcess(uint64_t rip, uint8_t priority) {
+
     Process *newProcess = alloc(sizeof(Process));
+    
     if(newProcess == NULL){
         return -1;
     }
+
+    uint64_t rsp = (uint64_t) alloc(PROCESS_SIZE);
+    rsp += (PROCESS_SIZE - 1);
 
     newProcess->rsp = init_process(rsp, rip);
     newProcess->pid = processCounter;
@@ -27,6 +34,7 @@ int8_t saveProcess(uint64_t rsp, uint64_t rip, uint8_t priority) {
     newProcess->rip = rip;
     newProcess->priority = priority;
     processes[processCounter++] = newProcess;
+
     return newProcess->pid;
 }
 
