@@ -57,6 +57,7 @@ elemType pop(Queue queue) {
     Node *aux = queue->first;
     queue->first = queue->first->next;
     free(aux);
+    queue->size--;
     return elem;
 }
 
