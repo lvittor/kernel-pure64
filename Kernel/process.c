@@ -26,6 +26,11 @@ int8_t saveProcess(uint64_t rip, uint8_t priority) {
     }
 
     uint64_t rsp = (uint64_t) alloc(PROCESS_SIZE);
+
+    ncPrint("Alloc returned: ");
+    ncPrintHex(rsp);
+    ncNewline();
+
     rsp += (PROCESS_SIZE - 1);
 
     newProcess->rsp = init_process(rsp, rip);
@@ -65,4 +70,21 @@ uint8_t isAlive(pid_t pid) {
 void setRsp(pid_t pid, uint64_t rsp)    {
     if(processes[pid] != NULL)
         processes[pid]->rsp = rsp;
+}
+
+void showAllPs() {
+    for(int i = 0; i < MAX_PROCESS_COUNT; i++) {
+        if(processes[i] != NULL) {
+            ncPrint("PID: ");
+            ncPrintDec(processes[i]->pid);
+            ncNewline();
+            ncPrint("Current rsp: ");
+            ncPrintHex(processes[i]->rsp);
+            ncNewline();
+            ncPrint("Priority: ");
+            ncPrintDec(processes[i]->priority);
+            ncNewline();
+            ncNewline();
+        }
+    }
 }

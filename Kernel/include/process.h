@@ -14,3 +14,4 @@ void setRsp(pid_t pid, uint64_t rsp);
 uint64_t getRsp(pid_t pid);
 uint8_t getPriority(pid_t pid);
 uint8_t isKilled(pid_t pid);
+void showAllPs();
