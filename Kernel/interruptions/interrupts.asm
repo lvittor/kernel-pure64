@@ -174,6 +174,9 @@ picSlaveMask:
 _irq00Handler:
 	pushState ; <-- Save rsp
 
+	mov rdi, 0; pasaje de parametro
+	call irqDispatcher
+
 	mov rdi, rsp
 	call scheduler
 	mov rsp, rax
