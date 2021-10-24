@@ -7,6 +7,8 @@
 #include <userland.h>
 #include <video.h>
 #include <scheduler.h>
+#include <process.h>
+#include <time.h>
 #include <mmgr.h>
 
 extern uint8_t text;
@@ -28,6 +30,46 @@ void *getStackBase() {
                   - sizeof(uint64_t) // Begin at the top of the stack
   );
 }
+
+void printA(){
+  for(int j = 0; j < 10000000; j++) {
+    //ncNewline();
+    if (j%100000 == 0) {
+    ncPrint("A   ");
+    }
+    //ncNewline();
+  }
+  //ncPrint("Printed 100 B's");
+  ncNewline();
+  while(1);
+}
+
+void printB(){
+  for(int j = 0; j < 10000000; j++) {
+    //ncNewline();
+    if (j%100000 == 0) {
+    ncPrint("B   ");
+    }
+    //ncNewline();
+  }
+  //ncPrint("Printed 100 B's");
+  ncNewline();
+  while(1);
+}
+
+void printC(){
+  for(int j = 0; j < 10000000; j++) {
+    //ncNewline();
+    if (j%100000 == 0) {
+    ncPrint("C   ");
+    }
+    //ncNewline();
+  }
+  //ncPrint("Printed 100 B's");
+  ncNewline();
+  while(1);
+}
+
 
 void *initializeKernelBinary() {
   // char buffer[10];
@@ -89,8 +131,13 @@ int main() {
   initScheduler();
 
   //run_process(init_process(200 * 1024 * 1024, sampleCodeModuleAddress));
-  addToReady((uint64_t) sampleCodeModuleAddress, 0);
+  //addToReady((uint64_t) sampleCodeModuleAddress, 5);
+  addToReady((uint64_t) &printA, 0);
+  addToReady((uint64_t) &printB, 10);
+  addToReady((uint64_t) &printC, 0);
   
+  //showAllPs();
+
   load_idt();
   
   //(((EntryPoint)sampleCodeModuleAddress)());
