@@ -5,9 +5,11 @@
 
 static Queue ready = NULL;
 static pid_t currentPid;
+static uint8_t remainingRuns;
 
 int8_t initScheduler() {
     currentPid = -1;
+    remainingRuns = 0;
     ready = newQueue();
     if(ready == NULL) {
         return -1;
@@ -31,10 +33,15 @@ int8_t addToBlocked(pid_t proc) {
 }
 
 uint64_t scheduler(uint64_t rsp) {
-    if(currentPid >= 0){
-        setRsp(currentPid, rsp);
-        push(ready, currentPid);
+    setRsp(currentPid, rsp);
+    if(remainingRuns == 0){
+        if(currentPid >= 0){
+            push(ready, currentPid);
+        }
+        currentPid = pop(ready);
+        remainingRuns = getPriority(currentPid);
+    } else {
+        remainingRuns--;
     }
-    currentPid = pop(ready);
     return getRsp(currentPid);
 }
