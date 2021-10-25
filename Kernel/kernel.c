@@ -32,42 +32,31 @@ void *getStackBase() {
 }
 
 void printA(){
-  for(int j = 0; j < 10000000; j++) {
-    //ncNewline();
-    if (j%100000 == 0) {
-    ncPrint("A   ");
+  while(1) {
+    if(seconds_elapsed() % 3 == 0){
+      if(ticks_elapsed() % 18 == 0)
+        ncPrint("A  ");
+      if(seconds_elapsed() > 5)
+        kill(0);
     }
-    //ncNewline();
   }
-  //ncPrint("Printed 100 B's");
-  ncNewline();
-  while(1);
 }
 
 void printB(){
-  for(int j = 0; j < 10000000; j++) {
-    //ncNewline();
-    if (j%100000 == 0) {
-    ncPrint("B   ");
+  while(1) {
+    if(seconds_elapsed() % 3 == 1){
+      if(ticks_elapsed() % 18 == 0)
+        ncPrint("B  ");
     }
-    //ncNewline();
   }
-  //ncPrint("Printed 100 B's");
-  ncNewline();
-  while(1);
 }
 
 void printC(){
-  for(int j = 0; j < 10000000; j++) {
-    //ncNewline();
-    if (j%100000 == 0) {
-    ncPrint("C   ");
+  while(1) {
+    if(seconds_elapsed() % 3 == 2){
+      ncPrint("C  ");
     }
-    //ncNewline();
   }
-  //ncPrint("Printed 100 B's");
-  ncNewline();
-  while(1);
 }
 
 
@@ -133,7 +122,7 @@ int main() {
   //run_process(init_process(200 * 1024 * 1024, sampleCodeModuleAddress));
   //addToReady((uint64_t) sampleCodeModuleAddress, 5);
   addToReady((uint64_t) &printA, 0);
-  addToReady((uint64_t) &printB, 10);
+  addToReady((uint64_t) &printB, 0);
   addToReady((uint64_t) &printC, 0);
   
   //showAllPs();
