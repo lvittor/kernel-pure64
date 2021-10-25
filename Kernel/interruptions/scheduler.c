@@ -2,6 +2,8 @@
 #include <queue.h>
 #include <process.h>
 #include <stddef.h>
+#include <interrupts.h>
+#include <naiveConsole.h>
 
 static Queue ready = NULL;
 static pid_t currentPid;
@@ -30,6 +32,7 @@ int8_t addToReady(uint64_t rip, uint8_t priority) {
 
 int8_t addToBlocked(pid_t proc) {
     // TODO
+    return 0;
 }
 
 uint64_t scheduler(uint64_t rsp) {
@@ -38,7 +41,21 @@ uint64_t scheduler(uint64_t rsp) {
         if(currentPid >= 0){
             push(ready, currentPid);
         }
-        currentPid = pop(ready);
+        int flag = 0;
+        while(!flag){
+            if(isEmpty(ready)) {
+                ncPrint("Queue is empty");
+                ncNewline();
+                _hlt();
+            } else {
+                currentPid = pop(ready);
+                flag = isAlive(currentPid);
+                if(!flag) {
+                    remove(currentPid);
+                }
+            }
+        }
+        
         remainingRuns = getPriority(currentPid);
     } else {
         remainingRuns--;
