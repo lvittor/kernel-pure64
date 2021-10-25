@@ -9,7 +9,7 @@
 #define BYTE_ALIGNMENT 8
 #define BYTE_ALIGNMENT_MASK 0x0007
 
-static char * to_alloc = TOTAL_MEMORY - TOTAL_HEAP_SIZE;
+static char *to_alloc = TOTAL_MEMORY - TOTAL_HEAP_SIZE;
 
 typedef struct BlockLink {
   struct BlockLink *nextFreeBlock;
@@ -21,8 +21,8 @@ void addToFreeList(BlockLink *newBlock);
 static const size_t blockLinkSize =
     (sizeof(BlockLink) + ((size_t)(BYTE_ALIGNMENT - 1))) &
     ~((size_t)BYTE_ALIGNMENT_MASK);
-static size_t freeRemainingBytes = 0U;
 static size_t totalHeapSize = 0U;
+static size_t freeRemainingBytes = 0U;
 static BlockLink startBlock, *endBlock = NULL;
 
 /* Gets set to the top bit of an size_t type.  When this bit in the xBlockSize
@@ -62,23 +62,31 @@ int initMgr() {
 
   freeRemainingBytes = firstFreeBlock->blockSize;
 
-  blockAllocatedBit = ((size_t)1) << ((sizeof(size_t) * BYTE_ALIGNMENT) - 1);
+  blockAllocatedBit = ((size_t)1)
+                      << ((sizeof(size_t) * ((size_t)BYTE_ALIGNMENT)) - 1);
   return 1;
 }
 
 void *alloc(size_t size) {
   void *allocPtr = NULL;
 
-  if (size > 0) {
-    BlockLink *iterator = &startBlock, *previous;
-    size += blockLinkSize;
+  if ((size & blockAllocatedBit) == 0) {
+    if (size > 0 && ((size + blockLinkSize) > size)) {
+      size += blockLinkSize;
 
-    if ((size & BYTE_ALIGNMENT_MASK) != 0) {
-      size += (BYTE_ALIGNMENT - (size & BYTE_ALIGNMENT_MASK));
+      if ((size & BYTE_ALIGNMENT_MASK) != 0) {
+        if ((size + (BYTE_ALIGNMENT - (size & BYTE_ALIGNMENT_MASK))) > size) {
+          size += (BYTE_ALIGNMENT - (size & BYTE_ALIGNMENT_MASK));
+        } else {
+          size = 0;
+        }
+      }
+    } else {
+      size = 0;
     }
-
-    if (size > freeRemainingBytes)
-      return NULL;
+  }
+  if ((size > 0) && (size <= freeRemainingBytes)) {
+    BlockLink *iterator = startBlock.nextFreeBlock, *previous = &startBlock;
 
     while (iterator->blockSize < size && iterator->nextFreeBlock != NULL) {
       previous = iterator;
@@ -116,17 +124,19 @@ void free(void *ptr) {
   if (ptr == NULL) {
     return;
   }
-  BlockLink *freedBlock = (void *)(((uint8_t *)ptr) - blockLinkSize);
-  if ((freedBlock->blockSize & blockAllocatedBit) != 0 &&
-      freedBlock->nextFreeBlock == NULL) {
+  uint8_t *puc = (uint8_t *)ptr;
+  BlockLink *pxLink;
+  puc -= blockLinkSize;
+  pxLink = (void *)puc;
+  // BlockLink *freedBlock = (void *)(((uint8_t *)ptr) - blockLinkSize);
+  if ((pxLink->blockSize & blockAllocatedBit) != 0 &&
+      pxLink->nextFreeBlock == NULL) {
     /* The block is being returned to the heap - it is no longer
        allocated. */
-    freedBlock->blockSize &= ~blockAllocatedBit;
-    { // TODO: Ask how we should manage these share memory issues.
-      freeRemainingBytes += freedBlock->blockSize;
-      // TODO: traceFREE() ????
-      addToFreeList(freedBlock);
-    }
+    pxLink->blockSize &= ~blockAllocatedBit;
+    // TODO: Pseudo manage these share memory issues.
+    freeRemainingBytes += pxLink->blockSize;
+    addToFreeList(pxLink);
   }
 }
 
@@ -170,3 +180,5 @@ void addToFreeList(BlockLink *newBlock) {
     iterator->nextFreeBlock = newBlock;
   }
 }
+
+uint64_t getfreeRemainingBytes(void) { return freeRemainingBytes; }
