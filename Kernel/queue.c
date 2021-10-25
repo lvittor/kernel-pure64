@@ -64,3 +64,7 @@ elemType pop(Queue queue) {
 uint8_t queueSize(Queue queue){
     return queue == NULL ? 0 : queue->size;
 }
+
+uint8_t isEmpty(Queue queue){
+    return queue == NULL? 1 : queue->size == 0;
+}

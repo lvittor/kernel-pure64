@@ -15,4 +15,6 @@ elemType pop(Queue queue);
 
 uint8_t queueSize(Queue queue);
 
+uint8_t isEmpty(Queue);
+
 #endif
