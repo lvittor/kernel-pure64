@@ -16,6 +16,10 @@ typedef struct process {
 static pid_t processCounter = 0;
 static Process * processes[MAX_PROCESS_COUNT] = {NULL};
 
+static uint8_t isValidPid(pid_t pid) {
+    return pid >= 0 && pid < MAX_PROCESS_COUNT && processes[pid] != NULL;
+}
+
 int8_t saveProcess(uint64_t rip, uint8_t priority) {
 
     Process *newProcess = alloc(sizeof(Process));
@@ -38,57 +42,61 @@ int8_t saveProcess(uint64_t rip, uint8_t priority) {
 }
 
 void kill(pid_t pid) {
-    if(processes[pid] != NULL){
+    if(isValidPid(pid)){
         processes[pid]->status = TERMINATED;
         checkCurrent(pid);
     }
 }
 
 void block(pid_t pid){
-    if(processes[pid] != NULL){
+    if(isValidPid(pid)){
         processes[pid]->status = BLOCKED;
         checkCurrent(pid);
     }
 }
 
 void unblock(pid_t pid){
-    if(processes[pid] != NULL && processes[pid]->status == BLOCKED){
+    if(isValidPid(pid) && isBlocked(pid)){
         processes[pid]->status = READY;
     }
 }
 
 void remove(pid_t pid) {
-    if(processes[pid] != NULL){
+    if(isValidPid(pid)){
         free(processes[pid]);
         processes[pid] = NULL;
     }
 }
 
 uint64_t getRsp(pid_t pid){
-    return processes[pid] == NULL? 0 : processes[pid]->rsp;
+    return isValidPid(pid)? processes[pid]->rsp : 0;
 }
 
 uint8_t getPriority(pid_t pid) {
-    return processes[pid] == NULL ? 0 : processes[pid]->priority;
+    return isValidPid(pid)? processes[pid]->priority : 0;
 }
 
 uint8_t isReady(pid_t pid) {
-    return processes[pid] == NULL ? 0 : processes[pid]->status == READY;
+    return isValidPid(pid)? processes[pid]->status == READY : 0;
 }
 
 uint8_t isBlocked(pid_t pid) {
-    return processes[pid] == NULL ? 0 : processes[pid]->status == BLOCKED;
+    return isValidPid(pid)? processes[pid]->status == BLOCKED : 0;
 }
 
 uint8_t isTerminated(pid_t pid) {
-    return processes[pid] == NULL ? 1 : processes[pid]->status == TERMINATED;
+    return isValidPid(pid)? processes[pid]->status == TERMINATED : 1;
 }
 
 
 void setRsp(pid_t pid, uint64_t rsp) {
-    if(pid < 0 || processes[pid] == NULL)
-        return;
-    processes[pid]->rsp = rsp;
+    if(isValidPid(pid))
+        processes[pid]->rsp = rsp;
+}
+
+void setPriority(pid_t pid, uint8_t priority) {
+    if(isValidPid(pid))
+        processes[pid]->priority = priority;
 }
 
 void showAllPs() {
