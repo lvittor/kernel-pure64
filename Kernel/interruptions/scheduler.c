@@ -78,3 +78,7 @@ void haltProcess() {
         _hlt();
     }
 }
+
+pid_t getCurrentPid(void) {
+    return currentPid;
+}
