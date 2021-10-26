@@ -55,12 +55,25 @@ void printC(){
 }
 
 void processControl() {
-  while(seconds_elapsed() < 3);
+  while(seconds_elapsed() < 1);
   block(1);
-  while(seconds_elapsed() < 6);
+  while(seconds_elapsed() < 2);
   block(2);
+	unblock(1);
+	while(seconds_elapsed() < 3);
+	unblock(2);
+	setPriority(1, 3);
+	setPriority(2, 2);
+	setPriority(3, 1);
+	while(seconds_elapsed() < 4);
+	block(1);
+	block(2);
 	block(3);
-	while(1);
+	while(seconds_elapsed() < 6);
+	unblock(1);
+	unblock(2);
+	unblock(3);
+	kill(4);
 }
 
 
