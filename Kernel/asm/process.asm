@@ -1,4 +1,4 @@
-GLOBAL init_process, run_process, get_rsp
+GLOBAL init_process, _int20
 
 %macro pushState 0 
     push rax
@@ -54,7 +54,6 @@ init_process: ; uint64_t init_process(uint64_t stack_base, uint64_t rip);
     pop rbp
     ret
 
-run_process ; void run_process(uint64_t rsp);
-    mov rsp, rdi
-    popState
-    iretq
+_int20: ; void _int20(void)
+	int 20h
+	ret

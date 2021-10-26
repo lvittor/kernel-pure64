@@ -1,16 +1,15 @@
 #include <process.h>
 #include <scheduler.h>
 #include <mmgr.h>
-#include <naiveConsole.h>
+#include <interrupts.h>
 
 #define MAX_PROCESS_COUNT 256
-#define PROCESS_SIZE 4 * 1024
-#define TERMINATED 0x0
-#define ALIVE 0x1
+#define PROCESS_SIZE 8 * 1024
 
 typedef struct process {
     pid_t pid;
-    uint8_t status, priority;
+    uint8_t priority;
+    Status status;
     uint64_t rsp, rip;
 } Process;
 
@@ -26,16 +25,11 @@ int8_t saveProcess(uint64_t rip, uint8_t priority) {
     }
 
     uint64_t rsp = (uint64_t) alloc(PROCESS_SIZE);
-
-    ncPrint("Alloc returned: ");
-    ncPrintHex(rsp);
-    ncNewline();
-
     rsp += (PROCESS_SIZE - 1);
 
     newProcess->rsp = init_process(rsp, rip);
     newProcess->pid = processCounter;
-    newProcess->status = ALIVE;
+    newProcess->status = READY;
     newProcess->rip = rip;
     newProcess->priority = priority;
     processes[processCounter++] = newProcess;
@@ -44,8 +38,23 @@ int8_t saveProcess(uint64_t rip, uint8_t priority) {
 }
 
 void kill(pid_t pid) {
-    if(processes[pid] != NULL)
+    if(processes[pid] != NULL){
         processes[pid]->status = TERMINATED;
+        checkCurrent(pid);
+    }
+}
+
+void block(pid_t pid){
+    if(processes[pid] != NULL){
+        processes[pid]->status = BLOCKED;
+        checkCurrent(pid);
+    }
+}
+
+void unblock(pid_t pid){
+    if(processes[pid] != NULL && processes[pid]->status == BLOCKED){
+        processes[pid]->status = READY;
+    }
 }
 
 void remove(pid_t pid) {
@@ -63,13 +72,23 @@ uint8_t getPriority(pid_t pid) {
     return processes[pid] == NULL ? 0 : processes[pid]->priority;
 }
 
-uint8_t isAlive(pid_t pid) {
-    return processes[pid] == NULL ? 0 : processes[pid]->status;
+uint8_t isReady(pid_t pid) {
+    return processes[pid] == NULL ? 0 : processes[pid]->status == READY;
 }
 
-void setRsp(pid_t pid, uint64_t rsp)    {
-    if(processes[pid] != NULL)
-        processes[pid]->rsp = rsp;
+uint8_t isBlocked(pid_t pid) {
+    return processes[pid] == NULL ? 0 : processes[pid]->status == BLOCKED;
+}
+
+uint8_t isTerminated(pid_t pid) {
+    return processes[pid] == NULL ? 1 : processes[pid]->status == TERMINATED;
+}
+
+
+void setRsp(pid_t pid, uint64_t rsp) {
+    if(pid < 0 || processes[pid] == NULL)
+        return;
+    processes[pid]->rsp = rsp;
 }
 
 void showAllPs() {
