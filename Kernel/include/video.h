@@ -42,7 +42,7 @@ typedef struct vbe_mode_info {
 
 typedef struct prompt_info{
     unsigned char x, y; // Posición de un cursor. NO PIXEL!
-    uint8_t * baseX, baseY; // Comienzo de la ventana
+    uint16_t baseX, baseY; // Comienzo de la ventana
     uint16_t windowWidth, windowHeight; // De cada ventana
 } prompt_info;
 
@@ -61,6 +61,7 @@ void drawShellBorder(Color * color);
 void drawChar(prompt_info * p, char c, Color * fontColor, Color * backgroundColor);
 void newLine(prompt_info * p, Color * backgronudColor);
 void clearWindow(prompt_info * p, Color * backgroundColor);
+void eraseChar(prompt_info * p, Color * backgroundColor);
 
 // FUNCIONES AUXILIARES
 void init_screen(void);

@@ -1,5 +1,8 @@
 #include <naiveConsole.h>
 #include <video.h>
+#include <keyboard.h>
+#include <interrupts.h>
+#include <multitasking.h>
 
 #define EXCEPTION_COUNT		32
 #define ZERO_EXCEPTION_ID	0x00

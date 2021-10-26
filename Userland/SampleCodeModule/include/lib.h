@@ -23,9 +23,10 @@ void put_s(uint8_t fd, const char * s);
 int sscan(char * buff, char * fmt, ...) ;
 int64_t strtoint(const char *nptr, char **endptr, register int base);
 double strtodouble(const char * start, char ** end);
+int64_t get_s(char * buffer, uint64_t maxLength);
 
 // ASM
-void print(uint8_t fd, char * s, uint64_t count);
+void print(uint8_t fd, const char * s, uint64_t count);
 void setReg(void);
 uint64_t fillDate(dateType * pDate);
 void inforeg(void);

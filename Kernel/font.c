@@ -15653,7 +15653,7 @@ static const unsigned short __font_index__[] = {
 	64257,
 	64258,
 	65533,
-	4294967295,
+	(unsigned short)4294967295,
 };
 
 // bitmap font structure
@@ -15666,7 +15666,7 @@ bitmap_font font = {
 };
 
 unsigned char * bitMap(unsigned char c){
-	return font.Bitmap + font.Height * c;
+	return (unsigned char *)font.Bitmap + font.Height * c;
 }
 
 
