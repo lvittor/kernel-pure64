@@ -10,6 +10,7 @@
 #include <process.h>
 #include <time.h>
 #include <mmgr.h>
+#include <interrupts.h>
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -32,31 +33,34 @@ void *getStackBase() {
 }
 
 void printA(){
+  int blocked = 0;
   while(1) {
-    if(seconds_elapsed() % 3 == 0){
-      if(ticks_elapsed() % 18 == 0)
-        ncPrint("A  ");
-      if(seconds_elapsed() > 5)
-        kill(0);
-    }
+    ncPrint("A");
+    _hlt();
   }
 }
 
 void printB(){
   while(1) {
-    if(seconds_elapsed() % 3 == 1){
-      if(ticks_elapsed() % 18 == 0)
-        ncPrint("B  ");
-    }
+    ncPrint("B");
+    _hlt();
   }
 }
 
 void printC(){
   while(1) {
-    if(seconds_elapsed() % 3 == 2){
-      ncPrint("C  ");
-    }
+    ncPrint("C");
+    _hlt();
   }
+}
+
+void processControl() {
+  while(seconds_elapsed() < 3);
+  block(1);
+  while(seconds_elapsed() < 6);
+  block(2);
+	block(3);
+	while(1);
 }
 
 
@@ -119,12 +123,12 @@ int main() {
   initMgr();
   initScheduler();
 
-  //run_process(init_process(200 * 1024 * 1024, sampleCodeModuleAddress));
-  //addToReady((uint64_t) sampleCodeModuleAddress, 5);
   addToReady((uint64_t) &printA, 0);
   addToReady((uint64_t) &printB, 0);
   addToReady((uint64_t) &printC, 0);
-  
+	addToReady((uint64_t) &processControl, 0);
+
+
   //showAllPs();
 
   load_idt();
