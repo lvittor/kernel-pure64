@@ -15,19 +15,15 @@ void haltProcess();
 int8_t initScheduler() {
     currentPid = -1;
     remainingRuns = 0;
-    ncNewline();
     ready = newQueue();
     if(ready == NULL) {
         return -1;
     }
-    haltProcessPid = saveProcess(&haltProcess, 0);
+    haltProcessPid = createProcess(&haltProcess, 0);
     return 0;
 }
 
-pid_t addToReady(uint64_t rip, uint8_t priority) {
-
-    pid_t pid = saveProcess(rip, priority);
-
+pid_t addToReady(pid_t pid) {
     if(pid < 0){
         return pid;
     }
