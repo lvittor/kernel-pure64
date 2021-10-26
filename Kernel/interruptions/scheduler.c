@@ -20,6 +20,7 @@ int8_t initScheduler() {
         return -1;
     }
     haltProcessPid = createProcess(&haltProcess, 0);
+    pop(ready);
     return 0;
 }
 
@@ -48,7 +49,7 @@ uint64_t scheduler(uint64_t rsp) {
                 return getRsp(currentPid);
             }
 
-            flag = 1;
+            if(!flag) flag = 1;
 
             currentPid = pop(ready);
             if(isReady(currentPid))
