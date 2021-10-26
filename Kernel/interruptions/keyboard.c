@@ -81,8 +81,6 @@ void keyboard_handler() {
         flags &= ~LEFT_SHIFT_FLAG;
       else if (scancode == RIGHT_SHIFT) 
         flags &= ~RIGHT_SHIFT_FLAG;
-      else if (scancode == LEFT_ALT)
-        switchTasks();
     }
 }
 

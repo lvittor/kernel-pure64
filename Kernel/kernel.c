@@ -54,27 +54,17 @@ void * initializeKernelBinary()
 
 
 
-int main() {	
-	drawShellBorder(&WHITE);
-
+int main() {
 	load_idt();
 
 	prompt_info leftPrompt = {	.x = 0,
 								.y = 0,
 							  	.baseX = 0,
 							  	.baseY = 0,
-							  	.windowWidth = getScreenWidth()/2 - 4,
+							  	.windowWidth = getScreenWidth(),
 							  	.windowHeight = getScreenHeight()};
 
-	prompt_info rightPrompt = {	.x = 0,
-								.y = 0,
-								.baseX = getScreenWidth() / 2 + 4,
-								.baseY = 0,
-								.windowWidth = getScreenWidth()/2 - 4, 
-								.windowHeight = getScreenHeight()};
-
 	loadTask(0, (uint64_t)sampleCodeModuleAddress, 0x600000, leftPrompt);
-	loadTask(1, (uint64_t)sampleCodeModuleAddress, 0x700000, rightPrompt);
 	initCurrentTask();
 	
 	ncNewline();
