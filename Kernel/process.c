@@ -20,7 +20,7 @@ static uint8_t isValidPid(pid_t pid) {
     return pid >= 0 && pid < MAX_PROCESS_COUNT && processes[pid] != NULL;
 }
 
-int8_t saveProcess(uint64_t rip, uint8_t priority) {
+pid_t createProcess(uint64_t rip, uint8_t priority) {
 
     Process *newProcess = alloc(sizeof(Process));
     
@@ -37,6 +37,8 @@ int8_t saveProcess(uint64_t rip, uint8_t priority) {
     newProcess->rip = rip;
     newProcess->priority = priority;
     processes[processCounter++] = newProcess;
+
+    addToReady(newProcess->pid);
 
     return newProcess->pid;
 }

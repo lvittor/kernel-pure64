@@ -16,7 +16,7 @@ uint64_t init_process(uint64_t stack_base, uint64_t rip);
 void _int20(void);
 
 
-int8_t saveProcess(uint64_t rip, uint8_t priority);
+pid_t createProcess(uint64_t rip, uint8_t priority);
 void kill(pid_t pid);
 void block(pid_t pid);
 void unblock(pid_t pid);
