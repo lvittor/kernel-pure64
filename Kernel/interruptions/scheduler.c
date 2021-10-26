@@ -44,15 +44,16 @@ uint64_t scheduler(uint64_t rsp) {
             push(ready, currentPid);
         }
 
-        if(isEmpty(ready)) {
-            ncNewline();
-            ncPrint("Queue is empty");
-            ncNewline();
-            currentPid = haltProcessPid;
-            return getRsp(currentPid);
-        }
-
+        uint8_t flag = 0;
+        pid_t initialPid = currentPid;
         while(1) {
+            if(isEmpty(ready) || (flag && initialPid == currentPid)) {
+                currentPid = haltProcessPid;
+                return getRsp(currentPid);
+            }
+
+            flag = 1;
+
             currentPid = pop(ready);
             if(isReady(currentPid))
                 break;
@@ -71,18 +72,12 @@ uint64_t scheduler(uint64_t rsp) {
 
 void checkCurrent(pid_t pid) {
     if(pid == currentPid){
-        ncNewline();
-        ncPrint("Interrupting current process");
-        ncNewline();
         _int20();
     }
 }
 
 void haltProcess() {
     while(1) {
-        ncNewline();
-        ncPrint("No process to run");
-        ncNewline();
         _hlt();
     }
 }
