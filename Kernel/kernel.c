@@ -136,10 +136,10 @@ int main() {
   initMgr();
   initScheduler();
 
-	createProcess((uint64_t) &printA, 0);
-	createProcess((uint64_t) &printB, 0);
-	createProcess((uint64_t) &printC, 0);
-	createProcess((uint64_t) &processControl, 0);
+	createProcess((uint64_t) &printA, 0, "printA");
+	createProcess((uint64_t) &printB, 0, "printB");
+	createProcess((uint64_t) &printC, 0, "printC");
+	createProcess((uint64_t) &processControl, 0, "control");
 
 
   //showAllPs();
