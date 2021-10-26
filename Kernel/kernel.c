@@ -38,48 +38,14 @@ void * getStackBase()
 
 void * initializeKernelBinary()
 {
-	char buffer[10];
-
-	// ncPrint("[x64BareBones]");
-	// ncNewline();
-
-	// ncPrint("CPU Vendor:");
-	// ncPrint(cpuVendor(buffer));
-	// ncNewline();
-
-	// ncPrint("[Loading modules]");
-	// ncNewline();
 	void * moduleAddresses[] = {
 		sampleCodeModuleAddress,
 		sampleDataModuleAddress
 	};
 
 	loadModules(&endOfKernelBinary, moduleAddresses);
-	// ncPrint("[Done]");
-	// ncNewline();
-	// ncNewline();
-
-	// ncPrint("[Initializing kernel's binary]");
-	// ncNewline();
 
 	clearBSS(&bss, &endOfKernel - &bss);
-
-	// ncPrint("  text: 0x");
-	// ncPrintHex((uint64_t)&text);
-	// ncNewline();
-	// ncPrint("  rodata: 0x");
-	// ncPrintHex((uint64_t)&rodata);
-	// ncNewline();
-	// ncPrint("  data: 0x");
-	// ncPrintHex((uint64_t)&data);
-	// ncNewline();
-	// ncPrint("  bss: 0x");
-	// ncPrintHex((uint64_t)&bss);
-	// ncNewline();
-
-	// ncPrint("[Done]");
-	// ncNewline();
-	// ncNewline();
 
 	init_screen();
 
@@ -89,17 +55,10 @@ void * initializeKernelBinary()
 
 
 int main() {	
-	//fillScreen(&PURPLE);
 	drawShellBorder(&WHITE);
+
 	load_idt();
-	// ncPrint("  IDT loaded");
-	// ncNewline();
-	// ncPrint("[Kernel Main]");
-	// ncNewline();
-	// ncPrint("  Sample code module at 0x");
-	// ncPrintHex((uint64_t)sampleCodeModuleAddress);
-	// ncNewline();
-	// ncPrint("  Calling the sample code module returned: ");
+
 	prompt_info leftPrompt = {	.x = 0,
 								.y = 0,
 							  	.baseX = 0,
@@ -114,16 +73,9 @@ int main() {
 								.windowWidth = getScreenWidth()/2 - 4, 
 								.windowHeight = getScreenHeight()};
 
-	loadTask(0, sampleCodeModuleAddress, 0x600000, leftPrompt);
-	loadTask(1, sampleCodeModuleAddress, 0x700000, rightPrompt);
+	loadTask(0, (uint64_t)sampleCodeModuleAddress, 0x600000, leftPrompt);
+	loadTask(1, (uint64_t)sampleCodeModuleAddress, 0x700000, rightPrompt);
 	initCurrentTask();
-	// ncPrintHex(((EntryPoint)sampleCodeModuleAddress)());
-	// currentTask = 1;
-	// task1RSP = 0x600000;
-	// create_task(1, 0x600000, sampleCodeModuleAddress);
-	// uint64_t task2RSP = create_task(2, 0x700000, sampleCodeModuleAddress);
-	// setOtherRSP(task2RSP);
-	// init_task(task1RSP);
 	
 	ncNewline();
 	ncNewline();
@@ -138,9 +90,6 @@ int main() {
 	
 	ncPrint("[Finished]");
 	ncNewline();
-
-	
-
 
 	while(1);
 

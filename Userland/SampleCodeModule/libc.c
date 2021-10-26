@@ -222,7 +222,7 @@ double strtodouble(const char * start, char ** end) {
         }
         start++;
     }
-    *end = start;
+    *end = (char*)start;
     return (flagNegative) ? -ans : ans;
 }
 

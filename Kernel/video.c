@@ -2,7 +2,7 @@
 #include <font.h>
 #include <lib.h>
 
-vbe_mode_info * vbeInfo = 0x5C00;
+vbe_mode_info * vbeInfo = (vbe_mode_info *)0x5C00;
 
 Color PURPLE = {.r = 0x88, .g = 0x00, .b = 0xFF};
 Color WHITE = {.r = 0xFF, .g = 0xFF, .b = 0xFF};
