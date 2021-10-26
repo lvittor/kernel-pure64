@@ -5,8 +5,8 @@
 #include <process.h>
 
 int8_t initScheduler();
-int8_t addToReady(uint64_t rip, uint8_t priority);
-int8_t addToBlocked(pid_t proc);
+pid_t addToReady(uint64_t rip, uint8_t priority);
 uint64_t scheduler(uint64_t rsp);
+void checkCurrent(pid_t pid);
 
 #endif
