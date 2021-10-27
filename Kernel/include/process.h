@@ -12,11 +12,11 @@ typedef enum Status {
 } Status;
 
 // ASM
-uint64_t init_process(uint64_t stack_base, uint64_t rip);
+uint64_t init_process(uint64_t stack_base, uint64_t rip, uint64_t argc, uint64_t argv);
 void _int20(void);
 
 
-pid_t createProcess(uint64_t rip, uint8_t priority, char *name);
+pid_t createProcess(uint64_t rip, uint8_t priority, char *name, uint64_t argc, char *argv[]);
 void kill(pid_t pid);
 void block(pid_t pid);
 void unblock(pid_t pid);

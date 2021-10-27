@@ -17,13 +17,13 @@ typedef struct process {
 
 static pid_t processCounter = 0;
 static Process * processes[MAX_PROCESS_COUNT] = {NULL};
+static char *states[] = {"Ready", "Terminated", "Blocked"};
 
 static uint8_t isValidPid(pid_t pid) {
     return pid >= 0 && pid < MAX_PROCESS_COUNT && processes[pid] != NULL;
 }
 
-pid_t createProcess(uint64_t rip, uint8_t priority, char *name) {
-
+pid_t createProcess(uint64_t rip, uint8_t priority, char *name, uint64_t argc, char *argv[]) {
     Process *newProcess = alloc(sizeof(Process));
     
     if(newProcess == NULL){
@@ -33,7 +33,7 @@ pid_t createProcess(uint64_t rip, uint8_t priority, char *name) {
     newProcess->stack_base = (uint64_t) alloc(PROCESS_SIZE);
     uint64_t rsp = newProcess->stack_base + (PROCESS_SIZE - 1);
 
-    newProcess->rsp = init_process(rsp, rip);
+    newProcess->rsp = init_process(rsp, rip, argc, (uint64_t) argv);
     newProcess->pid = processCounter;
     newProcess->status = READY;
     newProcess->rip = rip;
@@ -109,6 +109,7 @@ void setPriority(pid_t pid, uint8_t priority) {
 }
 
 void showAllPs() {
+    ncNewline();
     for(int i = 0; i < MAX_PROCESS_COUNT; i++) {
         if(processes[i] != NULL) {
             ncPrint("PID: ");
@@ -123,6 +124,8 @@ void showAllPs() {
             ncPrint("Priority: ");
             ncPrintDec(processes[i]->priority);
             ncNewline();
+            ncPrint("Status: ");
+            ncPrint(states[processes[i]->status]);
             ncNewline();
         }
     }
