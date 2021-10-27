@@ -88,8 +88,7 @@ uint64_t getRsp(pid_t pid){
 int getPriority(pid_t pid) {
     if(!isValidPid(pid))
         return -1; 
-    processes[pid]->priority;
-    return 0;
+    return processes[pid]->priority;
 }
 
 uint8_t isReady(pid_t pid) {
