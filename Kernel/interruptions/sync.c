@@ -4,6 +4,9 @@
 #include <assert.h>
 #include <scheduler.h>
 #include <process.h>
+#include <lib.h>
+
+#define MAX_SEMS 255 // 2^8 - 1
 
 typedef struct semaphore {
     uint64_t value, activeCount;
@@ -13,14 +16,16 @@ typedef struct semaphore {
 
 static sem_t semaphores[MAX_SEMS] = {NULL};
 
-sem_t sem_open(uint8_t id, uint64_t value) {
+int sem_open(uint8_t id, uint64_t value) {
     if (semaphores[id]) {
+        acquire(&(semaphores[id]->mutex));
         semaphores[id]->activeCount++;
-        return semaphores + id;
+        release(&(semaphores[id]->mutex));
+        return 0;
     }
     semaphores[id] = alloc(sizeof(Semaphore));
     if (semaphores[id] == NULL) {
-        return NULL;
+        return -1;
     }
     semaphores[id]->value = value;
     semaphores[id]->activeCount = 1;
@@ -30,47 +35,60 @@ sem_t sem_open(uint8_t id, uint64_t value) {
     return semaphores[id];
 }
 
-int sem_wait(sem_t sem) {
-    if (sem == NULL) {
+int sem_wait(uint8_t semID) {
+    if (semaphores[semID] == NULL) {
         return -1;
     }
-    if (sem->value > 0) {
-        sem->value--;
+    if (semaphores[semID]->value > 0) {
+        acquire(&(semaphores[semID]->mutex));
+        semaphores[semID]->value--;
+        release(&(semaphores[semID]->mutex));
         return 0;
     }
     pid_t currentPid = getCurrentPid();
-    if (push(sem->blockedQueue, currentPid) == -1) {
+    acquire(&(semaphores[semID]->mutex));
+    int ans = push(semaphores[semID]->blockedQueue, currentPid);
+    release(&(semaphores[semID]->mutex));
+    if (ans < 0) {
         return -1;
     }
     block(currentPid);
     return 0;
 }
 
-int sem_post(sem_t sem) {
-    if (sem == NULL) {
+int sem_post(uint8_t semID) {
+    if (semaphores[semID] == NULL) {
         return -1;
     }
-    if (queueSize(sem->blockedQueue) == 0) {
-        sem->value++;
+    if (queueSize(semaphores[semID]->blockedQueue) == 0) {
+        acquire(&(semaphores[semID]->mutex));
+        semaphores[semID]->value++;
+        release(&(semaphores[semID]->mutex));
         return 0;
     }
-    pid_t toUnblockPid = pop(sem->blockedQueue);
-    if (toUnblockPid == -1) {
+    acquire(&(semaphores[semID]->mutex));
+    pid_t toUnblockPid = pop(semaphores[semID]->blockedQueue);
+    release(&(semaphores[semID]->mutex));
+    if (toUnblockPid < 0) {
         return -1;
     }
     unblock(toUnblockPid);
     return 0;
 }
 
-int sem_close(sem_t sem) {
-    if (sem == NULL) {
+int sem_close(uint8_t semID) {
+    if (semaphores[semID] == NULL) {
         return -1;
     }
-    sem->activeCount--;
-    if (sem->activeCount > 0) {
+    acquire(&(semaphores[semID]->mutex));
+    semaphores[semID]->activeCount--;
+    release(&(semaphores[semID]->mutex));
+    if (semaphores[semID]->activeCount > 0) {
         return 0;
     }
-    semaphores[(uint8_t)(&sem - semaphores)] = NULL;
-    free(sem);
+    free(semaphores[semID]);
+    acquire(&(semaphores[semID]->mutex));
+    semaphores[semID] = NULL;
+    release(&(semaphores[semID]->mutex));
     return 0;
 }
