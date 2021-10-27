@@ -6,7 +6,7 @@
 #include <scheduler.h>
 #include <sync.h>
 
-#define MAX_SEMS 255 // 2^8 - 1
+#define MAX_SEMS 765
 
 typedef struct semaphore *sem_t;
 
@@ -18,7 +18,7 @@ typedef struct semaphore {
 
 static sem_t semaphores[MAX_SEMS] = {NULL};
 
-int sem_open(uint8_t id, uint64_t value) {
+int sem_open(uint16_t id, uint64_t value) {
   if (semaphores[id]) {
     acquire(&(semaphores[id]->mutex));
     semaphores[id]->activeCount++;
@@ -37,7 +37,7 @@ int sem_open(uint8_t id, uint64_t value) {
   return 0;
 }
 
-int sem_wait(uint8_t semID) {
+int sem_wait(uint16_t semID) {
   if (semaphores[semID] == NULL) {
     return -1;
   }
@@ -58,7 +58,7 @@ int sem_wait(uint8_t semID) {
   return 0;
 }
 
-int sem_post(uint8_t semID) {
+int sem_post(uint16_t semID) {
   if (semaphores[semID] == NULL) {
     return -1;
   }
@@ -78,7 +78,7 @@ int sem_post(uint8_t semID) {
   return 0;
 }
 
-int sem_close(uint8_t semID) {
+int sem_close(uint16_t semID) {
   if (semaphores[semID] == NULL) {
     return -1;
   }
