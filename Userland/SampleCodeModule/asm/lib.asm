@@ -1,10 +1,4 @@
-GLOBAL print
-GLOBAL setReg
-GLOBAL fillDate
-GLOBAL inforeg
-GLOBAL fillMem
-GLOBAL _quadratic
-GLOBAL read
+GLOBAL print, setReg, fillDate, inforeg, fillMem, _quadratic, read, ps, createPs
 
 EXTERN print_f
 
@@ -91,12 +85,22 @@ read:
     ret
 
 fillDate:
-    mov rax, 3
+    mov rax, 2
     int 80h
     ret
 
 fillMem:
+    mov rax, 3
+    int 80h
+    ret
+
+ps: ; void ps void(void);
     mov rax, 4
+    int 80h
+    ret
+
+createPs: ; pid_t createPs(uint64_t rip, int argc, char *argv[]);
+    mov rax, 5
     int 80h
     ret
 
