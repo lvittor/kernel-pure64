@@ -42,5 +42,11 @@ long read(unsigned int fd, char *buf, size_t count);
 int _quadratic(double *a, double *b, double *c, double *root1, double *root2);
 void ps(void);
 pid_t createPs(uint64_t rip, int argc, char *argv[]);
+int block(pid_t pid);
+int unblock(pid_t pid);
+int kill(pid_t pid);
+pid_t getpid(void);
+int nice(pid_t pid, int adjustment);
+void exit();
 
 #endif
