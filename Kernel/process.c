@@ -3,6 +3,7 @@
 #include <mmgr.h>
 #include <interrupts.h>
 #include <kstring.h>
+#include <naiveConsole.h>
 
 #define MAX_PROCESS_COUNT 256
 #define PROCESS_SIZE 8 * 1024
@@ -20,7 +21,7 @@ static Process * processes[MAX_PROCESS_COUNT] = {NULL};
 static char *states[] = {"Ready", "Terminated", "Blocked"};
 
 static uint8_t isValidPid(pid_t pid) {
-    return pid >= 0 && pid < MAX_PROCESS_COUNT && processes[pid] != NULL;
+    return pid >= 0 && pid < MAX_PROCESS_COUNT && processes[pid] != NULL && processes[pid]->status != TERMINATED;
 }
 
 pid_t createProcess(uint64_t rip, uint8_t priority, char *name, uint64_t argc, char *argv[]) {
@@ -48,24 +49,27 @@ pid_t createProcess(uint64_t rip, uint8_t priority, char *name, uint64_t argc, c
     return newProcess->pid;
 }
 
-void kill(pid_t pid) {
-    if(isValidPid(pid)){
-        processes[pid]->status = TERMINATED;
-        checkCurrent(pid);
-    }
+int kill(pid_t pid) {
+    if(!isValidPid(pid))
+        return -1;
+    processes[pid]->status = TERMINATED;
+    checkCurrent(pid);
+    return 0;
 }
 
-void block(pid_t pid){
-    if(isValidPid(pid)){
-        processes[pid]->status = BLOCKED;
-        checkCurrent(pid);
-    }
+int block(pid_t pid){
+    if(!isValidPid(pid))
+        return -1;
+    processes[pid]->status = BLOCKED;
+    checkCurrent(pid);
+    return 0;
 }
 
-void unblock(pid_t pid){
-    if(isValidPid(pid) && isBlocked(pid)){
-        processes[pid]->status = READY;
-    }
+int unblock(pid_t pid){
+    if(!isValidPid(pid))
+        return -1;
+    processes[pid]->status = READY;
+    return 0;
 }
 
 void remove(pid_t pid) {
@@ -81,8 +85,11 @@ uint64_t getRsp(pid_t pid){
     return isValidPid(pid)? processes[pid]->rsp : 0;
 }
 
-uint8_t getPriority(pid_t pid) {
-    return isValidPid(pid)? processes[pid]->priority : 0;
+int getPriority(pid_t pid) {
+    if(!isValidPid(pid))
+        return -1; 
+    processes[pid]->priority;
+    return 0;
 }
 
 uint8_t isReady(pid_t pid) {
@@ -103,9 +110,11 @@ void setRsp(pid_t pid, uint64_t rsp) {
         processes[pid]->rsp = rsp;
 }
 
-void setPriority(pid_t pid, uint8_t priority) {
-    if(isValidPid(pid))
-        processes[pid]->priority = priority;
+int setPriority(pid_t pid, uint8_t priority) {
+    if(!isValidPid(pid))
+        return -1;
+    processes[pid]->priority = priority;
+    return 0;
 }
 
 void showAllPs() {
