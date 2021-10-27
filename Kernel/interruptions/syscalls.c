@@ -5,6 +5,8 @@
 #include <stdint.h>
 #include <syscalls.h>
 #include <video.h>
+#include <process.h>
+#include <scheduler.h>
 
 
 typedef uint64_t (*PSysCall)(uint64_t, uint64_t, uint64_t);
@@ -18,9 +20,12 @@ uint64_t sys_write(uint8_t fd, char *buffer, uint64_t count);
 int64_t sys_read(unsigned int fd, char *buf, size_t count);
 uint64_t sys_date(dateType *pDate);
 uint64_t sys_mem(uint64_t rdi, uint64_t rsi, uint8_t rdx);
+void sys_ps(void);
+pid_t sys_createPs(uint64_t rip, int argc, char *argv[]);
 
-static PSysCall sysCalls[255] = {(PSysCall)&sys_read, (PSysCall)&sys_write,
-                                 (PSysCall)&sys_date};
+static PSysCall sysCalls[255] = 
+  {(PSysCall)&sys_read, (PSysCall)&sys_write, (PSysCall)&sys_date, (PSysCall)&sys_mem,
+   (PSysCall)&sys_ps, (PSysCall)&sys_createPs};
 
 uint64_t sysCallDispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx,
                            uint64_t rax) {
@@ -85,4 +90,14 @@ uint64_t sys_mem(uint64_t rdi, uint64_t rsi, uint8_t rdx) {
     dst[i] = src[i];
 
   return i;
+}
+
+void sys_ps(void) {
+  showAllPs();
+}
+
+
+// TODO: this is a mockup.
+pid_t sys_createPs(uint64_t rip, int argc, char *argv[]) {
+  return createProcess(rip, 0, "user process", argc, argv);
 }
