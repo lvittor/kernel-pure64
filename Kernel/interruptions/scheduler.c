@@ -19,7 +19,7 @@ int8_t initScheduler() {
     if(ready == NULL) {
         return -1;
     }
-    haltProcessPid = createProcess(&haltProcess, 0, "halt");
+    haltProcessPid = createProcess(&haltProcess, 0, "halt", 0, NULL);
     pop(ready);
     return 0;
 }
