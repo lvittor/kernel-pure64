@@ -109,7 +109,7 @@ void setPriority(pid_t pid, uint8_t priority) {
 }
 
 void showAllPs() {
-    ncPrint("--------------");
+    ncPrint("---------------------");
     ncNewline();
     for(int i = 0; i < MAX_PROCESS_COUNT; i++) {
         if(processes[i] != NULL) {
@@ -128,7 +128,7 @@ void showAllPs() {
             ncPrint("Status: ");
             ncPrint(states[processes[i]->status]);
             ncNewline();
-            ncPrint("--------------");
+            ncPrint("---------------------");
             ncNewline();
         }
     }
