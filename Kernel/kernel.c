@@ -32,62 +32,62 @@ void *getStackBase() {
   );
 }
 
-void printArgs(int argc, char *argv[]){
-  ncPrint("Cantidad de argumentos: ");
-  ncPrintDec(argc);
+// void printArgs(int argc, char *argv[]){
+//   ncPrint("Cantidad de argumentos: ");
+//   ncPrintDec(argc);
   
-  for(int i = 0; i < argc; i++){
-    ncNewline();
-    ncPrint(argv[i]);
-    ncNewline();
-  }
+//   for(int i = 0; i < argc; i++){
+//     ncNewline();
+//     ncPrint(argv[i]);
+//     ncNewline();
+//   }
   
-  kill(getCurrentPid());
-}
+//   kill(getCurrentPid());
+// }
 
-void printA(){
-  int blocked = 0;
-  while(1) {
-    ncPrint("A");
-    _hlt();
-  }
-}
+// void printA(){
+//   int blocked = 0;
+//   while(1) {
+//     ncPrint("A");
+//     _hlt();
+//   }
+// }
 
-void printB(){
-  while(1) {
-    ncPrint("B");
-    _hlt();
-  }
-}
+// void printB(){
+//   while(1) {
+//     ncPrint("B");
+//     _hlt();
+//   }
+// }
 
-void printC(){
-  while(1) {
-    ncPrint("C");
-    _hlt();
-  }
-}
+// void printC(){
+//   while(1) {
+//     ncPrint("C");
+//     _hlt();
+//   }
+// }
 
-void processControl() {
-  while(seconds_elapsed() < 1);
-  block(1);
-  while(seconds_elapsed() < 2);
-  block(2);
-	unblock(1);
-	while(seconds_elapsed() < 3);
-	unblock(2);
-	setPriority(1, 3);
-	setPriority(2, 2);
-	setPriority(3, 1);
-	while(seconds_elapsed() < 4);
-	block(1);
-	block(2);
-	block(3);
-	while(seconds_elapsed() < 6);
-	unblock(1);
-	unblock(2);
-	unblock(3);
-	kill(4);
-}
+// void processControl() {
+//   while(seconds_elapsed() < 1);
+//   block(1);
+//   while(seconds_elapsed() < 2);
+//   block(2);
+// 	unblock(1);
+// 	while(seconds_elapsed() < 3);
+// 	unblock(2);
+// 	setPriority(1, 3);
+// 	setPriority(2, 2);
+// 	setPriority(3, 1);
+// 	while(seconds_elapsed() < 4);
+// 	block(1);
+// 	block(2);
+// 	block(3);
+// 	while(seconds_elapsed() < 6);
+// 	unblock(1);
+// 	unblock(2);
+// 	unblock(3);
+// 	kill(4);
+// }
 
 
 void *initializeKernelBinary() {
@@ -149,12 +149,13 @@ int main() {
   initMgr();
   initScheduler();
 
-	createProcess((uint64_t) &printA, 0, "printA", 0, NULL);
-	createProcess((uint64_t) &printB, 0, "printB", 0, NULL);
-	createProcess((uint64_t) &printC, 0, "printC", 0, NULL);
-	createProcess((uint64_t) &processControl, 0, "control", 0, NULL);
+	// createProcess((uint64_t) &printA, 0, "printA", 0, NULL);
+	// createProcess((uint64_t) &printB, 0, "printB", 0, NULL);
+	// createProcess((uint64_t) &printC, 0, "printC", 0, NULL);
+	// createProcess((uint64_t) &processControl, 0, "control", 0, NULL);
   // char *argv[] = {"printargs", "Hola Mundo", "Juan Garcia", NULL};
   // createProcess((uint64_t) &printArgs, 0, "printargs", 3, argv);
+  createProcess((uint64_t)sampleCodeModuleAddress, 10, "shell", 0, NULL);
 
 
   //showAllPs();
