@@ -26,12 +26,21 @@ static commandType commandFunctions[MODULES_SIZE] = {
     printQuadraticRoots};
 
 void checkModule(char *string);
+void endlessLoop(int argc, char *argv[]){
+  print_f(1, "Cantidad de argumentos recibidos: %d\n", argc);
+  for(int i = 0; argv[i] != NULL; i++)
+    print_f(1, "%s ", argv[i]);
+  put_char(1, '\n');
+  while(1);
+}
 
 int main() {
   char buffer[MAX_COMMAND + 1];
-
-  print_f(1, "Estamos en userland.\n");
-  help();
+  char *argv[] = {"Juan", "Ignacio", "Garcia", "Budweiser", NULL};
+  pid_t pid = createPs((uint64_t)&endlessLoop, 24, argv);
+  print_f(1, "Created process pid: %d\n", pid);
+  ps();
+  print_f(1, "Ingrese help para ver todos los comandos.\n");
 
   while (1) {
     print_f(2, "\n>> ");
