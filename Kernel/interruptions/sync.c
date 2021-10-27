@@ -34,7 +34,7 @@ int sem_open(uint8_t id, uint64_t value) {
     semaphores[id]->mutex = 0;
     semaphores[id]->blockedQueue = newQueue();
 
-    return semaphores[id];
+    return 0;
 }
 
 int sem_wait(uint8_t semID) {
