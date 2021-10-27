@@ -32,6 +32,19 @@ void *getStackBase() {
   );
 }
 
+void printArgs(int argc, char *argv[]){
+  ncPrint("Cantidad de argumentos: ");
+  ncPrintDec(argc);
+  
+  for(int i = 0; i < argc; i++){
+    ncNewline();
+    ncPrint(argv[i]);
+    ncNewline();
+  }
+  
+  kill(getCurrentPid());
+}
+
 void printA(){
   int blocked = 0;
   while(1) {
@@ -136,10 +149,12 @@ int main() {
   initMgr();
   initScheduler();
 
-	createProcess((uint64_t) &printA, 0, "printA");
-	createProcess((uint64_t) &printB, 0, "printB");
-	createProcess((uint64_t) &printC, 0, "printC");
-	createProcess((uint64_t) &processControl, 0, "control");
+	createProcess((uint64_t) &printA, 0, "printA", 0, NULL);
+	createProcess((uint64_t) &printB, 0, "printB", 0, NULL);
+	createProcess((uint64_t) &printC, 0, "printC", 0, NULL);
+	createProcess((uint64_t) &processControl, 0, "control", 0, NULL);
+  // char *argv[] = {"printargs", "Hola Mundo", "Juan Garcia", NULL};
+  // createProcess((uint64_t) &printArgs, 0, "printargs", 3, argv);
 
 
   //showAllPs();
