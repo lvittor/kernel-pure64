@@ -16,16 +16,33 @@ typedef struct dateType {
   uint8_t hour, minute, second;
 } dateType;
 
-uint64_t sys_write(uint8_t fd, char *buffer, uint64_t count);
 int64_t sys_read(unsigned int fd, char *buf, size_t count);
+uint64_t sys_write(uint8_t fd, char *buffer, uint64_t count);
 uint64_t sys_date(dateType *pDate);
 uint64_t sys_mem(uint64_t rdi, uint64_t rsi, uint8_t rdx);
 void sys_ps(void);
 pid_t sys_createPs(uint64_t rip, int argc, char *argv[]);
+int sys_block(pid_t pid);
+int sys_unblock(pid_t pid);
+int sys_kill(pid_t pid);
+pid_t sys_getpid(void);
+int sys_nice(pid_t pid, int priority);
+void sys_exit(void);
 
 static PSysCall sysCalls[255] = 
-  {(PSysCall)&sys_read, (PSysCall)&sys_write, (PSysCall)&sys_date, (PSysCall)&sys_mem,
-   (PSysCall)&sys_ps, (PSysCall)&sys_createPs};
+  {(PSysCall)&sys_read, 
+   (PSysCall)&sys_write, 
+   (PSysCall)&sys_date, 
+   (PSysCall)&sys_mem,
+   (PSysCall)&sys_ps, 
+   (PSysCall)&sys_createPs, 
+   (PSysCall)&sys_block, 
+   (PSysCall)&sys_unblock,
+   (PSysCall)&sys_kill, 
+   (PSysCall)&sys_getpid,
+   (PSysCall)&sys_nice,
+   (PSysCall)&sys_exit
+   };
 
 uint64_t sysCallDispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx,
                            uint64_t rax) {
@@ -96,8 +113,34 @@ void sys_ps(void) {
   showAllPs();
 }
 
-
 // TODO: this is a mockup.
 pid_t sys_createPs(uint64_t rip, int argc, char *argv[]) {
   return createProcess(rip, 0, "user process", argc, argv);
+}
+
+int sys_block(pid_t pid) {
+  return block(pid);
+}
+
+int sys_unblock(pid_t pid) {
+  return unblock(pid);
+}
+
+int sys_kill(pid_t pid) {
+  return kill(pid);
+}
+
+pid_t sys_getpid(void) {
+  return getCurrentPid();
+}
+
+int sys_nice(pid_t pid, int adjustment) {
+  int8_t old = getPriority(pid);
+  int8_t new = old + adjustment;
+  if(new < 0) new = 0;
+  return setPriority(pid, new);
+}
+
+void sys_exit(void) {
+  kill(getCurrentPid());
 }
