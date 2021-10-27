@@ -8,6 +8,8 @@
 
 #define MAX_SEMS 255 // 2^8 - 1
 
+typedef struct semaphore * sem_t;
+
 typedef struct semaphore {
     uint64_t value, activeCount;
     int64_t mutex;

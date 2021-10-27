@@ -4,8 +4,6 @@
 #include <stdint.h>
 #include <stddef.h>
 
-typedef struct semaphore * sem_t;
-
 int sem_open(uint8_t id, uint64_t value);
 
 int sem_wait(uint8_t semID);
