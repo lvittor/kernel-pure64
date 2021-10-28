@@ -8,12 +8,12 @@
 #define MAX_PROCESS_COUNT 256
 #define PROCESS_SIZE 8 * 1024
 
-#define MASK_FOREGROUND (0x1)
+#define MASK_BACKGROUND (0x1)
 #define MASK_L_PIPE (0x1 << 1)
 #define MASK_R_PIPE (0x1 << 2)
 
 typedef struct process {
-    pid_t pid;
+    pid_t pid, parent;
     char *name;
     uint8_t priority, mode;
     Status status;
@@ -28,8 +28,8 @@ static uint8_t isValidPid(pid_t pid) {
     return pid >= 0 && pid < MAX_PROCESS_COUNT && processes[pid] != NULL && processes[pid]->status != TERMINATED;
 }
 
-static uint8_t isForeground(uint8_t mode) {
-    return mode && MASK_FOREGROUND;
+static uint8_t isBackground(uint8_t mode) {
+    return mode && MASK_BACKGROUND;
 }
 
 static uint8_t isLeftPipe(uint8_t mode) {
@@ -57,6 +57,7 @@ pid_t createProcess(uint64_t rip, uint8_t priority, char *name, uint64_t argc, c
 
     newProcess->rsp = init_process(rsp, rip, argc, (uint64_t) argv);
     newProcess->pid = processCounter;
+    newProcess->parent = getCurrentPid();
     newProcess->status = READY;
     newProcess->rip = rip;
     newProcess->priority = priority;
@@ -73,6 +74,10 @@ pid_t createProcess(uint64_t rip, uint8_t priority, char *name, uint64_t argc, c
 
     addToReady(newProcess->pid);
 
+    if(!isBackground(mode)) {
+        block(newProcess->parent);
+    }
+
     return newProcess->pid;
 }
 
@@ -80,6 +85,9 @@ int kill(pid_t pid) {
     if(!isValidPid(pid))
         return -1;
     processes[pid]->status = TERMINATED;
+    if(!isBackground(processes[pid]->mode)) {
+        unblock(processes[pid]->parent);
+    }
     checkCurrent(pid);
     return 0;
 }
@@ -152,6 +160,13 @@ void showAllPs() {
             ncPrint("PID: ");
             ncPrintDec(processes[i]->pid);
             ncNewline();
+            ncPrint("Parent: ");
+            if(processes[i]->parent == -1) {
+                ncPrint("-1");
+            } else {
+                ncPrintDec(processes[i]->parent);
+            }
+            ncNewline();
             ncPrint("Name: ");
             ncPrint(processes[i]->name);
             ncNewline();
@@ -164,10 +179,10 @@ void showAllPs() {
             ncPrint("Status: ");
             ncPrint(states[processes[i]->status]);
             ncNewline();
-            if(isForeground(processes[i]->mode)){
-                ncPrint("Process in foreground");
-            } else {
+            if(isBackground(processes[i]->mode)){
                 ncPrint("Process in background");
+            } else {
+                ncPrint("Process in foreground");
             }
             ncNewline();
             ncPrint("---------------------------------------");

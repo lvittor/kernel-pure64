@@ -99,7 +99,7 @@ ps: ; void ps void(void);
     int 80h
     ret
 
-createPs: ; pid_t createPs(uint64_t rip, char *name, int argc, char *argv[]);
+createPs: ; pid_t createPs(uint64_t rip, char *name, int argc, char *argv[], uint8_t mode);
     mov rax, 5
     int 80h
     ret
@@ -133,6 +133,9 @@ exit: ; void exit(void);
     mov rax, 11
     int 80h
     ret
+
+// TODO: check if syscalls could be handled in a better way
+
 setReg:
     mov rax, 0xFFFF
     mov rbx, 0xFFF0

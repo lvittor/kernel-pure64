@@ -41,7 +41,7 @@ int64_t fillMem(uint64_t src, uint8_t *dst, uint8_t size);
 long read(unsigned int fd, char *buf, size_t count);
 int _quadratic(double *a, double *b, double *c, double *root1, double *root2);
 void ps(void);
-pid_t createPs(uint64_t rip, char *name, int argc, char *argv[]);
+pid_t createPs(uint64_t rip, char *name, int argc, char *argv[], uint8_t mode);
 int block(pid_t pid);
 int unblock(pid_t pid);
 int kill(pid_t pid);

@@ -43,7 +43,7 @@ void checkModule(char *string);
 int main() {
   char buffer[MAX_COMMAND + 1];
   char *argv[] = {"my_proc", "Juan", "Ignacio", "Garcia", "Matwieiszyn", NULL};
-  createPs((uint64_t) &my_proc, "endless loop", 5, argv);
+  createPs((uint64_t) &my_proc, "endless loop", 5, argv, 1);
   print_f(1, "Ingrese help para ver todos los comandos.\n");
 
   while (1) {
