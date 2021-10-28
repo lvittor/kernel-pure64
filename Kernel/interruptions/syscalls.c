@@ -24,12 +24,11 @@ uint8_t sys_getpid(void);
 typedef int64_t (*syscall)(int64_t, int64_t, int64_t);
 
 syscall syscalls[MAX_SYSCALLS] = {
-	NULL,
+	(syscall)sys_getpid,
 	(syscall)sys_write,
 	(syscall)sys_read,
 	(syscall)sys_date,
 	(syscall)sys_mem,
-	(syscall)sys_getpid,
 	NULL
 };
 
@@ -39,6 +38,10 @@ uint64_t syscallDispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rc
 		return -1;
 	
 	return sc(rdi, rsi, rdx);
+}
+
+uint8_t sys_getpid(void) {
+	return getCurrentPID();
 }
 
 uint64_t sys_write(uint8_t fd, char * buffer, uint64_t count) {
@@ -91,10 +94,6 @@ uint64_t sys_mem(uint64_t rdi, uint64_t rsi, uint8_t rdx){
 		dst[i] = src[i];
 	
 	return i;
-}
-
-uint8_t sys_getpid(void) {
-	return getCurrentPID();
 }
 
 uint8_t sys_listProcesses(){

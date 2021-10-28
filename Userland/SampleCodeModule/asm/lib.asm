@@ -96,7 +96,7 @@ fillMem:
     ret
 
 getPid:
-    mov rax, 5
+    mov rax, 0
     int 80h
     ret
 

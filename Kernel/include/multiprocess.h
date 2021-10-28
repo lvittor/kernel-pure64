@@ -11,4 +11,10 @@ int8_t initScheduler(uint64_t functionAddress, int argc, char* argv[]);
 void _openProcessContext(uint64_t baseRSP);
 uint64_t _buildProcessContext(uint64_t baseRSP, uint64_t functionAddress, int argc, char * argv[]);
 
+int8_t getCurrentPID(void);
+int kill(uint8_t pid);
+int block(uint8_t pid);
+int unblock(uint8_t pid);
+struct processControlBlock * getProcesses(void);
+
 #endif

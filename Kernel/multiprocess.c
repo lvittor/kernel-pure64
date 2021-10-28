@@ -30,8 +30,7 @@ void haltProcess() {
 }
 
 int8_t initScheduler(uint64_t functionAddress, int argc, char* argv[]) {
-    // Segun lo que tenemos ahora, habria que hacer AAALGO asi. (Ojo que en kernel.c lo deje todo igual)
-    haltPID = loadProcess((uint64_t)haltProcess, 0, (char *[]){NULL}); 
+    haltPID = loadProcess((uint64_t)haltProcess, 0, (char *[]){NULL});
     if (haltPID == -1)
         return -1;
     
@@ -120,10 +119,11 @@ int unblock(uint8_t pid){
 }
 
 processControlBlock * getProcesses(void){
-    processControlBlock * result[MAX_PROCESSES] = {NULL}
+    return NULL;
+/*    processControlBlock * result[MAX_PROCESSES] = {NULL};
     for (int pid = 0; pid < MAX_PROCESSES && processes[pid] != NULL; pid++){
         result[pid] = processes[pid]
     }
 
-    return result;
+    return result;*/
 }
