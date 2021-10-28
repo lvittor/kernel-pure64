@@ -89,8 +89,8 @@ uint64_t schedule(uint64_t currRSP) {
 }
 
 void freeProcess(uint8_t pid) {
-    free(processes[pid]->stackTop);
-    free(processes[pid]);
+    free((void*)processes[pid]->stackTop);
+    free((void*)processes[pid]);
     processes[pid] = NULL;
 }
 
