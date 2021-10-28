@@ -134,7 +134,7 @@ exit: ; void exit(void);
     int 80h
     ret
 
-// TODO: check if syscalls could be handled in a better way
+; TODO: check if syscalls could be handled in a better way
 
 setReg:
     mov rax, 0xFFFF
