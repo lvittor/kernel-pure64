@@ -1,4 +1,4 @@
-#include <multiprocess.h>
+#include <scheduler.h>
 #include <memoryManager.h>
 #include <interrupts.h>
 #include <naiveConsole.h>
@@ -17,12 +17,15 @@ typedef struct processControlBlock {
     enum processState state;
     uint64_t functionAddress;
     uint64_t currRSP;
+    uint64_t stackTop;
     uint64_t baseRSP;
 } processControlBlock;
 
 static processControlBlock * processes[MAX_PROCESSES];
 static uint8_t currentPID = 0;
 static uint8_t haltPID = 0;
+
+void freeProcess(uint8_t pid);
 
 void haltProcess(void) {
     while (1) {
@@ -58,6 +61,7 @@ int loadProcess(uint64_t functionAddress, int argc, char* argv[]) {
         free(pPCB);
         return -1;
     }
+    pPCB->stackTop = stackTop;
     pPCB->state = READY;
     pPCB->baseRSP = stackTop + PROCESS_STACK_SIZE - 1;
     pPCB->functionAddress = functionAddress;
@@ -75,14 +79,19 @@ uint64_t schedule(uint64_t currRSP) {
             currentPID = pid;
             return processes[currentPID]->currRSP;
         } else if (processes[pid]->state == KILLED) {
-            // LIBERAR MEMORIA
-            processes[pid] = NULL;
+            freeProcess(pid);
         }
         // else {
         //     Blocked... 
         // }
     }
     return processes[haltPID]->currRSP;
+}
+
+void freeProcess(uint8_t pid) {
+    free(processes[pid]->stackTop);
+    free(processes[pid]);
+    processes[pid] = NULL;
 }
 
 int8_t getCurrentPID(void) {

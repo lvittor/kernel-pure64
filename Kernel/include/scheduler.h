@@ -1,5 +1,5 @@
-#ifndef __MULTIPROCESS_H__
-#define __MULTIPROCESS_H__
+#ifndef __SCHEDULER_H__
+#define __SCHEDULER_H__
 
 #include <stdint.h>
 

@@ -4,7 +4,7 @@
 #include <moduleLoader.h>
 #include <naiveConsole.h>
 #include <idtLoader.h>
-#include <multiprocess.h>
+#include <scheduler.h>
 #include <video.h>
 
 extern uint8_t text;

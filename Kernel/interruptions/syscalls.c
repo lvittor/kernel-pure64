@@ -5,7 +5,7 @@
 #include <lib.h>
 #include <keyboard.h>
 #include <video.h>
-#include <multiprocess.h>
+#include <scheduler.h>
 
 #define MAX_MEMORY_MAPPED 0x1000000000
 #define MAX_SYSCALLS 15
