@@ -4,11 +4,12 @@
 #include <stdint.h>
 #include <utils.h>
 
-#include <stdlib.h>
-#include <string.h>
-
 #define MAX_COMMAND 19 // Habria que achicarlo
 #define MODULES_SIZE 8
+
+#define STDIN 0
+#define STDOUT 1
+#define STDERR 2
 
 typedef void (*commandType)(void);
 
@@ -24,12 +25,25 @@ static commandType commandFunctions[MODULES_SIZE] = {
     throwInvalidOpcodeException,
     printFeatures,
     printQuadraticRoots};
+  
+void endlessLoop(int argc, char *argv[]) {
+  print_f(1, "Soy el proceso %s\n", argv[0]);
+  print_f(1, "Tengo %d argumentos\n", argc);
+  print_f(1, "Mis argumentos son: \n");
+  for(int i = 0; i < argc; i++) {
+    print_f(1, "%s ", argv[i]);
+  }
+  put_char(1, '\n');
+  ps();
+  exit();
+}
 
 void checkModule(char *string);
 
 int main() {
   char buffer[MAX_COMMAND + 1];
-  ps();
+  char *argv[] = {"endless loop", "Juan", "Ignacio", "Garcia", "Matwieiszyn", NULL};
+  createPs((uint64_t) &endlessLoop, "endless loop", 5, argv);
   print_f(1, "Ingrese help para ver todos los comandos.\n");
 
   while (1) {

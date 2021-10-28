@@ -21,7 +21,7 @@ uint64_t sys_write(uint8_t fd, char *buffer, uint64_t count);
 uint64_t sys_date(dateType *pDate);
 uint64_t sys_mem(uint64_t rdi, uint64_t rsi, uint8_t rdx);
 void sys_ps(void);
-pid_t sys_createPs(uint64_t rip, int argc, char *argv[]);
+pid_t sys_createPs(uint64_t rip, char *name, int argc, char *argv[]);
 int sys_block(pid_t pid);
 int sys_unblock(pid_t pid);
 int sys_kill(pid_t pid);
@@ -108,8 +108,8 @@ uint64_t sys_mem(uint64_t rdi, uint64_t rsi, uint8_t rdx) {
 void sys_ps(void) { showAllPs(); }
 
 // TODO: this is a mockup.
-pid_t sys_createPs(uint64_t rip, int argc, char *argv[]) {
-  return createProcess(rip, 0, "user process", argc, argv);
+pid_t sys_createPs(uint64_t rip, char *name, int argc, char *argv[]) {
+  return createProcess(rip, 0, name, argc, argv);
 }
 
 int sys_block(pid_t pid) { return block(pid); }

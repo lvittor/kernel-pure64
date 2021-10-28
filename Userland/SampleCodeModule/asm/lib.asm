@@ -99,7 +99,7 @@ ps: ; void ps void(void);
     int 80h
     ret
 
-createPs: ; pid_t createPs(uint64_t rip, int argc, char *argv[]);
+createPs: ; pid_t createPs(uint64_t rip, char *name, int argc, char *argv[]);
     mov rax, 5
     int 80h
     ret
