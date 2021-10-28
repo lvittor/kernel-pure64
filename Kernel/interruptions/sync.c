@@ -6,8 +6,6 @@
 #include <scheduler.h>
 #include <sync.h>
 
-#define MAX_SEMS 765
-
 typedef struct semaphore *sem_t;
 
 typedef struct semaphore {

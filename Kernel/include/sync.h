@@ -4,6 +4,9 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#define MAX_SEMS 765
+#define MAX_USER_SEMS 256
+
 int sem_open(uint16_t id, uint64_t value);
 
 int sem_wait(uint16_t semID);
