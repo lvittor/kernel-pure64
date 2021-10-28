@@ -124,7 +124,7 @@ SECTION .text
 	pushStateWithoutAX
 	sti
 
-	mov rcx, rax  ;; TODO: Check this, there has to be a better way of doing it.
+	mov r9, rax  ;; TODO: Check this, there has to be a better way of doing it.
 	call sysCallDispatcher
 
 	push rax
