@@ -8,10 +8,14 @@
 #define MAX_PROCESS_COUNT 256
 #define PROCESS_SIZE 8 * 1024
 
+#define MASK_FOREGROUND (0x1)
+#define MASK_L_PIPE (0x1 << 1)
+#define MASK_R_PIPE (0x1 << 2)
+
 typedef struct process {
     pid_t pid;
     char *name;
-    uint8_t priority;
+    uint8_t priority, mode;
     Status status;
     uint64_t rsp, rip, stack_base;
 } Process;
@@ -24,7 +28,19 @@ static uint8_t isValidPid(pid_t pid) {
     return pid >= 0 && pid < MAX_PROCESS_COUNT && processes[pid] != NULL && processes[pid]->status != TERMINATED;
 }
 
-pid_t createProcess(uint64_t rip, uint8_t priority, char *name, uint64_t argc, char *argv[]) {
+static uint8_t isForeground(uint8_t mode) {
+    return mode && MASK_FOREGROUND;
+}
+
+static uint8_t isLeftPipe(uint8_t mode) {
+    return mode && MASK_L_PIPE;
+}
+
+static uint8_t isRightPipe(uint8_t mode) {
+    return mode && MASK_R_PIPE;
+}
+
+pid_t createProcess(uint64_t rip, uint8_t priority, char *name, uint64_t argc, char *argv[], uint8_t mode) {
     Process *newProcess = alloc(sizeof(Process));
     
     if(newProcess == NULL){
@@ -32,6 +48,11 @@ pid_t createProcess(uint64_t rip, uint8_t priority, char *name, uint64_t argc, c
     }
 
     newProcess->stack_base = (uint64_t) alloc(PROCESS_SIZE);
+
+    if(newProcess->stack_base == 0) {
+        return -1;
+    }
+
     uint64_t rsp = newProcess->stack_base + (PROCESS_SIZE - 1);
 
     newProcess->rsp = init_process(rsp, rip, argc, (uint64_t) argv);
@@ -39,7 +60,13 @@ pid_t createProcess(uint64_t rip, uint8_t priority, char *name, uint64_t argc, c
     newProcess->status = READY;
     newProcess->rip = rip;
     newProcess->priority = priority;
+    newProcess->mode = mode;
     newProcess->name = alloc(strlen(name) + 1);
+
+    if(newProcess->name == NULL) {
+        return -1;
+    }
+
     strcpy(newProcess->name, name);
 
     processes[processCounter++] = newProcess;
@@ -74,7 +101,7 @@ int unblock(pid_t pid){
 
 void remove(pid_t pid) {
     if(isValidPid(pid)){
-        free(processes[pid]->stack_base);
+        free((void *) processes[pid]->stack_base);
         free(processes[pid]->name);
         free(processes[pid]);
         processes[pid] = NULL;
@@ -117,10 +144,11 @@ int setPriority(pid_t pid, uint8_t priority) {
 }
 
 void showAllPs() {
-    ncPrint("---------------------");
     ncNewline();
+    ncPrint("---------------------------------------");
     for(int i = 0; i < MAX_PROCESS_COUNT; i++) {
         if(processes[i] != NULL) {
+            ncNewline();
             ncPrint("PID: ");
             ncPrintDec(processes[i]->pid);
             ncNewline();
@@ -136,8 +164,13 @@ void showAllPs() {
             ncPrint("Status: ");
             ncPrint(states[processes[i]->status]);
             ncNewline();
-            ncPrint("---------------------");
+            if(isForeground(processes[i]->mode)){
+                ncPrint("Process in foreground");
+            } else {
+                ncPrint("Process in background");
+            }
             ncNewline();
+            ncPrint("---------------------------------------");
         }
     }
 }
