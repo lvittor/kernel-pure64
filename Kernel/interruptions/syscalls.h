@@ -1,7 +1,6 @@
 #ifndef __SYSCALLS_H__
 #define __SYSCALLS_H__
 
-#include <stdint.h>
 #include <stddef.h>
 #include <stdint.h>
 
