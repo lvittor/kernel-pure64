@@ -21,7 +21,7 @@ EXTERN irqDispatcher
 EXTERN exceptionDispatcher
 EXTERN syscallDispatcher
 EXTERN printRegs
-EXTERN setCurrentRSP, getCurrentRSP
+EXTERN schedule
 SECTION .text
 
 %macro pushState 0
@@ -154,26 +154,24 @@ picSlaveMask:
 
 ;8254 Timer (Timer Tick)
 _irq00Handler:
-	irqHandlerMaster 0
+	pushState
 
-;Keyboard
-_irq01Handler:
-	pushState ; <-- Save rsp
-	mov rdi, rsp
-	call setCurrentRSP
-
-	mov rdi, 1 ; pasaje de parametro
+	mov rdi, 0
 	call irqDispatcher
 
-	; signal pic EOI (End of Interrupt)
+	mov rdi, rsp
+	call schedule
+	mov rsp, rax
+
 	mov al, 20h
 	out 20h, al
 
-	call getCurrentRSP
-	mov rsp, rax
-
 	popState
 	iretq
+
+;Keyboard
+_irq01Handler:
+	irqHandlerMaster 1
 
 ;Cascade pic never called
 _irq02Handler:

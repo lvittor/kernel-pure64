@@ -116,3 +116,8 @@ void printQuadraticRoots(){
             break;
     };
 }
+
+void printPid() {
+    uint8_t ans = getPid();
+    print_f(1, "PID: %d", ans);
+}

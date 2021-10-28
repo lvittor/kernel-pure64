@@ -8,5 +8,6 @@ void help(void);
 void printmem(void);
 void printFeatures(void);
 void printQuadraticRoots(void);
+void printPid(void);
 
 #endif

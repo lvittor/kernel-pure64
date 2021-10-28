@@ -50,7 +50,7 @@ void exceptionDispatcher(int exception) {
 		_hlt(); // Para la máquina pero prende las interrupciones
 	
 	// Clear window
-	clearWindow(getCurrentPrompt(), &BLACK);
+	clearWindow(&BLACK);
 	// Reiniciar shell (Ojalá)
 	rebootCurrentTask();
 }

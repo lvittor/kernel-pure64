@@ -5,6 +5,11 @@ GLOBAL fillDate
 GLOBAL inforeg
 GLOBAL fillMem
 GLOBAL _quadratic
+GLOBAL getPid
+GLOBAL processList
+GLOBAL createProcess
+GLOBAL _kill
+GLOBAL _block
 
 EXTERN print_f
 
@@ -91,6 +96,31 @@ fillDate:
 
 fillMem:
     mov rax, 4
+    int 80h
+    ret
+
+getPid:
+    mov rax, 5
+    int 80h
+    ret
+
+processList: 
+    mov rax, 6
+    int 80h
+    ret
+
+createProcess: 
+    mov rax, 7
+    int 80h
+    ret
+
+_kill:
+    mov rax, 8
+    int 80h
+    ret
+
+_block:
+    mov rax, 9
     int 80h
     ret
 

@@ -58,10 +58,10 @@ extern Color RED;
 // ESCRIBIR EN PANTALLA
 void fillScreen(Color * color);
 void drawShellBorder(Color * color);
-void drawChar(prompt_info * p, char c, Color * fontColor, Color * backgroundColor);
-void newLine(prompt_info * p, Color * backgronudColor);
-void clearWindow(prompt_info * p, Color * backgroundColor);
-void eraseChar(prompt_info * p, Color * backgroundColor);
+void drawChar(char c, Color * fontColor, Color * backgroundColor);
+void newLine(Color * backgronudColor);
+void clearWindow(Color * backgroundColor);
+void eraseChar(Color * backgroundColor);
 
 // FUNCIONES AUXILIARES
 void init_screen(void);
