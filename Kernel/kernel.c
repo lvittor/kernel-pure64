@@ -161,6 +161,7 @@ int main() {
   //showAllPs();
 
   load_idt();
+  while(1) { _hlt(); }
   
   //(((EntryPoint)sampleCodeModuleAddress)());
 
