@@ -46,7 +46,7 @@ void *memcpy(void *destination, const void *source, uint64_t length) {
 }
 
 void acquire(int *mutex) {
-	while (exchange(mutex, 1) != 0);
+	while (exchange(mutex, 1) != 0);  // TODO: Re-Check if this is done correctly.
   return;
 }
 
