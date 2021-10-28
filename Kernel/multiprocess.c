@@ -77,9 +77,10 @@ uint64_t schedule(uint64_t currRSP) {
         } else if (processes[pid]->state == KILLED) {
             // LIBERAR MEMORIA
             processes[pid] = NULL;
-        } else {
-            // Blocked... 
         }
+        // else {
+        //     Blocked... 
+        // }
     }
     return processes[haltPID]->currRSP;
 }
