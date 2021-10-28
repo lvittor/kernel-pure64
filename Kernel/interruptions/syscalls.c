@@ -15,20 +15,31 @@ typedef struct dateType {
 	uint8_t hour, minute, second;
 } dateType;
 
+uint64_t sys_exit(void);
 uint64_t sys_write(uint8_t fd, char * buffer, uint64_t count);
 int64_t sys_read(void);
 uint64_t sys_date(dateType * pDate);
 uint64_t sys_mem(uint64_t rdi, uint64_t rsi, uint8_t rdx);
 uint8_t sys_getpid(void);
+uint64_t sys_processlist(void);
+uint8_t sys_createProcess(uint64_t functionAddress, int argc, char* argv[]);
+uint64_t sys_kill(uint8_t pid);
+uint64_t sys_block(uint8_t pid);
+uint64_t sys_unblock(uint8_t pid);
 
 typedef int64_t (*syscall)(int64_t, int64_t, int64_t);
 
 syscall syscalls[MAX_SYSCALLS] = {
-	(syscall)sys_getpid,
+	(syscall)sys_exit,
 	(syscall)sys_write,
 	(syscall)sys_read,
 	(syscall)sys_date,
 	(syscall)sys_mem,
+	(syscall)sys_getpid,
+	(syscall)sys_processlist,
+	(syscall)sys_createProcess,
+	(syscall)sys_kill,
+	(syscall)sys_block,
 	NULL
 };
 
@@ -38,6 +49,10 @@ uint64_t syscallDispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rc
 		return -1;
 	
 	return sc(rdi, rsi, rdx);
+}
+
+uint64_t sys_exit(void) {
+	return kill(getCurrentPID());
 }
 
 uint8_t sys_getpid(void) {
@@ -96,6 +111,18 @@ uint64_t sys_mem(uint64_t rdi, uint64_t rsi, uint8_t rdx){
 	return i;
 }
 
-uint8_t sys_listProcesses(){
-	return getProcesses();
+uint64_t sys_processlist(void) {
+	return (uint64_t)getProcesses();
+}
+
+uint8_t sys_createProcess(uint64_t functionAddress, int argc, char* argv[]) {
+	return loadProcess(functionAddress, argc, argv);
+}
+
+uint64_t sys_kill(uint8_t pid) {
+	return kill(pid);
+}
+
+uint64_t sys_block(uint8_t pid) {
+	return block(pid);
 }

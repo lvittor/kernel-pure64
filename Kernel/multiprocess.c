@@ -1,6 +1,7 @@
 #include <multiprocess.h>
 #include <memoryManager.h>
 #include <interrupts.h>
+#include <naiveConsole.h>
 
 #define MAX_PROCESSES   128
 #define PROCESS_STACK_SIZE  0x1000 // 4Kib
@@ -23,7 +24,7 @@ static processControlBlock * processes[MAX_PROCESSES];
 static uint8_t currentPID = 0;
 static uint8_t haltPID = 0;
 
-void haltProcess() {
+void haltProcess(void) {
     while (1) {
         _hlt();
     }    
@@ -66,24 +67,21 @@ int loadProcess(uint64_t functionAddress, int argc, char* argv[]) {
     return pid;
 }
 
-uint8_t schedule(uint64_t currRSP) {
+uint64_t schedule(uint64_t currRSP) {
     processes[currentPID]->currRSP = currRSP;
     for (uint8_t i = 1; i < MAX_PROCESSES; i++) {
         uint8_t pid = (currentPID + i) % MAX_PROCESSES;
         if (processes[pid]->state == READY) {
             currentPID = pid;
-            break;
-        } else if (processes[pid]->state == KILLED) { // habria que borrarlo de processes.
+            return processes[currentPID]->currRSP;
+        } else if (processes[pid]->state == KILLED) {
+            // LIBERAR MEMORIA
             processes[pid] = NULL;
-            // Aca habria que "pasar" al proximo step del scheduler. El proceso actual esta killed, entonces lo sacamos de la lista y pasamos al proximo
-            // Forzar llamado al schedule? o ke
-            // break;
         } else {
-            // Blocked... tiene sentido un estado error?
-            // Similar a lo del killed, habria que pasar al proximo proceso. 
+            // Blocked... 
         }
     }
-    return processes[currentPID]->currRSP;
+    return processes[haltPID]->currRSP;
 }
 
 int8_t getCurrentPID(void) {
@@ -99,6 +97,10 @@ int kill(uint8_t pid) {
         return -1;
 
     processes[pid]->state = KILLED;
+    if (pid == getCurrentPID()) {
+        _openProcessContext(schedule(0)); // Maybe: getCurrentRSP
+        while(1);
+    }
     return 0;
 }
 
@@ -106,24 +108,26 @@ int block(uint8_t pid){
     if(! validPID(pid))
         return -1;
 
-    processes[pid]->state = BLOCKED;
+    if(processes[pid]->state == BLOCKED)
+        processes[pid]->state = READY;
+    else if(processes[pid]->state == READY) 
+        processes[pid]->state = BLOCKED; 
+    
     return 0;
 }
 
-int unblock(uint8_t pid){
-    if(! validPID(pid))
-        return -1;
-
-    processes[pid]->state = READY;
-    return 0;
-}
-
-processControlBlock * getProcesses(void){
-    return NULL;
-/*    processControlBlock * result[MAX_PROCESSES] = {NULL};
-    for (int pid = 0; pid < MAX_PROCESSES && processes[pid] != NULL; pid++){
-        result[pid] = processes[pid]
+processControlBlock * getProcesses(void) {
+    ncPrint("\nProcess list:\n");
+    for (int pid = 0; pid < MAX_PROCESSES; pid++){
+        if (processes[pid] != NULL) {
+            ncPrint("Process ");
+            ncPrintDec(pid);
+            ncPrint(": ");
+            ncPrint("STATE: ");
+            ncPrintDec(processes[pid]->state);
+            ncPrintChar('\n');
+        }
     }
 
-    return result;*/
+    return NULL;
 }
