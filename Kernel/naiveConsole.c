@@ -41,13 +41,12 @@ void ncPrintChar(char character) {
 **/
 
 void ncPrintCharAtt(char character, Color * fontColor, Color * backgroundColor) {
-	prompt_info * pPrompt = getCurrentPrompt();
 	if (character == '\n') 
-		newLine(pPrompt, backgroundColor);
+		newLine(backgroundColor);
 	else if (character == '\b')
-		eraseChar(pPrompt, backgroundColor);
+		eraseChar(backgroundColor);
 	else
-		drawChar(pPrompt, character, fontColor, backgroundColor);
+		drawChar(character, fontColor, backgroundColor);
 }
 
 // https://stackoverflow.com/questions/28133020/how-to-convert-bcd-to-decimal
@@ -103,6 +102,5 @@ static uint32_t uintToBase(uint64_t value, char * buffer, uint32_t base) {
 }
 
 void ncNewline() {
-	prompt_info * pPrompt = getCurrentPrompt();
-	newLine(pPrompt, &BLACK);
+	newLine(&BLACK);
 }

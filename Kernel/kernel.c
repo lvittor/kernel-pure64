@@ -47,8 +47,6 @@ void * initializeKernelBinary()
 
 	clearBSS(&bss, &endOfKernel - &bss);
 
-	init_screen();
-
 	return getStackBase();
 }
 
@@ -57,12 +55,7 @@ void * initializeKernelBinary()
 int main() {
 	load_idt();
 
-	prompt_info leftPrompt = {	.x = 0,
-								.y = 0,
-							  	.baseX = 0,
-							  	.baseY = 0,
-							  	.windowWidth = getScreenWidth(),
-							  	.windowHeight = getScreenHeight()};
+	init_screen();
 
 	loadTask(0, (uint64_t)sampleCodeModuleAddress, 0x600000, leftPrompt);
 	initCurrentTask();
