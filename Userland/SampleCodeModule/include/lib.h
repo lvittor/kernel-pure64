@@ -33,5 +33,6 @@ void inforeg(void);
 int64_t fillMem(uint64_t src, uint8_t * dst, uint8_t size);
 int64_t getChar(void);
 int _quadratic(double * a, double * b, double * c, double * root1, double * root2);
+uint8_t getPid(void);
 
 #endif

@@ -5,6 +5,7 @@ GLOBAL fillDate
 GLOBAL inforeg
 GLOBAL fillMem
 GLOBAL _quadratic
+GLOBAL getPid
 
 EXTERN print_f
 
@@ -91,6 +92,11 @@ fillDate:
 
 fillMem:
     mov rax, 4
+    int 80h
+    ret
+
+getPid:
+    mov rax, 5
     int 80h
     ret
 

@@ -118,3 +118,12 @@ int unblock(uint8_t pid){
     processes[pid]->state = READY;
     return 0;
 }
+
+processControlBlock * getProcesses(void){
+    processControlBlock * result[MAX_PROCESSES] = {NULL}
+    for (int pid = 0; pid < MAX_PROCESSES && processes[pid] != NULL; pid++){
+        result[pid] = processes[pid]
+    }
+
+    return result;
+}

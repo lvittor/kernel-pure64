@@ -5,6 +5,7 @@
 #include <lib.h>
 #include <keyboard.h>
 #include <video.h>
+#include <multiprocess.h>
 
 #define MAX_MEMORY_MAPPED 0x1000000000
 #define MAX_SYSCALLS 15
@@ -18,6 +19,7 @@ uint64_t sys_write(uint8_t fd, char * buffer, uint64_t count);
 int64_t sys_read(void);
 uint64_t sys_date(dateType * pDate);
 uint64_t sys_mem(uint64_t rdi, uint64_t rsi, uint8_t rdx);
+uint8_t sys_getpid(void);
 
 typedef int64_t (*syscall)(int64_t, int64_t, int64_t);
 
@@ -27,6 +29,7 @@ syscall syscalls[MAX_SYSCALLS] = {
 	(syscall)sys_read,
 	(syscall)sys_date,
 	(syscall)sys_mem,
+	(syscall)sys_getpid,
 	NULL
 };
 
@@ -42,8 +45,8 @@ uint64_t sys_write(uint8_t fd, char * buffer, uint64_t count) {
 	if (buffer == 0 || count <= 0)
 		return -1;
 		
-	if (fd > 2) 
-		return -1; 
+	if (fd > 2)
+		return -1;
 
 	Color * fontColor = (fd == STD_ERR) ? &RED : &WHITE;
     
@@ -88,4 +91,12 @@ uint64_t sys_mem(uint64_t rdi, uint64_t rsi, uint8_t rdx){
 		dst[i] = src[i];
 	
 	return i;
+}
+
+uint8_t sys_getpid(void) {
+	return getCurrentPID();
+}
+
+uint8_t sys_listProcesses(void){
+	return getProcesses();
 }
