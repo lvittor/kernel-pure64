@@ -1,6 +1,7 @@
 GLOBAL cpuVendor
 GLOBAL getYear, getMonth, getDay
 GLOBAL getHour, getMinute, getSecond
+GLOBAL exchange
 GLOBAL getKey
 section .text
 	
@@ -77,3 +78,7 @@ getKey:
 
 	ret
 
+exchange:  ;; int64_t exchange(int64_t mutex, int64_t value);
+    mov rax, rsi
+    xchg [rdi], eax
+    ret

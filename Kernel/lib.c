@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <lib.h>
 
 void *memset(void *destination, int32_t c, uint64_t length) {
   uint8_t chr = (uint8_t)c;
@@ -42,4 +43,14 @@ void *memcpy(void *destination, const void *source, uint64_t length) {
   }
 
   return destination;
+}
+
+void acquire(int *mutex) {
+	while (exchange(mutex, 1) != 0);
+  return;
+}
+
+void release(int *mutex) {
+	exchange(mutex, 0);
+  return;
 }
