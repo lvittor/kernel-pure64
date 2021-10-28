@@ -7,6 +7,7 @@
 #include <stdint.h>
 #include <syscalls.h>
 #include <video.h>
+#include <sync.h>
 
 typedef uint64_t (*PSysCall)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t);
 
@@ -32,7 +33,9 @@ static PSysCall sysCalls[255] = {
     (PSysCall)&sys_read,   (PSysCall)&sys_write,   (PSysCall)&sys_date,
     (PSysCall)&sys_mem,    (PSysCall)&sys_ps,      (PSysCall)&sys_createPs,
     (PSysCall)&sys_block,  (PSysCall)&sys_unblock, (PSysCall)&sys_kill,
-    (PSysCall)&sys_getpid, (PSysCall)&sys_nice,    (PSysCall)&sys_exit};
+    (PSysCall)&sys_getpid, (PSysCall)&sys_nice,    (PSysCall)&sys_exit,
+    (PSysCall)&sem_open, (PSysCall)&sem_post,    (PSysCall)&sem_wait,
+    (PSysCall)&sem_close};
 
 uint64_t sysCallDispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx,
                            uint64_t rcx, uint64_t r8, uint64_t rax) {
