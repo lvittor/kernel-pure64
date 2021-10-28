@@ -33,7 +33,7 @@ int main() {
   print_f(1, "Ingrese help para ver todos los comandos.\n");
 
   while (1) {
-    print_f(2, "\n>> ");
+    print_f(2, "\nbareOS $> ");
     int64_t ans = get_s(buffer, MAX_COMMAND);
     if (ans != -1)
       checkModule(buffer);
