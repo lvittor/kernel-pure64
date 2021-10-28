@@ -122,7 +122,6 @@ SECTION .text
 
 %macro sysCallHandlerMaster 1
 	pushStateWithoutAX
-	sti
 
 	mov r9, rax  ;; TODO: Check this, there has to be a better way of doing it.
 	call sysCallDispatcher
@@ -133,7 +132,6 @@ SECTION .text
 	out 20h, al
 	pop rax
 
-	cli
 	popStateWithoutAX
 	iretq
 %endmacro

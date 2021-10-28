@@ -60,8 +60,11 @@ uint64_t sys_write(uint8_t fd, char *buffer, uint64_t count) {
 int64_t sys_read(unsigned int fd, char *buf, size_t count) {
   long read_count = -1;
   while (read_count == -1) {
-    if ((read_count = copy_from_buffer(buf, count)) == -1)
+    if ((read_count = copy_from_buffer(buf, count)) == -1) {
+      _sti();
       _hlt();
+      _cli();
+    }
   }
   return read_count;
 }
