@@ -97,6 +97,6 @@ uint8_t sys_getpid(void) {
 	return getCurrentPID();
 }
 
-uint8_t sys_listProcesses(void){
+uint8_t sys_listProcesses(){
 	return getProcesses();
 }
