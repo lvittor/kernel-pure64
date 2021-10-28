@@ -39,7 +39,7 @@ int pipe(uint8_t pipeID, int fds[2]) {
       sem_close(pipes[pipeID]->semID);
       return -1;
     }
-    return 0;
+    return pipes[pipeID]->userCount;
   }
   if ((pipes[pipeID] = alloc(sizeof(Pipe))) == NULL) {
     return -1;
@@ -50,14 +50,15 @@ int pipe(uint8_t pipeID, int fds[2]) {
   if (pipes[pipeID]->semID == -1) {
     return -1;
   }
-  pipes[pipeID]->lock = sem_open((MAX_USER_SEMS * 2) + pipeID, 1);
+  pipes[pipeID]->lock = sem_open((MAX_USER_SEMS + MAX_PIPES) + pipeID, 1);
   if (pipes[pipeID]->lock == -1) {
     sem_close(pipes[pipeID]->semID);
     return -1;
   }
+  pipes[pipeID]->users[pipes[pipeID]->userCount++] = getCurrentPid();
   fds[0] = 2 * pipeID;
   fds[1] = 2 * pipeID + 1;
-  return 0;
+  return pipes[pipeID]->userCount;
 }
 
 static int isInUsers(uint8_t pipeID, pid_t pid) {
@@ -68,10 +69,10 @@ static int isInUsers(uint8_t pipeID, pid_t pid) {
   return 0;
 }
 
-int pipeRead(int fd, char *buf, size_t count) {
+int copy_from_pipe(int fd, char *buf, size_t count) {
   if (buf == NULL || count == 0 || fd < 0)
     return -1;
-  if (fd % 2 || pipes[fd / 2] == NULL || !isInUsers(fd / 2, getCurrentPid())) {
+  if (fd % 2 || pipes[fd / 2] == NULL || !isInUsers(fd / 2, getCurrentPid())) {  // TODO: Make a func isValid
     return -1;
   }
   fd = fd / 2;
@@ -84,14 +85,15 @@ int pipeRead(int fd, char *buf, size_t count) {
 
   long i = 0;
 
+  if (sem_wait(pipes[fd]->semID) < 0)
+    return -1;
   if (sem_wait(pipes[fd]->lock) < 0)
     return -1;
   while (i < count && pipes[fd]->r_pointer != pipes[fd]->w_pointer)
     buf[i++] = pipes[fd]->buf[pipes[fd]->r_pointer++];
   if (sem_post(pipes[fd]->lock) < 0)
     return -1;
-  if (sem_post(pipes[fd]->semID) < 0)
-    return -1;
+  
 
   if (i < count) {
     buf[i] = '\0';
@@ -109,13 +111,13 @@ int pipeWrite(int fd, const char *buf, size_t count) {
   }
   fd = (fd - 1) / 2; // TODO: Check truncation.
   long i = 0;
-  if (sem_wait(pipes[fd]->semID) < 0)
-    return -1;
   if (sem_wait(pipes[fd]->lock) < 0)
     return -1;
   while (i < count && buf[i])
     pipes[fd]->buf[pipes[fd]->w_pointer++] = buf[i++];
   if (sem_post(pipes[fd]->lock) < 0)
+    return -1;
+  if (sem_post(pipes[fd]->semID) < 0)
     return -1;
 
   return i;
