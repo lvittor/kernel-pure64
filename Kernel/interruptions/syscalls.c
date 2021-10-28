@@ -107,7 +107,6 @@ uint64_t sys_mem(uint64_t rdi, uint64_t rsi, uint8_t rdx) {
 
 void sys_ps(void) { showAllPs(); }
 
-// TODO: this is a mockup.
 pid_t sys_createPs(uint64_t rip, char *name, int argc, char *argv[], uint8_t mode) {
   return createProcess(rip, 0, name, argc, argv, mode);
 }
