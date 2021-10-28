@@ -1,6 +1,5 @@
 #include <naiveConsole.h>
 #include <video.h>
-#include <multitasking.h>
 
 static uint32_t uintToBase(uint64_t value, char * buffer, uint32_t base);
 

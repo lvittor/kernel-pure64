@@ -15,7 +15,7 @@ static processControlBlock tasks[TASK_COUNT];
 
 static uint8_t currentTask = 0;
 
-void loadTask(uint8_t id, uint64_t functionAddress, uint64_t baseRSP, prompt_info prompt) {
+void loadTask(uint8_t id, uint64_t functionAddress, uint64_t baseRSP) {
     if (id >= TASK_COUNT)
         return;
     

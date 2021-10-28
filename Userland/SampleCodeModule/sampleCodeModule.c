@@ -37,12 +37,11 @@ static commandType commandFunctions[MODULES_SIZE] = {
 
 void checkModule(char * string);
 
-int main() {
+int main(int argc, char * argv[]) {
 	char buffer[MAX_COMMAND + 1];
 
 	print_f(1, "Estamos en userland.\n");
 	help();
-
 	while(1) {
 		print_f(2, "\n>> ");
 		int64_t ans = get_s(buffer, MAX_COMMAND);

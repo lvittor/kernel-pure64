@@ -1,9 +1,13 @@
 #include <syscalls.h>
 #include <naiveConsole.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <lib.h>
 #include <keyboard.h>
 #include <video.h>
+
+#define MAX_MEMORY_MAPPED 0x1000000000
+#define MAX_SYSCALLS 15
 
 typedef struct dateType {
 	uint8_t year, month, day;
@@ -15,23 +19,31 @@ int64_t sys_read(void);
 uint64_t sys_date(dateType * pDate);
 uint64_t sys_mem(uint64_t rdi, uint64_t rsi, uint8_t rdx);
 
-// TODO: Usar un arreglo y no switch case
+typedef int64_t (*syscall)(int64_t, int64_t, int64_t);
+
+syscall syscalls[MAX_SYSCALLS] = {
+	NULL,
+	(syscall)sys_write,
+	(syscall)sys_read,
+	(syscall)sys_date,
+	(syscall)sys_mem,
+	NULL
+};
+
 uint64_t syscallDispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx) {
-	switch(rcx) {
-		case 1: return sys_write(rdi, (char *)rsi, rdx);
-		case 2: return sys_read();
-		case 3: return sys_date((dateType *)rdi);
-		case 4: return sys_mem(rdi, rsi, rdx);
-	}
-	return 0;
+	syscall sc = syscalls[rcx];
+	if (sc == NULL)
+		return -1;
+	
+	return sc(rdi, rsi, rdx);
 }
 
 uint64_t sys_write(uint8_t fd, char * buffer, uint64_t count) {
 	if (buffer == 0 || count <= 0)
 		return -1;
 		
-	if (fd > 2)
-		return -1;
+	if (fd > 2) 
+		return -1; 
 
 	Color * fontColor = (fd == STD_ERR) ? &RED : &WHITE;
     
@@ -68,7 +80,7 @@ uint64_t sys_mem(uint64_t rdi, uint64_t rsi, uint8_t rdx){
 	// qemu tiene 64GB mapeados en memoria, asi que en el emulador
 	// incluso con sólo 512MB de memoria
 	// Podés acceder a todas las direcciones hasta 0x1000000000 - 1
-	if (src >= (uint8_t *)0x1000000000 || src - 1 + rdx >= (uint8_t *)0x1000000000)
+	if (src >= (uint8_t *)MAX_MEMORY_MAPPED || src - 1 + rdx >= (uint8_t *)MAX_MEMORY_MAPPED)
 		return 1;
 
 	uint8_t i;

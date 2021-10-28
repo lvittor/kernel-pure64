@@ -4,7 +4,7 @@
 #include <moduleLoader.h>
 #include <naiveConsole.h>
 #include <idtLoader.h>
-#include <multitasking.h>
+#include <multiprocess.h>
 #include <video.h>
 
 extern uint8_t text;
@@ -57,8 +57,7 @@ int main() {
 
 	init_screen();
 
-	loadTask(0, (uint64_t)sampleCodeModuleAddress, 0x600000, leftPrompt);
-	initCurrentTask();
+	initScheduler((uint64_t)sampleCodeModuleAddress, 0, (char *[]){NULL});
 	
 	ncNewline();
 	ncNewline();

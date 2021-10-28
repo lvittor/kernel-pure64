@@ -46,7 +46,7 @@
 #define TOTAL_HEAP_SIZE   0x8000000
 
 /* Known available space for the heap. */
-uint8_t * heapStart = 0x600000;
+uint8_t * heapStart = (uint8_t *)0x600000;
 
 /* Block sizes must not get too small. */
 #define heapMINIMUM_BLOCK_SIZE    ( ( size_t ) ( heapStructSize << 1 ) )
