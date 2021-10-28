@@ -155,7 +155,7 @@ int main() {
 	// createProcess((uint64_t) &processControl, 0, "control", 0, NULL);
   // char *argv[] = {"printargs", "Hola Mundo", "Juan Garcia", NULL};
   // createProcess((uint64_t) &printArgs, 0, "printargs", 3, argv);
-  createProcess((uint64_t)sampleCodeModuleAddress, 10, "shell", 0, NULL);
+  createProcess((uint64_t)sampleCodeModuleAddress, 10, "shell", 0, NULL, 1);
 
 
   //showAllPs();

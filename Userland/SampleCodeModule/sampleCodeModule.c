@@ -26,7 +26,7 @@ static commandType commandFunctions[MODULES_SIZE] = {
     printFeatures,
     printQuadraticRoots};
   
-void endlessLoop(int argc, char *argv[]) {
+void my_proc(int argc, char *argv[]) {
   print_f(1, "Soy el proceso %s\n", argv[0]);
   print_f(1, "Tengo %d argumentos\n", argc);
   print_f(1, "Mis argumentos son: \n");
@@ -42,8 +42,8 @@ void checkModule(char *string);
 
 int main() {
   char buffer[MAX_COMMAND + 1];
-  char *argv[] = {"endless loop", "Juan", "Ignacio", "Garcia", "Matwieiszyn", NULL};
-  createPs((uint64_t) &endlessLoop, "endless loop", 5, argv);
+  char *argv[] = {"my_proc", "Juan", "Ignacio", "Garcia", "Matwieiszyn", NULL};
+  createPs((uint64_t) &my_proc, "endless loop", 5, argv);
   print_f(1, "Ingrese help para ver todos los comandos.\n");
 
   while (1) {
