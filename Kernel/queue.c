@@ -1,5 +1,6 @@
 #include <queue.h>
 #include <mmgr.h>
+#include <naiveConsole.h>
 
 typedef struct node {
     elemType elem;
@@ -67,4 +68,20 @@ uint8_t queueSize(Queue queue){
 
 uint8_t isEmpty(Queue queue){
     return queue == NULL? 1 : queue->size == 0;
+}
+
+void printQueue(Queue queue) {
+    ncPrint("{");
+    if(queue == NULL){
+        ncPrint("}");
+        return;
+    }
+
+    Node *aux = queue->first;
+    while(aux != NULL) {
+        ncPrintDec(aux->elem);
+        ncPrint(", ");
+        aux = aux->next;
+    }
+    ncPrint("}");
 }
