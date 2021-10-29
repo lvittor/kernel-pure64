@@ -67,10 +67,9 @@ uint64_t scheduler(uint64_t rsp) {
     return getRsp(currentPid);
 }
 
-void checkCurrent(pid_t pid) {
-    if(pid == currentPid){
-        _int20();
-    }
+void yield(void) {
+    remainingRuns = 0;
+    _int20();
 }
 
 void haltProcess() {

@@ -88,7 +88,10 @@ int kill(pid_t pid) {
     if(!isBackground(processes[pid]->mode)) {
         unblock(processes[pid]->parent);
     }
-    checkCurrent(pid);
+    
+    if(pid == getCurrentPid())
+        yield();
+        
     return 0;
 }
 
@@ -96,7 +99,8 @@ int block(pid_t pid){
     if(!isValidPid(pid))
         return -1;
     processes[pid]->status = BLOCKED;
-    checkCurrent(pid);
+    if(pid == getCurrentPid())
+        yield();
     return 0;
 }
 
