@@ -10,12 +10,12 @@ sem_open: ; int sem_open(uint16_t semId, uint64_t value);
     int 80h
     ret
 
-sem_wait: ; int sem_wait(uint16_t semId);
+sem_post: ; int sem_post(uint16_t semId)
     mov rax, 15
     int 80h
     ret
 
-sem_post: ; int sem_post(uint16_t semId)
+sem_wait: ; int sem_wait(uint16_t semId);
     mov rax, 16
     int 80h
     ret
