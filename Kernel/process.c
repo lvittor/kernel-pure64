@@ -90,7 +90,7 @@ int kill(pid_t pid) {
     }
     
     if(pid == getCurrentPid())
-        yield();
+        yield_cpu();
         
     return 0;
 }
@@ -100,7 +100,7 @@ int block(pid_t pid){
         return -1;
     processes[pid]->status = BLOCKED;
     if(pid == getCurrentPid())
-        yield();
+        yield_cpu();
     return 0;
 }
 

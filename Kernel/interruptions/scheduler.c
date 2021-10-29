@@ -67,7 +67,7 @@ uint64_t scheduler(uint64_t rsp) {
     return getRsp(currentPid);
 }
 
-void yield(void) {
+void yield_cpu(void) {
     remainingRuns = 0;
     _int20();
 }
