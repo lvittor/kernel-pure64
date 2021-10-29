@@ -3,6 +3,8 @@
 #include <lib.h>
 #include <stdint.h>
 #include <utils.h>
+#include <my_process.h>
+#include <string.h>
 
 #define MAX_COMMAND 19 // Habria que achicarlo
 #define MODULES_SIZE 8

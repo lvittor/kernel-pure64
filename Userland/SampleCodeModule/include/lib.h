@@ -20,8 +20,6 @@ typedef struct dateType {
   uint8_t hour, minute, second;
 } dateType;
 
-typedef int16_t pid_t;
-
 // C
 int print_f(uint8_t fd, const char *format, ...);
 void put_char(uint8_t fd, const char character);
@@ -40,14 +38,5 @@ void inforeg(void);
 int64_t fillMem(uint64_t src, uint8_t *dst, uint8_t size);
 long read(unsigned int fd, char *buf, size_t count);
 int _quadratic(double *a, double *b, double *c, double *root1, double *root2);
-void ps(void);
-pid_t createPs(uint64_t rip, char *name, int argc, char *argv[], uint8_t mode);
-int block(pid_t pid);
-int unblock(pid_t pid);
-int kill(pid_t pid);
-pid_t getpid(void);
-int nice(pid_t pid, int adjustment);
-void exit();
-void yield(void);
 
 #endif
