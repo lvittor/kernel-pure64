@@ -13,7 +13,7 @@
 
 int pipe(uint8_t pipeID, int fds[2]);
 
-int copy_from_pipe(int fd, char *buf, size_t count);
+int pipeRead(int fd, char *buf, size_t count);
 
 int pipeWrite(int fd, const char *buf, size_t count);
 
