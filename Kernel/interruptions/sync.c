@@ -41,14 +41,13 @@ int sem_wait(uint16_t semID) {
   if (semaphores[semID] == NULL) {
     return -1;
   }
+  acquire(&(semaphores[semID]->mutex));
   if (semaphores[semID]->value > 0) {
-    acquire(&(semaphores[semID]->mutex));
     semaphores[semID]->value--;
     release(&(semaphores[semID]->mutex));
     return 0;
   }
   pid_t currentPid = getCurrentPid();
-  acquire(&(semaphores[semID]->mutex));
   int ans = push(semaphores[semID]->blockedQueue, currentPid);
   release(&(semaphores[semID]->mutex));
   if (ans < 0) {
@@ -62,13 +61,12 @@ int sem_post(uint16_t semID) {
   if (semaphores[semID] == NULL) {
     return -1;
   }
+  acquire(&(semaphores[semID]->mutex));
   if (queueSize(semaphores[semID]->blockedQueue) == 0) {
-    acquire(&(semaphores[semID]->mutex));
     semaphores[semID]->value++;
     release(&(semaphores[semID]->mutex));
     return 0;
   }
-  acquire(&(semaphores[semID]->mutex));
   pid_t toUnblockPid = pop(semaphores[semID]->blockedQueue);
   release(&(semaphores[semID]->mutex));
   if (toUnblockPid < 0) {
