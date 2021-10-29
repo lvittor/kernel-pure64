@@ -15,4 +15,6 @@ int sem_post(uint16_t semID);
 
 int sem_close(uint16_t semID);
 
+void sem_dump(void);
+
 #endif

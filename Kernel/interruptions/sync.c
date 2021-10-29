@@ -5,6 +5,7 @@
 #include <queue.h>
 #include <scheduler.h>
 #include <sync.h>
+#include <naiveConsole.h>
 
 typedef struct semaphore *sem_t;
 
@@ -88,4 +89,25 @@ int sem_close(uint16_t semID) {
   semaphores[semID] = NULL;
   release(&(semaphores[semID]->mutex));
   return 0;
+}
+
+void sem_dump(void) {
+  ncNewline();
+  ncPrint("---------------------------------------");
+  for(int i = 0; i < MAX_SEMS; i++) {
+    if(semaphores[i] != NULL) {
+      ncNewline();
+      ncPrint("Semaphore ID: ");
+      ncPrintDec(i);
+      ncNewline();
+      ncPrint("Current value: ");
+      ncPrintDec(semaphores[i]->value);
+      ncNewline();
+      ncPrint("Blocked processes: ");
+      printQueue(semaphores[i]->blockedQueue);
+      ncNewline();
+      ncPrint("---------------------------------------");
+    }
+  }
+  ncNewline();
 }
