@@ -29,8 +29,8 @@ int pipe(uint8_t pipeID, int fds[2]) {
       return pipeID;
   } else if (pipes[pipeID]) {
     pipes[pipeID]->users[pipes[pipeID]->userCount++] = getCurrentPid();
-    fds[0] = 2 * pipeID;
-    fds[1] = 2 * pipeID + 1;
+    fds[0] = 2 * pipeID + 3;
+    fds[1] = 2 * pipeID + 4;
     pipes[pipeID]->write = sem_open(MAX_USER_SEMS + pipeID, 0);
     if (pipes[pipeID]->write == -1) {
       return -1;
@@ -71,6 +71,7 @@ static int isInUsers(uint8_t pipeID, pid_t pid) {
 }
 
 int pipeRead(int fd, char *buf, size_t count) {
+  fd -= 3;
   if (buf == NULL || count == 0 || fd < 0)
     return -1;
   if (fd % 2 || pipes[fd / 2] == NULL ||
@@ -109,6 +110,7 @@ int pipeRead(int fd, char *buf, size_t count) {
 }
 
 int pipeWrite(int fd, const char *buf, size_t count) {
+  fd -= 3;
   if (buf == NULL || count == 0 || fd < 0)
     return -1;
   if (fd % 2 == 0 || pipes[(fd - 1) / 2] == NULL ||
