@@ -69,6 +69,9 @@ int64_t sys_read(unsigned int fd, char *buf, size_t count) {
       _hlt();
       _cli();
     }
+    if (read_count < count) {
+      buf[read_count] = '\0';
+    }
   }
   return read_count;
 }

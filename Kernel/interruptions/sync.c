@@ -6,8 +6,6 @@
 #include <scheduler.h>
 #include <sync.h>
 
-#define MAX_SEMS 765
-
 typedef struct semaphore *sem_t;
 
 typedef struct semaphore {
@@ -23,7 +21,7 @@ int sem_open(uint16_t id, uint64_t value) {
     acquire(&(semaphores[id]->mutex));
     semaphores[id]->activeCount++;
     release(&(semaphores[id]->mutex));
-    return 0;
+    return id;
   }
   semaphores[id] = alloc(sizeof(Semaphore));
   if (semaphores[id] == NULL) {
@@ -34,7 +32,7 @@ int sem_open(uint16_t id, uint64_t value) {
   semaphores[id]->mutex = 0;
   semaphores[id]->blockedQueue = newQueue();
 
-  return 0;
+  return id;
 }
 
 int sem_wait(uint16_t semID) {

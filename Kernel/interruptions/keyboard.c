@@ -84,15 +84,16 @@ void keyboard_handler() {
 
 long copy_from_buffer(char *buf, size_t count) {
   if (r_pointer == w_pointer)
-    return -1; // TODO: Check what we can do if the buffer "pega la vuelta".
+    return -1;
 
   if (count > BUFFER_SIZE) {
-  } // TODO: what do we do.
+    return 0;
+  }
 
   long i = 0;
 
   while (i < count &&
-         r_pointer != w_pointer) // TODO: Check if we keep the last \n
+         r_pointer != w_pointer)
     buf[i++] = buffer[r_pointer++];
 
   return i;
