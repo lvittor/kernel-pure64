@@ -103,6 +103,9 @@ void sem_dump(void) {
       ncPrint("Current value: ");
       ncPrintDec(semaphores[i]->value);
       ncNewline();
+      ncPrint("Amount of processes blocked: ");
+      ncPrintDec(queueSize(semaphores[i]->blockedQueue));
+      ncNewline();
       ncPrint("Blocked processes: ");
       printQueue(semaphores[i]->blockedQueue);
       ncNewline();
