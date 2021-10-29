@@ -48,5 +48,6 @@ int kill(pid_t pid);
 pid_t getpid(void);
 int nice(pid_t pid, int adjustment);
 void exit();
+void yield(void);
 
 #endif

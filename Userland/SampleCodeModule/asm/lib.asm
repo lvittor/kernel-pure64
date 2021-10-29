@@ -1,4 +1,4 @@
-GLOBAL print, setReg, fillDate, inforeg, fillMem, _quadratic, read, ps, createPs, blockPs, unblockPs, killPs, getpid, nice, exit
+GLOBAL print, setReg, fillDate, inforeg, fillMem, _quadratic, read, ps, createPs, blockPs, unblockPs, killPs, getpid, nice, exit, yield
 
 EXTERN print_f
 
@@ -131,6 +131,11 @@ nice: ; int nice(pid_t pid, int adjustment);
 
 exit: ; void exit(void);
     mov rax, 11
+    int 80h
+    ret
+
+yield: ; void yield(void);
+    mov rax, 12
     int 80h
     ret
 
