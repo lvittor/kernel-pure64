@@ -82,12 +82,11 @@ int sem_close(uint16_t semID) {
   }
   acquire(&(semaphores[semID]->mutex));
   semaphores[semID]->activeCount--;
-  release(&(semaphores[semID]->mutex));
   if (semaphores[semID]->activeCount > 0) {
+    release(&(semaphores[semID]->mutex));
     return 0;
   }
   free(semaphores[semID]);
-  acquire(&(semaphores[semID]->mutex));
   semaphores[semID] = NULL;
   release(&(semaphores[semID]->mutex));
   return 0;
