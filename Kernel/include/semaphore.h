@@ -16,12 +16,14 @@ typedef char lock_t;
 typedef uint8_t semid_t;
 typdef uint64_t semvalue_t;
 
-// C
-
-
 // ASM
 void _acquire(lock_t *lock);
 void _release(lock_t *lock);
 
+// C
+enum SEM_RET createSemaphore(semid_t sid, semvalue_t value);
+enum SEM_RET waitSemaphore(semid_t sid);
+enum SEM_RET postSemaphore(semid_t sid);
+enum SEM_RET closeSemaphore(semid_t sid);
 
 #endif
