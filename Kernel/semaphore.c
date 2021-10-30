@@ -104,6 +104,3 @@ enum SEM_RET closeSemaphore(semid_t sid) {
   _release(&semaphoresLock);
   return SEM_SUCCESS;
 }
-
-
-
