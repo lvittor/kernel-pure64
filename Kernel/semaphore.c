@@ -25,7 +25,7 @@ enum SEM_RET createSemaphore(semid_t sid, semvalue_t value) {
   
   _acquire(&semaphoresLock);
   
-  if (isActiveSemaphoreID(id)) {
+  if (isActiveSemaphoreID(sid)) {
     _release(&semaphoresLock);
     return SEM_EXISTS;
   }
