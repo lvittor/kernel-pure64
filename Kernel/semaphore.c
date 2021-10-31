@@ -55,15 +55,17 @@ enum SEM_RET waitSemaphore(semid_t sid) {
   _release(&semaphoresLock);
 
   if (semaphores[sid]->value <= 0){
-    _release(&(semaphores[sid]->lock))
+    // setStatus(getCurrentProcessID, BLOCKED)
+    _release(&(semaphores[sid]->lock));
     // sleep(s.chan)
     // TODO: Add to queue and go to sleep(Blocked?) 
     // se despierta solo cuando alguien hace post
-    _acquire(&(semaphores[sid]->lock))
+    // blockTruly or yield to other process
+    _acquire(&(semaphores[sid]->lock));
   }
 
   semaphores[sid]->value--;
-  _release(&(semaphores[sid]->lock))
+  _release(&(semaphores[sid]->lock));
   return SEM_SUCCESS;
 }
 
