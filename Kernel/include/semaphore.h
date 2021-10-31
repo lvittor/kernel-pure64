@@ -14,7 +14,7 @@ enum SEM_RET {
 
 typedef char lock_t;
 typedef uint8_t semid_t;
-typdef uint64_t semvalue_t;
+typedef uint64_t semvalue_t;
 
 // ASM
 void _acquire(lock_t *lock);
