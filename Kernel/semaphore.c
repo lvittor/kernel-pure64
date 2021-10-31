@@ -19,7 +19,7 @@ static char isActiveSemaphoreID(semid_t sid) {
   return isValidSemaphoreID(sid) && semaphores[sid] != NULL;
 }
 
-enum SEM_RET createSemaphore(semid_t sid, semvalue_t value) {
+enum SEM_RET openSemaphore(semid_t sid, semvalue_t value) {
   if (!isValidSemaphoreID(sid))
     return SEM_INVALID;
   
