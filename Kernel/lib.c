@@ -48,3 +48,13 @@ void * memcpy(void * destination, const void * source, uint64_t length)
 
 	return destination;
 }
+
+int strcmp(const char * a, const char * b) {
+	if (!a || !b)
+		return a == b;
+	while(a && b && a == b) {
+		a++;
+		b++;
+	}
+	return *a - *b;
+}

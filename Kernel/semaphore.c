@@ -3,124 +3,126 @@
 #include <memoryManager.h>
 #include <scheduler.h>
 #include <queue.h>
+#include <lib.h>
 
 static lock_t semaphoresLock = 0;
 struct semaphoreCDT * semaphores[MAX_SEMAPHORES] = {NULL};
 
 typedef struct semaphoreCDT {
+  char * name;
   lock_t lock;
   uint8_t creatorProcess;
   semvalue_t value;
   queueADT waitingQueue;
 } semaphoreCDT;
 
-static char isValidSemaphoreID(semid_t sid) {
-  return sid >= 0 && sid < MAX_SEMAPHORES;
+static uint8_t getIndexFromSID(semid_t sid) {
+  for (uint8_t i = 0; i < MAX_SEMAPHORES; i++) {
+    if (semaphores[i] != NULL && strcmp(semaphores[i]->name, sid) == 0)
+      return i;
+  }
+  return MAX_SEMAPHORES;
 }
 
-static char isActiveSemaphoreID(semid_t sid) {
-  return isValidSemaphoreID(sid) && semaphores[sid] != NULL;
+static uint8_t getFreeIndex() {
+  for (uint8_t i = 0; i < MAX_SEMAPHORES; i++) {
+    if (semaphores[i] == NULL)
+      return i;
+  }
+  return MAX_SEMAPHORES;
 }
 
 SEM_RET openSemaphore(semid_t sid, semvalue_t value) {
-  if (!isValidSemaphoreID(sid))
-    return SEM_INVALID;
-  
   _acquire(&semaphoresLock);
-  
-  if (isActiveSemaphoreID(sid)) {
+  uint8_t semIndex = getIndexFromSID(sid);
+  if (semIndex != MAX_SEMAPHORES) {
     _release(&semaphoresLock);
     return SEM_EXISTS;
   }
-  
-  semaphores[sid] = alloc(sizeof(semaphoreCDT));
-  if (semaphores[sid] == NULL) {
+
+  semIndex = getFreeIndex();
+  semaphores[semIndex] = alloc(sizeof(semaphoreCDT));
+  if (semaphores[semIndex] == NULL) {
     _release(&semaphoresLock);
     return SEM_ENOMEM;
   }
 
-  semaphores[sid]->waitingQueue = newQueue();
-  if (semaphores[sid]->waitingQueue == NULL) {
-    free(semaphores[sid]);
+  semaphores[semIndex]->waitingQueue = newQueue();
+  if (semaphores[semIndex]->waitingQueue == NULL) {
+    free(semaphores[semIndex]);
     _release(&semaphoresLock);
     return SEM_ENOMEM;
   }
 
-  semaphores[sid]->lock = 0;
-  semaphores[sid]->value = value;
-  semaphores[sid]->creatorProcess = getCurrentPID();
+  semaphores[semIndex]->lock = 0;
+  semaphores[semIndex]->value = value;
+  semaphores[semIndex]->creatorProcess = getCurrentPID();
   _release(&semaphoresLock);
   return SEM_SUCCESS;
 }
 
 SEM_RET waitSemaphore(semid_t sid) {
-  if (!isValidSemaphoreID(sid))
-    return SEM_INVALID;
-  
   _acquire(&semaphoresLock);
-  if (!isActiveSemaphoreID(sid)) {
+  uint8_t semIndex = getIndexFromSID(sid);
+  if (semIndex == MAX_SEMAPHORES) {
     _release(&semaphoresLock);
     return SEM_INVALID;
   }
-  _acquire(&(semaphores[sid]->lock));
+  _acquire(&(semaphores[semIndex]->lock));
   _release(&semaphoresLock);
 
-  if (semaphores[sid]->value <= 0){
+  while (semaphores[semIndex]->value <= 0){
     setPIDState(getCurrentPID(), BLOCKED);
-    enqueue(semaphores[sid]->waitingQueue, getCurrentPID());
-    _release(&(semaphores[sid]->lock));
+    enqueue(semaphores[semIndex]->waitingQueue, getCurrentPID());
+    _release(&(semaphores[semIndex]->lock));
     yieldProcess();
-    _acquire(&(semaphores[sid]->lock));
+    _acquire(&(semaphores[semIndex]->lock));
   }
 
-  semaphores[sid]->value--;
-  _release(&(semaphores[sid]->lock));
+  semaphores[semIndex]->value--;
+  _release(&(semaphores[semIndex]->lock));
   return SEM_SUCCESS;
 }
 
 SEM_RET postSemaphore(semid_t sid) {
-  if (!isValidSemaphoreID(sid))
-    return SEM_INVALID;
-  
   _acquire(&semaphoresLock);
-  if (!isActiveSemaphoreID(sid)) {
+  uint8_t semIndex = getIndexFromSID(sid);
+  if (semIndex == MAX_SEMAPHORES) {
     _release(&semaphoresLock);
     return SEM_INVALID;
   }
-  _acquire(&(semaphores[sid]->lock));
+  _acquire(&(semaphores[semIndex]->lock));
   _release(&semaphoresLock);
 
-  semaphores[sid]->value++;
+  semaphores[semIndex]->value++;
   queue_value_t wakeProcess;
-  char success = peek(semaphores[sid]->waitingQueue, &wakeProcess);
+  char success = peek(semaphores[semIndex]->waitingQueue, &wakeProcess);
   if (success) {
-    dequeue(semaphores[sid]->waitingQueue);
+    dequeue(semaphores[semIndex]->waitingQueue);
     block(wakeProcess);
   }
 
-  _release(&(semaphores[sid]->lock));
+  _release(&(semaphores[semIndex]->lock));
   return SEM_SUCCESS;
 }
 
 SEM_RET closeSemaphore(semid_t sid) {
-  if (!isValidSemaphoreID(sid))
-    return SEM_INVALID;
-  
   _acquire(&semaphoresLock);
-  if (!isActiveSemaphoreID(sid)) {
+  uint8_t semIndex = getIndexFromSID(sid);
+  if (semIndex == MAX_SEMAPHORES) {
     _release(&semaphoresLock);
     return SEM_INVALID;
   }
-  _acquire(&(semaphores[sid]->lock));
-  if (getCurrentPID() != semaphores[sid]->creatorProcess) {
-    _release(&(semaphores[sid]->lock));
+  _acquire(&(semaphores[semIndex]->lock));
+  if (getCurrentPID() != semaphores[semIndex]->creatorProcess) {
+    _release(&(semaphores[semIndex]->lock));
     _release(&semaphoresLock);
     return SEM_INVALID;
   }
 
   // Only destroy if there are no processes waiting?
   // Consider listening queue?
-  free(semaphores[sid]);
+  free(semaphores[semIndex]);
 
   _release(&semaphoresLock);
   return SEM_SUCCESS;

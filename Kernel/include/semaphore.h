@@ -13,7 +13,7 @@ typedef enum SEM_RET {
 } SEM_RET;
 
 typedef char lock_t;
-typedef uint8_t semid_t;
+typedef char * semid_t;
 typedef uint64_t semvalue_t;
 
 // ASM
