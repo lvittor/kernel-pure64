@@ -6,6 +6,7 @@
 #include <idtLoader.h>
 #include <scheduler.h>
 #include <video.h>
+#include <memoryManager.h>
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -57,6 +58,8 @@ int main() {
 	load_idt();
 
 	init_screen();
+
+	heapInit();
 
 	initScheduler((uint64_t)sampleCodeModuleAddress, 0, (char *[]){NULL});
 	

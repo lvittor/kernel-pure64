@@ -3,12 +3,12 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include <stdio.h>
 
-#define TOTAL_HEAP_SIZE   256
+#define TOTAL_HEAP_SIZE   0x8000000
+#define HEAP_START 0x600000
 
-int buddyInit();
-void * alloc(size_t desiredSize);
-void free(void * memory);
+void heapInit(void);
+void * alloc(size_t size);
+void free(void * address);
 
 #endif

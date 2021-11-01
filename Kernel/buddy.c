@@ -1,15 +1,17 @@
-#include "buddy.h"
+#ifdef BUDDY
+
+#include "memoryManager.h"
 
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
 
-#define MAX_LEVELS 12 /* 2^12 = 4KB. */
+#define MAX_LEVELS 11
 #define BLOCKS_PER_LEVEL(level) (1<<(level))
 #define SIZE_OF_BLOCKS_AT_LEVEL(level,total_size) ((total_size) / (1<<(level)))
 #define INDEX_OF_POINTER_IN_LEVEL(pointer,level,memory_start,total_size) (((pointer)-(memory_start)) / (SIZE_OF_BLOCKS_AT_LEVEL(level,total_size)))
 
-static uint8_t memStart[TOTAL_HEAP_SIZE];
+uint8_t * memStart = (uint8_t *) HEAP_START;
 
 typedef struct list_t {
 	struct list_t *prev, *next;
@@ -27,7 +29,7 @@ static int getLevel(size_t size);
 static list_t * list_find(uint64_t addr, uint8_t level);
 
 
-int buddyInit() {
+void heapInit() {
 	 list_t * link;
 	 for (int i = 0; i < MAX_LEVELS; i++) {
 			list_init(&free_lists[i]);
@@ -35,29 +37,35 @@ int buddyInit() {
 	 link = (list_t*) memStart;
 	 list_init(link);
 	 list_push(&free_lists[0], link);
-	 return 1;
 }
 
-void * alloc(size_t desiredSize) {
-	uint8_t level = getLevel(desiredSize + sizeof(list_t));
+void * alloc(size_t size) {
+	int level = getLevel(size + sizeof(list_t));
+	if (level == -1)
+		return NULL;
 	void * memory;
-	list_t * left;
-	list_t * right;
+	void * left;
+	void * right;
 	list_t * link;
 
-	uint8_t actualLevel = level;
-	while (list_is_empty(&free_lists[actualLevel]) || actualLevel == -1) {
+
+	int actualLevel = level;
+	while (actualLevel >= 0) {
+		if (!list_is_empty(&free_lists[actualLevel]))
+			break;
 		actualLevel--;
 	}
+	
 
 	if (actualLevel == -1) // no memory 
 		return NULL;
 
-	list_t * node;
-	for (node = list_pop(&free_lists[actualLevel]); actualLevel < level; actualLevel++) {
-		uint64_t size = SIZE_OF_BLOCKS_AT_LEVEL(actualLevel + 1, TOTAL_HEAP_SIZE);
+	void * node;
+	for (; actualLevel < level; actualLevel++) {
+		node = (void *)list_pop(&free_lists[actualLevel]);
+		uint64_t blockSize = SIZE_OF_BLOCKS_AT_LEVEL(actualLevel + 1, TOTAL_HEAP_SIZE);
 		left = node;
-		right = node + size;
+		right = node + blockSize;
 		list_init(left);
 		list_init(right);  
 		list_push(&free_lists[actualLevel + 1], left);
@@ -73,26 +81,27 @@ void * alloc(size_t desiredSize) {
 /*[                           ]
   [(L)*         |             ]*/
 
-void free(void * memory) {
-	if (memory == NULL)
+void free(void * address) {
+	if (address == NULL)
 		return;
-	memory -= sizeof(list_t);
-	list_t * link = (list_t *)memory, * buddy_link;
+	address -= sizeof(list_t);
+	list_t * link = (list_t *)address, * buddy_link;
 	uint8_t level = link->level;
 	char stop = 0;
 	do {
-		link = (list_t *)memory;
+		link = (list_t *)address;
 		size_t size = SIZE_OF_BLOCKS_AT_LEVEL(level, TOTAL_HEAP_SIZE);
-		uint8_t index = INDEX_OF_POINTER_IN_LEVEL((uint64_t)memory, level, (uint64_t)memStart, TOTAL_HEAP_SIZE);
+		uint8_t index = INDEX_OF_POINTER_IN_LEVEL((uint64_t)address, level, (uint64_t)memStart, TOTAL_HEAP_SIZE);
 		uint64_t buddy;
 		
 		if ((index & 1) == 0) {
-			buddy = (uint64_t)(memory + size);
+			buddy = (uint64_t)(address + size);
 		} else {
-			buddy = (uint64_t)(memory - size);
+			buddy = (uint64_t)(address - size);
 		}
+
 		buddy_link = NULL;
-		if (!list_is_empty(&free_lists[level]))
+		if (!list_is_empty(&free_lists[level])) 
 			buddy_link = list_find(buddy, level);
 		
 		list_init(link);
@@ -102,9 +111,9 @@ void free(void * memory) {
 			list_remove(link);
 			list_remove(buddy_link);
 			if ((index & 1) == 0)
-				memory = link;
+				address = link;
 			else
-				memory = buddy_link;
+				address = buddy_link;
 		} else {
 			stop = 1;
 		}
@@ -168,9 +177,11 @@ static int getLevel(size_t size) {
 	uint64_t currSize = TOTAL_HEAP_SIZE;
 	if (size > currSize)
 		return -1;
-	while (size <= currSize/2) {
+	while (size <= currSize/2 && level < MAX_LEVELS - 1) {
 		level++; 
 		currSize /= 2;
 	}
 	return level;
 }
+
+#endif
