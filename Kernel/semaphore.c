@@ -1,16 +1,17 @@
 #include <semaphore.h>
 #include <stddef.h>
 #include <memoryManager.h>
-#include <scheduler.c>
+#include <scheduler.h>
+#include <queue.h>
 
 static lock_t semaphoresLock = 0;
 struct semaphoreCDT * semaphores[MAX_SEMAPHORES] = {NULL};
 
 typedef struct semaphoreCDT {
   lock_t lock;
-  pid_t creatorProcess;
+  uint8_t creatorProcess;
   semvalue_t value;
-  // queueADT waiting;
+  queueADT waitingQueue;
 } semaphoreCDT;
 
 static char isValidSemaphoreID(semid_t sid) {
@@ -38,6 +39,13 @@ SEM_RET openSemaphore(semid_t sid, semvalue_t value) {
     return SEM_ENOMEM;
   }
 
+  semaphores[sid]->waitingQueue = newQueue();
+  if (semaphores[sid]->waitingQueue == NULL) {
+    free(semaphores[sid]);
+    _release(&semaphoresLock);
+    return SEM_ENOMEM;
+  }
+
   semaphores[sid]->lock = 0;
   semaphores[sid]->value = value;
   semaphores[sid]->creatorProcess = getCurrentPID();
@@ -58,12 +66,10 @@ SEM_RET waitSemaphore(semid_t sid) {
   _release(&semaphoresLock);
 
   if (semaphores[sid]->value <= 0){
-    // setStatus(getCurrentProcessID, BLOCKED)
+    setPIDState(getCurrentPID(), BLOCKED);
+    enqueue(semaphores[sid]->waitingQueue, getCurrentPID());
     _release(&(semaphores[sid]->lock));
-    // sleep(s.chan)
-    // TODO: Add to queue and go to sleep(Blocked?) 
-    // se despierta solo cuando alguien hace post
-    // blockTruly or yield to other process
+    yieldProcess();
     _acquire(&(semaphores[sid]->lock));
   }
 
@@ -85,7 +91,12 @@ SEM_RET postSemaphore(semid_t sid) {
   _release(&semaphoresLock);
 
   semaphores[sid]->value++;
-  // wakeup(s.chan)
+  uint8_t wakeProcess;
+  char success = peek(semaphores[sid]->waitingQueue, &wakeProcess);
+  if (success) {
+    dequeue(semaphores[sid]->waitingQueue);
+    block(wakeProcess);
+  }
 
   _release(&(semaphores[sid]->lock));
   return SEM_SUCCESS;

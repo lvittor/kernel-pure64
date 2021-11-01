@@ -141,3 +141,9 @@ processControlBlock * getProcesses(void) {
 
     return NULL;
 }
+
+int setPIDState(uint8_t pid, processState newState) {
+    if (! validPID(pid))
+        return -1;
+    processes[pid]->state = newState;
+}

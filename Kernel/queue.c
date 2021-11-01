@@ -45,10 +45,11 @@ char enqueue(queueADT q, queue_value_t v) {
     return 1;
 }
 
-queue_value_t peek(queueADT q) {
+char peek(queueADT q, value_t * v) {
     if (isEmpty(q))
         return 0;
-    return q->front->value;
+    *v = q->front->value;
+    return 1;
 }
 
 void dequeue(queueADT q) {

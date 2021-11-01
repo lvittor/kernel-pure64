@@ -9,7 +9,7 @@ typedef struct queueCDT * queueADT;
 queueADT newQueue(void);
 char isEmpty(queueADT q);
 char enqueue(queueADT q, queue_value_t v);
-queue_value_t peek(queueADT q);
+char peek(queueADT q, queue_value_t * v);
 void dequeue(queueADT q);
 void freeQueue(queueADT q);
 
