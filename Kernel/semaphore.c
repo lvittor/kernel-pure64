@@ -19,7 +19,7 @@ static char isActiveSemaphoreID(semid_t sid) {
   return isValidSemaphoreID(sid) && semaphores[sid] != NULL;
 }
 
-enum SEM_RET openSemaphore(semid_t sid, semvalue_t value) {
+SEM_RET openSemaphore(semid_t sid, semvalue_t value) {
   if (!isValidSemaphoreID(sid))
     return SEM_INVALID;
   
@@ -38,11 +38,12 @@ enum SEM_RET openSemaphore(semid_t sid, semvalue_t value) {
 
   semaphores[sid]->lock = 0;
   semaphores[sid]->value = value;
+  semaphores[sid]->creatorProcess = getCurrentPID();
   _release(&semaphoresLock);
   return SEM_SUCCESS;
 }
 
-enum SEM_RET waitSemaphore(semid_t sid) {
+SEM_RET waitSemaphore(semid_t sid) {
   if (!isValidSemaphoreID(sid))
     return SEM_INVALID;
   
@@ -69,7 +70,7 @@ enum SEM_RET waitSemaphore(semid_t sid) {
   return SEM_SUCCESS;
 }
 
-enum SEM_RET postSemaphore(semid_t sid) {
+SEM_RET postSemaphore(semid_t sid) {
   if (!isValidSemaphoreID(sid))
     return SEM_INVALID;
   
@@ -88,7 +89,7 @@ enum SEM_RET postSemaphore(semid_t sid) {
   return SEM_SUCCESS;
 }
 
-enum SEM_RET closeSemaphore(semid_t sid) {
+SEM_RET closeSemaphore(semid_t sid) {
   if (!isValidSemaphoreID(sid))
     return SEM_INVALID;
   

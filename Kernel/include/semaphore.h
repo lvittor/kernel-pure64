@@ -5,12 +5,12 @@
 
 #define MAX_SEMAPHORES  32
 
-enum SEM_RET {
+typedef enum SEM_RET {
     SEM_SUCCESS = 0,
     SEM_EXISTS,
     SEM_INVALID,
     SEM_ENOMEM,
-};
+} SEM_RET;
 
 typedef char lock_t;
 typedef uint8_t semid_t;
@@ -21,9 +21,9 @@ void _acquire(lock_t *lock);
 void _release(lock_t *lock);
 
 // C
-enum SEM_RET openSemaphore(semid_t sid, semvalue_t value);
-enum SEM_RET waitSemaphore(semid_t sid);
-enum SEM_RET postSemaphore(semid_t sid);
-enum SEM_RET closeSemaphore(semid_t sid);
+SEM_RET openSemaphore(semid_t sid, semvalue_t value);
+SEM_RET waitSemaphore(semid_t sid);
+SEM_RET postSemaphore(semid_t sid);
+SEM_RET closeSemaphore(semid_t sid);
 
 #endif
