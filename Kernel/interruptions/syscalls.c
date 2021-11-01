@@ -8,9 +8,10 @@
 #include <scheduler.h>
 #include <memoryManager.h>
 #include <semaphore.h>
+#include <pipes.h>
 
 #define MAX_MEMORY_MAPPED 0x1000000000
-#define MAX_SYSCALLS 18
+#define MAX_SYSCALLS 22
 
 typedef struct dateType {
 	uint8_t year, month, day;
@@ -34,6 +35,10 @@ SEM_RET sys_wait_sem(semid_t sid);
 SEM_RET sys_post_sem(semid_t sid);
 SEM_RET sys_close_sem(semid_t sid);
 void sys_print_sem(void);
+int sys_open_pipe(int fd[2]);
+int sys_write_pipe(int fd, char * buffer, int count);
+int sys_read_pipe(int fd, char * buffer, int count);
+int sys_close_pipe(int fd);
 
 typedef int64_t (*syscall)(int64_t, int64_t, int64_t);
 
@@ -55,6 +60,10 @@ syscall syscalls[MAX_SYSCALLS] = {
 	(syscall)sys_post_sem,
 	(syscall)sys_close_sem,
 	(syscall)sys_print_sem,
+	(syscall)sys_open_pipe,
+	(syscall)sys_write_pipe,
+	(syscall)sys_read_pipe,
+	(syscall)sys_close_pipe,
 	NULL,
 };
 
@@ -143,4 +152,20 @@ SEM_RET sys_close_sem(semid_t sid) {
 
 void sys_print_sem(void) {
 	printSemaphores();
+}
+
+int sys_open_pipe(int fd[2]) {
+	return openPipe(fd);
+}
+
+int sys_write_pipe(int fd, char * buffer, int count) { 
+	return writePipe(fd, buffer, count);
+}
+
+int sys_read_pipe(int fd, char * buffer, int count) {
+	return readPipe(fd, buffer, count);
+}
+
+int sys_close_pipe(int fd) {
+	return closePipe(fd);
 }

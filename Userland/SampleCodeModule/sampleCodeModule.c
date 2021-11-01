@@ -13,6 +13,8 @@
 
 typedef void (*commandType)(void);
 
+void getCommand(char * str);
+
 static char * commandStrings[MODULES_SIZE] = {
 	"help",
 	"printpid",
@@ -61,11 +63,16 @@ void checkModule(char * string) {
 	print_f(1, "Comando no valido\n");
 }
 
-void getCommand(char * str) { 
-	char * token = strtok(str, " | ");
-	if (strlen(token) == strlen(str)) { // NO HUBO PIPEO
+void getCommand(char * str) {
+	char * other = str;
+	int ans = strdiv(str, &other, '|');
+	if (ans == -1) { // NO HUBO PIPEO
 		return checkModule(str);
-	}
+	} else {
+		
+	} // ESCRIBI ESTO TE AMO JAJJA SEGUI SONANDO
+
+	
 	// v en caso de que si, tocaria hacer cosas con pipes v
 	// aca habria que abrir el pipe con los fds y de ahi llamar
 	// a checkmodule con cada uno de los comandos. En caso de que

@@ -18,3 +18,15 @@ uint8_t strlen(const char *str) {
 	for (s = str; *s; ++s);
 	return (s - str);
 }
+
+int strdiv(char * str, char ** other, char token) {
+  while (*str) {
+    if (*str == token) {
+      *str = '\0';
+      *other = str+1;
+      return 0;
+    }
+    str++;
+  }
+  return -1;
+}

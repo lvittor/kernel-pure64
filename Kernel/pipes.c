@@ -1,6 +1,11 @@
 #include <pipes.h>
+#include <memoryManager.h>
+#include <scheduler.h>
+#include <semaphore.h>
 
-#define TOTAL_PIPES 10
+#define MAX_PIPES 10
+#define SEM_ID_SIZE 3 // Should be able to contain itoa(MAX_PIPES*2)
+#define TOTAL_FDS   (MAX_PIPES * 2 + 3)
 #define MAX_BUFFER 256
 
 typedef struct Pipe {
@@ -9,131 +14,156 @@ typedef struct Pipe {
     char buffer[MAX_BUFFER];
     unsigned int readPos;
     unsigned int writePos;
-    //QueueADT blockedProcesses;
-    uint64_t attached;
-    uint64_t isActive;
-    uint64_t inClosed;
-    uint64_t outClosed;
+    char writeSem[SEM_ID_SIZE], readSem[SEM_ID_SIZE];
 } Pipe;
 
-static Pipe pipes[TOTAL_PIPES];
+static Pipe * pipes[MAX_PIPES];
+static int FDToPipe[TOTAL_FDS];
 
-static int openedPipes = 0;
-
-static int nextFd = 3;
-
-static int searchPipe(int fd);
-
-int pipeOpen(int fd[2]) {
-    if (openedPipes == TOTAL_PIPES - 1) {
-        return -1;
-    }
-
-    int i;
-    for (i = 0; i < TOTAL_PIPES; i++) {
-        if (!pipes[i].isActive) {
-            break;
-        }
-    }
-
-    if (i == TOTAL_PIPES) {
-        return -1;
-    }
-
-    pipes[i].fdIn = nextFd++;
-    pipes[i].fdOut = nextFd++;
-
-    pipes[i].inClosed = 0;
-    pipes[i].outClosed = 0;
-
-    pipes[i].readPos = 0;
-    pipes[i].writePos = 0;
-
-    //pipes[i].blockedProcesses = newQueue();
-
-    pipes[i].isActive = 1;
-    openedPipes++;
-
-    fd[0] = pipes[i].fdIn;
-    fd[1] = pipes[i].fdOut;
-
+int initPipes(void) {
+    for (uint8_t i = 0; i < 3; i++)
+        FDToPipe[i] = MAX_PIPES;
+    for (uint8_t i = 3; i < TOTAL_FDS; i++)
+        FDToPipe[i] = -1;
     return 0;
 }
 
-int pipeClose(int fd) {
-    int index = searchPipe(fd);
-    if (index != -1) {
-        if (pipes[index].fdIn == fd) {
-            pipes[index].inClosed = 1;
-        }
-        if (pipes[index].fdOut == fd) {
-            pipes[index].outClosed = 1;
-            // if (!isEmpty(pipes[index].blockedProcesses)) {
-            //     wakeup(dequeue(pipes[index].blockedProcesses));
-            // }
-        }
-
-        if (pipes[index].inClosed) {
-            //freeQueue(pipes[index].blockedProcesses);
-            openedPipes--;
-            pipes[index].isActive = 0;
-        }
-        return 0;
-    }
+static int isValidFD(int fd) {
+    return fd >= 0 && fd < TOTAL_FDS;
 }
 
-int pipeRead(int fd, int length, char *buffer) {
-    int index = searchPipe(fd);
-    if (index == -1 || pipes[index].fdOut == fd || pipes[index].inClosed) {
-        return 0;
-    }
-
-    Pipe *aux = &pipes[index];
-    if (aux->readPos == aux->writePos) {
-        if (aux->outClosed) {
-            return -1; //EOF
-        }
-        int pid = getPid();
-        //enqueue(aux->blockedProcesses, pid);
-        sleep(pid);
-    }
-
-    int i;
-    for (i = 0; aux->readPos != aux->writePos && i < length; i++) {
-        buffer[i] = aux->buffer[aux->readPos];
-        aux->buffer[aux->readPos] = 0;
-        aux->readPos = (aux->readPos + 1) % MAX_BUFFER;
-    }
-
-    buffer[i] = 0;
-    return i;
-}
-
-int pipeWrite(int fd, int length, char *buffer) {
-    int index = searchPipe(fd);
-    if (index == -1 || pipes[index].fdIn == fd || pipes[index].outClosed) {
-        return 0;
-    }
-
-    Pipe *aux = &pipes[index];
-
-    int i;
-    for (i = 0; i < length; i++) {
-        aux->buffer[aux->writePos] = buffer[i];
-        aux->writePos = (aux->writePos + 1) % MAX_BUFFER;
-    }
-
-    // if (!isEmpty(aux->blockedProcesses)) {
-    //     wakeup(dequeue(aux->blockedProcesses));
-    // }
-    return i;
-}
-
-static int searchPipe(int fd) {
-    for (int i = 0; i < TOTAL_PIPES; i++) {
-        if (pipes[i].isActive && (pipes[i].fdIn == fd || pipes[i].fdOut == fd)) {
+static int getFreePipeIndex(void) {
+    for (int i = 0; i < MAX_PIPES; i++) {
+        if (pipes[i] == NULL)
             return i;
-        }
     }
     return -1;
+}
+
+static int getNextFd() {
+    for (int i = 0; i < TOTAL_FDS; i++) {
+        if (FDToPipe[i] == -1)
+            return i;
+    }
+    return -1;
+}
+
+// Writes the string value of i into buffer, backwards: i(10) -> buffer("01")
+static void itoa(char * buffer, int i) {
+    buffer[0] = '0';
+    while(i > 0) {
+        buffer[0] = '0' + i%10;
+        i /= 10;
+        buffer++;
+    }
+    buffer[0] = '\0';
+}
+
+int openPipe(int fd[2]) {
+    int pipeIndex = getFreePipeIndex();
+    if (pipeIndex == -1)
+        return -1;
+    
+    pipes[pipeIndex] = alloc(sizeof(Pipe));
+
+    int fd1 = getNextFd();
+    if (fd1 == -1) {
+        free(pipes[pipeIndex]);
+        return -1;
+    }
+    pipes[pipeIndex]->fdIn = fd1;
+    FDToPipe[fd1] = pipeIndex;
+
+    int fd2 = getNextFd();
+    if (fd2 == -1) {
+        free(pipes[pipeIndex]);
+        FDToPipe[fd1] = -1;
+        return -1;
+    }
+
+    pipes[pipeIndex]->fdOut = fd2;
+    FDToPipe[fd2] = pipeIndex;
+
+    pipes[pipeIndex]->readPos = 0;
+    pipes[pipeIndex]->writePos = 0;
+
+    itoa(pipes[pipeIndex]->readSem, pipes[pipeIndex]->fdIn);
+    itoa(pipes[pipeIndex]->writeSem, pipes[pipeIndex]->fdOut);
+    int ans = openSemaphore(pipes[pipeIndex]->readSem, 0);
+    if (ans != SEM_SUCCESS) {
+        free(pipes[pipeIndex]);
+        FDToPipe[fd1] = -1;
+        FDToPipe[fd2] = -1;
+        return -1;
+    }
+    ans = openSemaphore(pipes[pipeIndex]->writeSem, MAX_BUFFER);
+    if (ans != SEM_SUCCESS) {
+        closeSemaphore(pipes[pipeIndex]->readSem);
+        free(pipes[pipeIndex]);
+        FDToPipe[fd1] = -1;
+        FDToPipe[fd2] = -1;
+        return -1;
+    }
+    
+    fd[0] = pipes[pipeIndex]->fdIn;
+    fd[1] = pipes[pipeIndex]->fdOut;
+    return 0;
+}
+
+int writePipe(int fd, char * buffer, int count) {
+    if (!isValidFD(fd) || count < 0 || buffer == NULL)
+        return -1;
+    int pipeIndex = FDToPipe[fd];
+    if (pipeIndex == -1 || pipes[pipeIndex]->fdOut != fd)
+        return -1;
+        
+    
+    for (int i = 0; i < count; i++) {
+        if (waitSemaphore(pipes[pipeIndex]->writeSem) != SEM_SUCCESS)
+            return i;
+        pipes[pipeIndex]->buffer[pipes[pipeIndex]->writePos++] = buffer[i];
+        pipes[pipeIndex]->writePos %= MAX_BUFFER;
+        if (postSemaphore(pipes[pipeIndex]->readSem) != SEM_SUCCESS)
+            return i;
+    }
+    return count;
+}
+
+// fd[0]-->[  ]-->fd[1]
+
+int readPipe(int fd, char * buffer, int count) {
+    if (!isValidFD(fd) || count < 0 || buffer == NULL)
+        return -1;
+    int pipeIndex = FDToPipe[fd];
+    if (pipeIndex == -1 || pipes[pipeIndex]->fdIn != fd)
+        return -1;
+
+    for (int i = 0; i < count; i++) {
+        if (waitSemaphore(pipes[pipeIndex]->readSem) != SEM_SUCCESS)
+            return i;
+        buffer[i] = pipes[pipeIndex]->buffer[pipes[pipeIndex]->readPos++];
+        pipes[pipeIndex]->readPos %= MAX_BUFFER;
+        if (postSemaphore(pipes[pipeIndex]->writeSem) != SEM_SUCCESS)
+            return i;
+    }
+    return count;
+}
+
+int closePipe(int fd) {
+    int index = FDToPipe[fd];
+    if (index == -1)
+        return -1;
+    
+    if (pipes[index]->fdIn == fd) {
+        pipes[index]->fdIn = -1;
+        FDToPipe[pipes[index]->fdIn] = -1;
+    } else {
+        pipes[index]->fdOut = -1;
+        FDToPipe[pipes[index]->fdOut] = -1;
+    }
+    
+    if (pipes[index]->fdIn == -1 && pipes[index]->fdIn == -1) {
+        free(pipes[index]);
+    }
+    return 0;
 }

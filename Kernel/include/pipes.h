@@ -1,16 +1,10 @@
 #ifndef __PIPES_H__
 #define __PIPES_H__
 
-#include <memoryManager.h>
-#include <scheduler.h>
-
-int pipeOpen(int fd[2]);
-
-int pipeClose(int fd);
-
-int pipeRead(int fd, int length, char *buffer);
-
-int pipeWrite(int fd, int length, char *buffer);
-
+int initPipes(void);
+int openPipe(int fd[2]);
+int writePipe(int fd, char * buffer, int count);;
+int readPipe(int fd, char * buffer, int count);
+int closePipe(int fd);
 
 #endif 

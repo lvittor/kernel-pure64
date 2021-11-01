@@ -37,5 +37,10 @@ void * _alloc(size_t size);
 void _free(void * address);
 void _memdump(void);
 uint64_t _nice(uint8_t pid, uint8_t priority);
+int _open_pipe(int fd[2]);
+int _write_pipe(int fd, char * buffer, int count);
+int _read_pipe(int fd, char * buffer, int count);
+int _close_pipe(int fd);
+
 
 #endif

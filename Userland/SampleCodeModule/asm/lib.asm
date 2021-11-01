@@ -9,6 +9,11 @@ GLOBAL _alloc
 GLOBAL _free
 GLOBAL _memdump
 GLOBAL _nice
+GLOBAL _open_pipe
+GLOBAL _write_pipe
+GLOBAL _read_pipe
+GLOBAL _close_pipe
+
 
 EXTERN print_f
 
@@ -83,6 +88,26 @@ _post_sem:
 
 _print_sem:
     mov rax, 15
+    int 80h
+    ret
+
+_open_pipe:
+    mov rax, 16
+    int 80h
+    ret
+
+_write_pipe:
+    mov rax, 17
+    int 80h
+    ret
+
+_read_pipe:
+    mov rax, 18
+    int 80h
+    ret
+
+_close_pipe:
+    mov rax, 19
     int 80h
     ret
 
