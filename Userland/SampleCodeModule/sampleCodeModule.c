@@ -45,7 +45,7 @@ int main(int argc, char * argv[]) {
 		print_f(2, "\n>> ");
 		int64_t ans = get_s(buffer, MAX_COMMAND);
 		if (ans != -1)
-			checkModule(buffer);
+			getCommand(buffer);
 		else
 			print_f(1, "Comando no valido\n");
 	}
@@ -59,4 +59,15 @@ void checkModule(char * string) {
 		}
 	}
 	print_f(1, "Comando no valido\n");
+}
+
+void getCommand(char * str) { 
+	char * token = strtok(str, " | ");
+	if (strlen(token) == strlen(str)) { // NO HUBO PIPEO
+		return checkModule(str);
+	}
+	// v en caso de que si, tocaria hacer cosas con pipes v
+	// aca habria que abrir el pipe con los fds y de ahi llamar
+	// a checkmodule con cada uno de los comandos. En caso de que
+	// alguno no sea un comando valido checkear eso etc. 
 }
