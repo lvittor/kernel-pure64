@@ -28,7 +28,7 @@ static void list_push(list_t *list, list_t *entry);
 static void list_remove(list_t *entry);
 static int getLevel(size_t size);
 static list_t * list_find(uint64_t addr, uint8_t level);
-static size_t list_level_print(list_t * list);
+static uint64_t list_level_print(uint8_t level);
 
 
 void heapInit() {
@@ -173,10 +173,9 @@ static list_t * list_find(uint64_t addr, uint8_t level) {
 	return NULL;
 }
 
-static size_t list_level_print(list_t * list) {
-	size_t totalMem = 0;
-	list_t * it = list;
-	uint8_t level = it->level;
+static uint64_t list_level_print(uint8_t level) {
+	uint64_t totalMem = 0;
+	list_t * it = &free_lists[level];
 	uint8_t actual = 0;
 	size_t size = SIZE_OF_BLOCKS_AT_LEVEL(level, TOTAL_HEAP_SIZE);
 	it = it->next;
@@ -187,8 +186,8 @@ static size_t list_level_print(list_t * list) {
 	totalMem = size * actual;
 	ncPrintDec(actual);
 	ncPrint(" blocks of ");
-	ncPrintDec(size);
-	ncPrint("Bytes");
+	ncPrintHex(size);
+	ncPrint("h Bytes");
 	ncNewline();
 	return totalMem;
 }
@@ -211,19 +210,20 @@ void memoryDump() {
 	ncPrint("----- Dummy Memory Dump -----");
 	ncNewline();
 	ncPrint("Total Heap Size: ");
-	ncPrintDec(TOTAL_HEAP_SIZE);
+	ncPrintHex(TOTAL_HEAP_SIZE);
+	ncPrintChar('h');
 	ncNewline();
 	for (uint8_t i = 0; i < MAX_LEVELS; i++) {
 		if (!list_is_empty(&free_lists[i])) {
 			ncPrint("Level ");
 			ncPrintDec(i);
 			ncPrint(": ");
-			totalMem += list_level_print(&free_lists[i]);
+			totalMem += list_level_print(i);
 		}
 	}
 	ncPrint("Total Free Memory: ");
-	ncPrintDec(totalMem);
-	ncPrint("Bytes");
+	ncPrintHex(totalMem);
+	ncPrint("h Bytes");
 	ncNewline();
 	ncPrint("-----------------------------");
 	ncNewline();

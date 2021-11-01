@@ -9,7 +9,7 @@
 #include <memoryManager.h>
 
 #define MAX_MEMORY_MAPPED 0x1000000000
-#define MAX_SYSCALLS 11
+#define MAX_SYSCALLS 13
 
 typedef struct dateType {
 	uint8_t year, month, day;
