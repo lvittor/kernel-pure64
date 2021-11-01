@@ -102,6 +102,10 @@ static int validPID(uint8_t pid){
     return pid < MAX_PROCESSES && pid != haltPID;
 }
 
+void yieldProcess(void) {
+    _int20();
+}
+
 int kill(uint8_t pid) {
     if(! validPID(pid))
         return -1;
