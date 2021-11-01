@@ -7,6 +7,7 @@ GLOBAL _kill
 GLOBAL _block
 GLOBAL _alloc
 GLOBAL _free
+GLOBAL _memdump
 
 EXTERN print_f
 
