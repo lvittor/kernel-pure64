@@ -6,9 +6,10 @@
 #include <keyboard.h>
 #include <video.h>
 #include <scheduler.h>
+#include <memoryManager.h>
 
 #define MAX_MEMORY_MAPPED 0x1000000000
-#define MAX_SYSCALLS 15
+#define MAX_SYSCALLS 13
 
 typedef struct dateType {
 	uint8_t year, month, day;
@@ -18,14 +19,14 @@ typedef struct dateType {
 uint64_t sys_exit(void);
 uint64_t sys_write(uint8_t fd, char * buffer, uint64_t count);
 int64_t sys_read(void);
-uint64_t sys_date(dateType * pDate);
-uint64_t sys_mem(uint64_t rdi, uint64_t rsi, uint8_t rdx);
 uint8_t sys_getpid(void);
 void sys_processlist(void);
 uint8_t sys_createProcess(uint64_t functionAddress, int argc, char* argv[]);
 uint64_t sys_kill(uint8_t pid);
 uint64_t sys_block(uint8_t pid);
-uint64_t sys_unblock(uint8_t pid);
+void * sys_alloc(size_t size);
+void sys_free(void * address);
+void sys_mem_dump(void);
 int sys_nice(pid_t pid, priority_t priority);
 
 typedef int64_t (*syscall)(int64_t, int64_t, int64_t);
@@ -34,13 +35,14 @@ syscall syscalls[MAX_SYSCALLS] = {
 	(syscall)sys_exit,
 	(syscall)sys_write,
 	(syscall)sys_read,
-	(syscall)sys_date,
-	(syscall)sys_mem,
 	(syscall)sys_getpid,
 	(syscall)sys_processlist,
 	(syscall)sys_createProcess,
 	(syscall)sys_kill,
 	(syscall)sys_block,
+	(syscall)sys_alloc,
+	(syscall)sys_free,
+	(syscall)sys_mem_dump,
 	(syscall)sys_nice,
 	NULL
 };
@@ -80,39 +82,6 @@ int64_t sys_read(void) {
   	return getChar();
 }
 
-uint8_t BCDToDec(uint8_t bcd) {
-	return ((bcd & 0xF0) >> 4) * 10 + (bcd & 0x0F);
-}
-
-uint64_t sys_date(dateType * pDate){
-	if (pDate == 0)
-		return 0;
-	pDate->year = BCDToDec(getYear());
-	pDate->month = BCDToDec(getMonth());
-	pDate->day = BCDToDec(getDay());
-	pDate->hour = BCDToDec(getHour());
-	pDate->minute = BCDToDec(getMinute());
-	pDate->second = BCDToDec(getSecond());
-	return 1;
-}
-
-uint64_t sys_mem(uint64_t rdi, uint64_t rsi, uint8_t rdx){
-	uint8_t * src = (uint8_t *)rdi;
-	uint8_t * dst = (uint8_t *)rsi;
-	
-	// qemu tiene 64GB mapeados en memoria, asi que en el emulador
-	// incluso con sólo 512MB de memoria
-	// Podés acceder a todas las direcciones hasta 0x1000000000 - 1
-	if (src >= (uint8_t *)MAX_MEMORY_MAPPED || src - 1 + rdx >= (uint8_t *)MAX_MEMORY_MAPPED)
-		return 1;
-
-	uint8_t i;
-	for (i = 0; i < rdx; i++) 
-		dst[i] = src[i];
-	
-	return i;
-}
-
 void sys_processlist(void) {
 	printProcesses();
 }
@@ -127,6 +96,18 @@ uint64_t sys_kill(uint8_t pid) {
 
 uint64_t sys_block(uint8_t pid) {
 	return block(pid);
+}
+
+void * sys_alloc(size_t size) {
+	return alloc(size);
+}
+
+void sys_free(void * address){
+	return free(address);
+}
+
+void sys_mem_dump(void) { 
+	return memoryDump();
 }
 
 int sys_nice(pid_t pid, priority_t priority) {

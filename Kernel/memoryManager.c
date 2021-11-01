@@ -42,6 +42,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "memoryManager.h"
+#include <naiveConsole.h>
 
 /* Known available space for the heap. */
 uint8_t * heapStart = (uint8_t *) HEAP_START;
@@ -337,4 +338,20 @@ static void insertBlockIntoFreeList( BlockLink_t * pBlockToInsert )
         pIterator->pNextFreeBlock = pBlockToInsert;
     }
 }
+
+void memoryDump() { 
+    ncPrint("----- Heap4 Memory Dump -----");
+	ncNewline();
+	ncPrint("Total Heap Size: ");
+	ncPrintHex(TOTAL_HEAP_SIZE);
+    ncPrintChar('h');
+	ncNewline();
+    ncPrint("Total Free Memory: ");
+	ncPrintHex(freeBytesRemaining);
+	ncPrint("h Bytes");
+	ncNewline();
+    ncPrint("-----------------------------");
+    ncNewline();
+}
+
 #endif

@@ -1,11 +1,13 @@
 #ifdef BUDDY
 
 #include <memoryManager.h>
+#include <naiveConsole.h>
+
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
 
-#define MAX_LEVELS 11
+#define MAX_LEVELS 21
 #define BLOCKS_PER_LEVEL(level) (1<<(level))
 #define SIZE_OF_BLOCKS_AT_LEVEL(level,total_size) ((total_size) / (1<<(level)))
 #define INDEX_OF_POINTER_IN_LEVEL(pointer,level,memory_start,total_size) (((pointer)-(memory_start)) / (SIZE_OF_BLOCKS_AT_LEVEL(level,total_size)))
@@ -26,6 +28,7 @@ static void list_push(list_t *list, list_t *entry);
 static void list_remove(list_t *entry);
 static int getLevel(size_t size);
 static list_t * list_find(uint64_t addr, uint8_t level);
+static uint64_t list_level_print(uint8_t level);
 
 
 void heapInit() {
@@ -169,6 +172,25 @@ static list_t * list_find(uint64_t addr, uint8_t level) {
 	}
 	return NULL;
 }
+
+static uint64_t list_level_print(uint8_t level) {
+	uint64_t totalMem = 0;
+	list_t * it = &free_lists[level];
+	uint8_t actual = 0;
+	size_t size = SIZE_OF_BLOCKS_AT_LEVEL(level, TOTAL_HEAP_SIZE);
+	it = it->next;
+	while (it != NULL) {
+		actual++;
+		it = it->next;
+	}
+	totalMem = size * actual;
+	ncPrintDec(actual);
+	ncPrint(" blocks of ");
+	ncPrintHex(size);
+	ncPrint("h Bytes");
+	ncNewline();
+	return totalMem;
+}
 // --------------
 
 static int getLevel(size_t size) {
@@ -181,6 +203,30 @@ static int getLevel(size_t size) {
 		currSize /= 2;
 	}
 	return level;
+}
+
+void memoryDump() {
+	size_t totalMem = 0;
+	ncPrint("----- Dummy Memory Dump -----");
+	ncNewline();
+	ncPrint("Total Heap Size: ");
+	ncPrintHex(TOTAL_HEAP_SIZE);
+	ncPrintChar('h');
+	ncNewline();
+	for (uint8_t i = 0; i < MAX_LEVELS; i++) {
+		if (!list_is_empty(&free_lists[i])) {
+			ncPrint("Level ");
+			ncPrintDec(i);
+			ncPrint(": ");
+			totalMem += list_level_print(i);
+		}
+	}
+	ncPrint("Total Free Memory: ");
+	ncPrintHex(totalMem);
+	ncPrint("h Bytes");
+	ncNewline();
+	ncPrint("-----------------------------");
+	ncNewline();
 }
 
 #endif

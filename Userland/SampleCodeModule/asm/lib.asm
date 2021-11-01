@@ -1,84 +1,16 @@
 GLOBAL print
 GLOBAL getChar
-GLOBAL setReg
-GLOBAL fillDate
-GLOBAL inforeg
-GLOBAL fillMem
-GLOBAL _quadratic
 GLOBAL getPid
-GLOBAL processList
+GLOBAL ps
 GLOBAL createProcess
 GLOBAL _kill
 GLOBAL _block
+GLOBAL _alloc
+GLOBAL _free
+GLOBAL _memdump
 GLOBAL _nice
 
 EXTERN print_f
-
-; _quadratic(double * a, double * b, double * c, double * x1, double * x2)
-; rdi, rsi, rdx, rcx, r8
-
-_quadratic:
-    push rbp
-    mov rbp, rsp
-
-    ; (-b +- sqrt(b^2 - 4ac)) / 2a
-    ; https://math.stackexchange.com/questions/187242/quadratic-equation-error
-
-    movsd xmm0, [rdi] ; xmm0 = a
-    movsd xmm1, [rsi] ; xmm1 = b
-    movsd xmm2, [rdx] ; xmm2 = c
-
-    mov eax, 0
-    cvtsi2sd xmm4, eax
-    ucomisd xmm0, xmm4
-    je .not_quad
-
-    mov eax, 4
-    cvtsi2sd xmm4, eax ; xmm4 = 4
-    mulsd xmm4, xmm2 ; xmm4 = 4c
-    mulsd xmm4, xmm0 ; xmm4 = 4ac
-
-    movsd xmm3, xmm1 ; xmm3 = b
-    mulsd xmm3, xmm3 ; xmm3 = b^2
-    
-    ucomisd xmm3, xmm4 ; discriminante
-    jb .complex
-
-    subsd xmm3, xmm4 ; xmm3 = b^2 - 4ac
-    sqrtsd xmm3, xmm3 ; xmm3 = sqrt(b^2 - 4ac)
-
-    mov eax, -1
-    cvtsi2sd xmm4, eax ; xmm4 = -1
-    mulsd xmm1, xmm4 ; xmm1 = -b
-
-    mov eax, 2
-    cvtsi2sd xmm2, eax ; xmm2 = 2
-    mulsd xmm0, xmm2 ; xmm0 = 2a
-
-    movsd xmm2, xmm1 ; xmm2 = -b
-    addsd xmm2, xmm3 ; xmm2 = -b + sqrt(b^2 - 4ac)
-    divsd xmm2, xmm0 ; xmm2 = (-b + sqrt(b^2 - 4ac)) / 2a
-    movsd [rcx], xmm2
-    
-    movsd xmm2, xmm1 ; xmm2 = -b
-    subsd xmm2, xmm3 ; xmm2 = -b - sqrt(b^2 - 4ac)
-    divsd xmm2, xmm0 ; xmm2 = (-b - sqrt(b^2 - 4ac)) / 2a
-    movsd [r8], xmm2
-    
-    mov rax, 0
-    jmp .end
-
-.not_quad:
-    mov rax, 2
-    jmp .end
-
-.complex:
-    mov rax, 1
-
-.end:
-    mov rsp, rbp
-    pop rbp
-    ret
 
 print:
     mov rax, 1
@@ -90,61 +22,48 @@ getChar:
     int 80h
     ret
 
-fillDate:
+getPid:
     mov rax, 3
     int 80h
     ret
 
-fillMem:
+ps: 
     mov rax, 4
     int 80h
     ret
 
-getPid:
+createProcess: 
     mov rax, 5
     int 80h
     ret
 
-processList: 
+_kill:
     mov rax, 6
     int 80h
     ret
 
-createProcess: 
+_block:
     mov rax, 7
     int 80h
     ret
 
-_kill:
+_alloc:
     mov rax, 8
     int 80h
     ret
 
-_block:
+_free:
     mov rax, 9
     int 80h
     ret
 
-_nice:
+_memdump:
     mov rax, 10
     int 80h
-    ret
 
-setReg:
-    mov rax, 0xFFFF
-    mov rbx, 0xFFF0
-    mov rcx, 0xFF00
-    mov rdx, 0xF000
-    mov r8,  0xFF00
-    mov r9,  0xFFF0
-    mov r10, 0xFFFF
-    mov r11, 0xFFF0
-    mov r12, 0xFF00
-    mov r13, 0xF000
-    mov r14, 0xFF00
-    mov r15, 0xFFF0
-    div cl
-    mov ax, cx
+_nice:
+    mov rax, 11
+    int 80h
     ret
 
  
@@ -185,63 +104,7 @@ setReg:
 	pop rax
 %endmacro
 
-%macro printOneReg 2
-    mov rdi, 1          ; file descriptor = 1
-    mov rsi, fmt        ; format: "%s:  %x/n"
-    mov rdx, %1         ; nombre del registro
-    mov rcx, [rbp + %2 * 8]         ; valor del registro
-    call print_f
-%endmacro
 
-; Después de armarte el stack frame, tenés el stack de la siguiente manera:
-;   rbp
-;   r15
-;   r14
-;   r13
-;   r12
-;   r11
-;   r10
-;   r9
-;   r8
-;   rsi
-;   rdi
-;   rbp
-;   rdx
-;   rcx
-;   rbx
-;   rax
-;   rflags
-;   rip
-
-inforeg:
-    pushf
-    pushState
-    push rbp
-    mov rbp, rsp
-
-    printOneReg srip, 17
-    printOneReg srflags, 16
-    printOneReg srax, 15
-    printOneReg srbx, 14
-    printOneReg srcx, 13
-    printOneReg srdx, 12
-    printOneReg srbp, 11
-    printOneReg srdi, 10
-    printOneReg srsi, 9
-    printOneReg sr8, 8
-    printOneReg sr9, 7
-    printOneReg sr10, 6
-    printOneReg sr11, 5
-    printOneReg sr12, 4
-    printOneReg sr13, 3
-    printOneReg sr14, 2
-    printOneReg sr15, 1
-
-    mov rsp, rbp
-    pop rbp
-    popState
-    popf
-    ret
 
 section .data
 fmt db "%s: %xh", 10, 0
