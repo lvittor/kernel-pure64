@@ -36,5 +36,6 @@ uint64_t _block(uint8_t pid);
 void * _alloc(size_t size);
 void _free(void * address);
 void _memdump(void);
+uint64_t _nice(uint8_t pid, uint8_t priority);
 
 #endif

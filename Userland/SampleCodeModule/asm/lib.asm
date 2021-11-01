@@ -8,6 +8,7 @@ GLOBAL _block
 GLOBAL _alloc
 GLOBAL _free
 GLOBAL _memdump
+GLOBAL _nice
 
 EXTERN print_f
 
@@ -58,6 +59,10 @@ _free:
 
 _memdump:
     mov rax, 10
+    int 80h
+
+_nice:
+    mov rax, 11
     int 80h
     ret
 

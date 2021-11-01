@@ -1,6 +1,6 @@
 #ifdef BUDDY
 
-#include "memoryManager.h"
+#include <memoryManager.h>
 #include <naiveConsole.h>
 
 #include <stdint.h>

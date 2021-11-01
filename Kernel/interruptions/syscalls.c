@@ -20,14 +20,14 @@ uint64_t sys_exit(void);
 uint64_t sys_write(uint8_t fd, char * buffer, uint64_t count);
 int64_t sys_read(void);
 uint8_t sys_getpid(void);
-uint64_t sys_processlist(void);
+void sys_processlist(void);
 uint8_t sys_createProcess(uint64_t functionAddress, int argc, char* argv[]);
 uint64_t sys_kill(uint8_t pid);
 uint64_t sys_block(uint8_t pid);
 void * sys_alloc(size_t size);
 void sys_free(void * address);
 void sys_mem_dump(void);
-
+int sys_nice(pid_t pid, priority_t priority);
 
 typedef int64_t (*syscall)(int64_t, int64_t, int64_t);
 
@@ -43,6 +43,7 @@ syscall syscalls[MAX_SYSCALLS] = {
 	(syscall)sys_alloc,
 	(syscall)sys_free,
 	(syscall)sys_mem_dump,
+	(syscall)sys_nice,
 	NULL
 };
 
@@ -81,8 +82,8 @@ int64_t sys_read(void) {
   	return getChar();
 }
 
-uint64_t sys_processlist(void) {
-	return (uint64_t)getProcesses();
+void sys_processlist(void) {
+	printProcesses();
 }
 
 uint8_t sys_createProcess(uint64_t functionAddress, int argc, char* argv[]) {
@@ -107,4 +108,8 @@ void sys_free(void * address){
 
 void sys_mem_dump(void) { 
 	return memoryDump();
+}
+
+int sys_nice(pid_t pid, priority_t priority) {
+	return nice(pid, priority);
 }

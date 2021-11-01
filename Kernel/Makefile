@@ -24,7 +24,7 @@ $(KERNEL): $(STATICLIBS) $(ALL_OBJECTS)
 	$(LD) $(LDFLAGS) -T kernel.ld --oformat=elf64-x86-64 -o kernel.elf $^
 
 %.o: %.c
-	$(GCC) $(GCCFLAGS) -D$(MM) -I./include -I./interruptions -c $< -o $@
+	$(GCC) $(GCCFLAGS) -I./include -I./interruptions -c $< -o $@ -D$(MM)
 
 %.o : %.asm
 	$(ASM) $(ASMFLAGS) $< -o $@
