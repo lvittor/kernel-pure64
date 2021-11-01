@@ -1,12 +1,14 @@
 #include <semaphore.h>
 #include <stddef.h>
 #include <memoryManager.h>
+#include <scheduler.c>
 
 static lock_t semaphoresLock = 0;
 struct semaphoreCDT * semaphores[MAX_SEMAPHORES] = {NULL};
 
 typedef struct semaphoreCDT {
   lock_t lock;
+  pid_t creatorProcess;
   semvalue_t value;
   // queueADT waiting;
 } semaphoreCDT;
@@ -99,9 +101,14 @@ SEM_RET closeSemaphore(semid_t sid) {
     return SEM_INVALID;
   }
   _acquire(&(semaphores[sid]->lock));
+  if (getCurrentPID() != semaphores[sid]->creatorProcess) {
+    _release(&(semaphores[sid]->lock));
+    _release(&semaphoresLock);
+    return SEM_INVALID;
+  }
 
-  // Only destroy if there are no processes waiting
-  // Consider listening queue
+  // Only destroy if there are no processes waiting?
+  // Consider listening queue?
   free(semaphores[sid]);
 
   _release(&semaphoresLock);
