@@ -10,6 +10,8 @@ GLOBAL processList
 GLOBAL createProcess
 GLOBAL _kill
 GLOBAL _block
+GLOBAL _alloc
+GLOBAL _free
 
 EXTERN print_f
 
@@ -121,6 +123,21 @@ _kill:
 
 _block:
     mov rax, 9
+    int 80h
+    ret
+
+_alloc:
+    mov rax, 10
+    int 80h
+    ret
+
+_free:
+    mov rax, 11
+    int 80h
+    ret
+
+_memdump:
+    mov rax, 12
     int 80h
     ret
 

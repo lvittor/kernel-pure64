@@ -38,5 +38,8 @@ void processList(void);
 uint64_t createProcess(void * functionAddress, int argc, char * argv[]);
 uint64_t _kill(uint8_t pid);
 uint64_t _block(uint8_t pid);
+void * _alloc(size_t size);
+void _free(void * address);
+void _memdump(void);
 
 #endif

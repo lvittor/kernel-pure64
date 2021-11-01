@@ -10,5 +10,6 @@
 void heapInit(void);
 void * alloc(size_t size);
 void free(void * address);
+void memoryDump(void);
 
 #endif

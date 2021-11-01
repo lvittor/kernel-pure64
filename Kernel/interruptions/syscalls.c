@@ -6,6 +6,7 @@
 #include <keyboard.h>
 #include <video.h>
 #include <scheduler.h>
+#include <memoryManager.h>
 
 #define MAX_MEMORY_MAPPED 0x1000000000
 #define MAX_SYSCALLS 15
@@ -26,6 +27,10 @@ uint8_t sys_createProcess(uint64_t functionAddress, int argc, char* argv[]);
 uint64_t sys_kill(uint8_t pid);
 uint64_t sys_block(uint8_t pid);
 uint64_t sys_unblock(uint8_t pid);
+void * sys_alloc(size_t size);
+void sys_free(void * address);
+void sys_mem_dump(void);
+
 
 typedef int64_t (*syscall)(int64_t, int64_t, int64_t);
 
@@ -40,6 +45,9 @@ syscall syscalls[MAX_SYSCALLS] = {
 	(syscall)sys_createProcess,
 	(syscall)sys_kill,
 	(syscall)sys_block,
+	(syscall)sys_alloc,
+	(syscall)sys_free,
+	(syscall)sys_mem_dump,
 	NULL
 };
 
@@ -125,4 +133,16 @@ uint64_t sys_kill(uint8_t pid) {
 
 uint64_t sys_block(uint8_t pid) {
 	return block(pid);
+}
+
+void * sys_alloc(size_t size) {
+	return alloc(size);
+}
+
+void sys_free(void * address){
+	return free(address);
+}
+
+void sys_mem_dump(void) { 
+	return memoryDump();
 }
