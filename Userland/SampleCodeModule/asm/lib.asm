@@ -66,7 +66,26 @@ _nice:
     int 80h
     ret
 
- 
+_open_sem:
+    mov rax, 12
+    int 80h
+    ret
+
+_wait_sem:
+    mov rax, 13
+    int 80h
+    ret
+
+_post_sem:
+    mov rax, 14
+    int 80h
+    ret
+
+_print_sem:
+    mov rax, 15
+    int 80h
+    ret
+
 
 %macro pushState 0
 	push rax
