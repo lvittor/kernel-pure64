@@ -5,6 +5,7 @@
 
 #define MAX_PROCESSES   128
 #define PROCESS_STACK_SIZE  0x1000 // 4Kib
+#define MAX_PRIORITY    40
 
 typedef uint8_t pid_t;
 typedef uint8_t priority_t;
