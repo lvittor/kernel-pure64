@@ -1,5 +1,6 @@
 #include <queue.h>
 #include <memoryManager.h>
+#include <naiveConsole.h>
 
 typedef struct nodeCDT {
     queue_value_t value;
@@ -68,4 +69,16 @@ void freeQueue(queueADT q) {
     while(!isEmpty(q))
         dequeue(q);
     free(q);
+}
+
+void printQueue(queueADT q) {
+    if (q == NULL)
+        return;
+    ncPrintChar('[');
+    nodeADT it = q->front;
+    while(it != NULL) {
+        ncPrintDec(it->value);
+        ncPrint(", ");
+    }
+    ncPrintChar(']');
 }

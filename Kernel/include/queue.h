@@ -12,5 +12,6 @@ char enqueue(queueADT q, queue_value_t v);
 char peek(queueADT q, queue_value_t * v);
 void dequeue(queueADT q);
 void freeQueue(queueADT q);
+void printQueue(queueADT q);
 
 #endif

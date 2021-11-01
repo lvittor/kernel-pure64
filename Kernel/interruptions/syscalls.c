@@ -7,9 +7,10 @@
 #include <video.h>
 #include <scheduler.h>
 #include <memoryManager.h>
+#include <semaphore.h>
 
 #define MAX_MEMORY_MAPPED 0x1000000000
-#define MAX_SYSCALLS 13
+#define MAX_SYSCALLS 18
 
 typedef struct dateType {
 	uint8_t year, month, day;
@@ -28,6 +29,11 @@ void * sys_alloc(size_t size);
 void sys_free(void * address);
 void sys_mem_dump(void);
 int sys_nice(pid_t pid, priority_t priority);
+SEM_RET sys_open_sem(semid_t sid, semvalue_t value);
+SEM_RET sys_wait_sem(semid_t sid);
+SEM_RET sys_post_sem(semid_t sid);
+SEM_RET sys_close_sem(semid_t sid);
+void sys_print_sem(void);
 
 typedef int64_t (*syscall)(int64_t, int64_t, int64_t);
 
@@ -44,7 +50,12 @@ syscall syscalls[MAX_SYSCALLS] = {
 	(syscall)sys_free,
 	(syscall)sys_mem_dump,
 	(syscall)sys_nice,
-	NULL
+	(syscall)sys_open_sem,
+	(syscall)sys_wait_sem,
+	(syscall)sys_post_sem,
+	(syscall)sys_close_sem,
+	(syscall)sys_print_sem,
+	NULL,
 };
 
 uint64_t syscallDispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx) {
@@ -112,4 +123,24 @@ void sys_mem_dump(void) {
 
 int sys_nice(pid_t pid, priority_t priority) {
 	return nice(pid, priority);
+}
+
+SEM_RET sys_open_sem(semid_t sid, semvalue_t value) {
+	return openSemaphore(sid, value);
+}
+
+SEM_RET sys_wait_sem(semid_t sid) {
+	return waitSemaphore(sid);
+}
+
+SEM_RET sys_post_sem(semid_t sid) {
+	return postSemaphore(sid);
+}
+
+SEM_RET sys_close_sem(semid_t sid) {
+	return closeSemaphore(sid);
+}
+
+void sys_print_sem(void) {
+	printSemaphores();
 }

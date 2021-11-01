@@ -25,5 +25,6 @@ SEM_RET openSemaphore(semid_t sid, semvalue_t value);
 SEM_RET waitSemaphore(semid_t sid);
 SEM_RET postSemaphore(semid_t sid);
 SEM_RET closeSemaphore(semid_t sid);
+void printSemaphores(void);
 
 #endif

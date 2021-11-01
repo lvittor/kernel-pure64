@@ -4,6 +4,7 @@
 #include <scheduler.h>
 #include <queue.h>
 #include <lib.h>
+#include <naiveConsole.h>
 
 static lock_t semaphoresLock = 0;
 struct semaphoreCDT * semaphores[MAX_SEMAPHORES] = {NULL};
@@ -126,4 +127,23 @@ SEM_RET closeSemaphore(semid_t sid) {
 
   _release(&semaphoresLock);
   return SEM_SUCCESS;
+}
+
+void printSemaphores(void) {
+  ncPrint("Semaphores\n");
+  _acquire(&semaphoresLock);
+  for (uint8_t i = 0; i < MAX_SEMAPHORES; i++) {
+    if (semaphores[i] != NULL) {
+    _acquire(&(semaphores[i]->lock));
+    ncPrint(semaphores[i]->name);
+    ncPrint(": ");
+    ncPrintDec(semaphores[i]->value);
+    ncPrint(", ");
+    printQueue(semaphores[i]->waitingQueue);
+    _release(&(semaphores[i]->lock));
+    ncNewline();
+    }
+  }
+  ncNewline();
+  _release(&semaphoresLock);
 }
