@@ -1,4 +1,5 @@
 GLOBAL _buildProcessContext, _openProcessContext
+GLOBAL _int20
 
 %macro pushState 0
 	push rax
@@ -80,3 +81,8 @@ _openProcessContext:
     mov rsp, rdi
     popState
     iretq
+
+; void _int20(void)
+_int20:
+	int 20h
+	ret

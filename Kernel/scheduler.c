@@ -3,7 +3,10 @@
 #include <interrupts.h>
 #include <naiveConsole.h>
 
-enum processState {
+#define MAX_PROCESSES   128
+#define PROCESS_STACK_SIZE  0x1000 // 4Kib
+
+typedef enum processState {
     READY = 0,
     BLOCKED,
     ERROR,
@@ -11,18 +14,21 @@ enum processState {
 } processState;
 
 typedef struct processControlBlock {
-    enum processState state;
+    processState state;
     uint64_t functionAddress;
     uint64_t currRSP;
     uint64_t stackTop;
     uint64_t baseRSP;
+    priority_t priority;
 } processControlBlock;
 
 static processControlBlock * processes[MAX_PROCESSES];
-static uint8_t currentPID = 0;
-static uint8_t haltPID = 0;
+static pid_t currentPID = 0;
+static pid_t haltPID = 0;
+static uint8_t tickets = 0;
 
-void freeProcess(uint8_t pid);
+static void freeProcess(pid_t pid);
+static uint8_t getTicketsForPID(pid_t pid);
 
 void haltProcess(void) {
     while (1) {
@@ -63,26 +69,45 @@ int loadProcess(uint64_t functionAddress, int argc, char* argv[]) {
     pPCB->baseRSP = stackTop + PROCESS_STACK_SIZE - 1;
     pPCB->functionAddress = functionAddress;
     pPCB->currRSP = _buildProcessContext(pPCB->baseRSP, pPCB->functionAddress, argc, argv);
+    pPCB->priority = 0;
 
     processes[pid] = pPCB;
     return pid;
 }
 
+static char isValidPID(uint8_t pid){
+    return pid < MAX_PROCESSES && pid != haltPID;
+}
+
+static char isPIDInState(pid_t pid, processState state) {
+    return isValidPID(pid) && processes[pid]->state == state;
+}
+
+static char isSchedulablePID(pid_t pid) {
+    return isPIDInState(pid, READY) && pid != haltPID;
+}
+
+static pid_t getNextReadyPID(pid_t currentPID) {
+    for (pid_t step = 0; step < MAX_PROCESSES; step++) {
+        pid_t nextPID = (currentPID + step + 1) % MAX_PROCESSES;
+        if (isSchedulablePID(nextPID))
+            return nextPID;
+        if (isPIDInState(nextPID, KILLED))
+            freeProcess(nextPID);
+        // else BLOCKED OR ERROR
+    }
+    return haltPID;
+}
+
 uint64_t schedule(uint64_t currRSP) {
     processes[currentPID]->currRSP = currRSP;
-    for (uint8_t i = 1; i < MAX_PROCESSES; i++) {
-        uint8_t pid = (currentPID + i) % MAX_PROCESSES;
-        if (processes[pid]->state == READY) {
-            currentPID = pid;
-            return processes[currentPID]->currRSP;
-        } else if (processes[pid]->state == KILLED) {
-            freeProcess(pid);
-        }
-        // else {
-        //     Blocked... 
-        // }
+    if (tickets == 0 || ! isPIDInState(currentPID, READY)) {
+        currentPID = getNextReadyPID(currentPID);
+        tickets = getTicketsForPID(currentPID);
+    } else {
+        tickets--;
     }
-    return processes[haltPID]->currRSP;
+    return processes[currentPID]->currRSP;
 }
 
 void freeProcess(uint8_t pid) {
@@ -94,13 +119,12 @@ void freeProcess(uint8_t pid) {
 int8_t getCurrentPID(void) {
     return currentPID;
 }
-
-static int validPID(uint8_t pid){
-    return pid < MAX_PROCESSES && pid != haltPID;
+void yieldProcess(void) {
+    _int20();
 }
 
 int kill(uint8_t pid) {
-    if(! validPID(pid))
+    if(! isValidPID(pid))
         return -1;
 
     processes[pid]->state = KILLED;
@@ -112,7 +136,7 @@ int kill(uint8_t pid) {
 }
 
 int block(uint8_t pid){
-    if(! validPID(pid))
+    if(! isValidPID(pid))
         return -1;
 
     if(processes[pid]->state == BLOCKED)
@@ -123,7 +147,29 @@ int block(uint8_t pid){
     return 0;
 }
 
-processControlBlock * getProcesses(void) {
+static char isValidPriority(priority_t priority) {
+    return priority >= 0 && priority < MAX_PRIORITY;
+}
+
+int nice(pid_t pid, priority_t newPriority) {
+    if (! isValidPID(pid))
+        return -1;
+    
+    if (! isValidPriority(newPriority))
+        return -1;
+    
+    processes[pid]->priority = newPriority;
+    return 0;
+}
+
+static uint8_t getTicketsForPID(pid_t pid) {
+    if (! isValidPID(pid))
+        return 0;
+    
+    return processes[pid]->priority + 1;
+}
+
+void printProcesses(void) {
     ncPrint("\nProcess list:\n");
     for (int pid = 0; pid < MAX_PROCESSES; pid++){
         if (processes[pid] != NULL) {
@@ -135,6 +181,4 @@ processControlBlock * getProcesses(void) {
             ncPrintChar('\n');
         }
     }
-
-    return NULL;
 }

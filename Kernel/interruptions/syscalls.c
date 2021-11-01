@@ -21,11 +21,12 @@ int64_t sys_read(void);
 uint64_t sys_date(dateType * pDate);
 uint64_t sys_mem(uint64_t rdi, uint64_t rsi, uint8_t rdx);
 uint8_t sys_getpid(void);
-uint64_t sys_processlist(void);
+void sys_processlist(void);
 uint8_t sys_createProcess(uint64_t functionAddress, int argc, char* argv[]);
 uint64_t sys_kill(uint8_t pid);
 uint64_t sys_block(uint8_t pid);
 uint64_t sys_unblock(uint8_t pid);
+int sys_nice(pid_t pid, priority_t priority);
 
 typedef int64_t (*syscall)(int64_t, int64_t, int64_t);
 
@@ -40,6 +41,7 @@ syscall syscalls[MAX_SYSCALLS] = {
 	(syscall)sys_createProcess,
 	(syscall)sys_kill,
 	(syscall)sys_block,
+	(syscall)sys_nice,
 	NULL
 };
 
@@ -111,8 +113,8 @@ uint64_t sys_mem(uint64_t rdi, uint64_t rsi, uint8_t rdx){
 	return i;
 }
 
-uint64_t sys_processlist(void) {
-	return (uint64_t)getProcesses();
+void sys_processlist(void) {
+	printProcesses();
 }
 
 uint8_t sys_createProcess(uint64_t functionAddress, int argc, char* argv[]) {
@@ -125,4 +127,8 @@ uint64_t sys_kill(uint8_t pid) {
 
 uint64_t sys_block(uint8_t pid) {
 	return block(pid);
+}
+
+int sys_nice(pid_t pid, priority_t priority) {
+	return nice(pid, priority);
 }

@@ -10,13 +10,16 @@
 #include <stdarg.h>
 
 #define MAX_COMMAND 19 // Habria que achicarlo
-#define MODULES_SIZE 14
+#define MODULES_SIZE 15
 
 typedef void (*commandType)(void);
+
+uint8_t counter = 0;
 
 void beginProcess(void);
 void killProcess(void);
 void blockProcess(void);
+void niceProcess(void);
 
 static char * commandStrings[MODULES_SIZE] = {
 	"help",
@@ -32,6 +35,7 @@ static char * commandStrings[MODULES_SIZE] = {
 	"beginProcess",
 	"killProcess",
 	"blockProcess",
+	"n",
 };
 static commandType commandFunctions[MODULES_SIZE] = {
 	help,
@@ -47,18 +51,20 @@ static commandType commandFunctions[MODULES_SIZE] = {
 	beginProcess,
 	killProcess,
 	blockProcess,
+	niceProcess,
 };
 
 void checkModule(char * string);
 
 void newProcess(int argc, char * argv[]) {
 	while(1) {
-		print_f(1, "%d\n", argc);
+		print_f(1, "Userland: %d\n", argc);
+		for(uint64_t i = 0; i < (1L<<25); i++);
 	}
 }
 
 void beginProcess(void) {
-	createProcess((void *)newProcess, 5, (char * []) {NULL});
+	createProcess((void *)newProcess, counter++, (char * []) {NULL});
 }
 
 void killProcess(void){
@@ -109,6 +115,31 @@ void blockProcess(void){
     	print_f(1, "\nSe bloqueo al proceso %d\n", pid);
 	} else {
 		print_f(2, "\nNo se pudo bloquear al proceso %d\n", pid);
+	}
+}
+
+void niceProcess(void){
+	char buffer[20] = {0};
+    uint8_t pid;
+	int ans;
+    do {
+        print_f(1, "Ingrese el pid a nicear:");
+        ans = get_s(buffer, 19);
+    } while (ans == -1);
+    
+    for (int i = 0; i < ans; i++) {
+        if (buffer[i] < '0' || buffer[i] > '9') {
+            print_f(1, "\nNo es una direccion valida\n");
+            return;
+        }
+    }
+
+    sscan(buffer, "%d", &pid);
+	ans = _nice(pid, 30);
+	if (ans == 0) {
+    	print_f(1, "\nSe niceo al proceso %d\n", pid);
+	} else {
+		print_f(2, "\nNo se pudo nicear al proceso %d\n", pid);
 	}
 }
 
