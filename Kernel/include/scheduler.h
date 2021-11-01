@@ -29,8 +29,9 @@ int kill(uint8_t pid);
 int block(uint8_t pid);
 int unblock(uint8_t pid);
 struct processControlBlock * getProcesses(void);
-int setPIDState(uint8_t pid, processState newState); // Use only inside kernel, does not check if should yield after kill or block
+void setPIDState(uint8_t pid, processState newState); // Use only inside kernel, does not check if should yield after kill or block
 int nice(pid_t pid, priority_t newPriority);
 void printProcesses(void);
+void yieldProcess(void);
 
 #endif

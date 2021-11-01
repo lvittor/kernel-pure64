@@ -91,7 +91,7 @@ SEM_RET postSemaphore(semid_t sid) {
   _release(&semaphoresLock);
 
   semaphores[sid]->value++;
-  uint8_t wakeProcess;
+  queue_value_t wakeProcess;
   char success = peek(semaphores[sid]->waitingQueue, &wakeProcess);
   if (success) {
     dequeue(semaphores[sid]->waitingQueue);

@@ -45,7 +45,7 @@ char enqueue(queueADT q, queue_value_t v) {
     return 1;
 }
 
-char peek(queueADT q, value_t * v) {
+char peek(queueADT q, queue_value_t * v) {
     if (isEmpty(q))
         return 0;
     *v = q->front->value;
