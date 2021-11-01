@@ -10,6 +10,7 @@ GLOBAL processList
 GLOBAL createProcess
 GLOBAL _kill
 GLOBAL _block
+GLOBAL _nice
 
 EXTERN print_f
 
@@ -121,6 +122,11 @@ _kill:
 
 _block:
     mov rax, 9
+    int 80h
+    ret
+
+_nice:
+    mov rax, 10
     int 80h
     ret
 

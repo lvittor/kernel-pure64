@@ -20,7 +20,7 @@ int8_t getCurrentPID(void);
 int kill(uint8_t pid);
 int block(uint8_t pid);
 int unblock(uint8_t pid);
-int nice(uint8_t pid);
+int nice(pid_t pid, priority_t newPriority);
 void printProcesses(void);
 
 #endif

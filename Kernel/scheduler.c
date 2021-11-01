@@ -6,7 +6,7 @@
 #define MAX_PROCESSES   128
 #define PROCESS_STACK_SIZE  0x1000 // 4Kib
 
-enum processState {
+typedef enum processState {
     READY = 0,
     BLOCKED,
     ERROR,
@@ -14,7 +14,7 @@ enum processState {
 } processState;
 
 typedef struct processControlBlock {
-    enum processState state;
+    processState state;
     uint64_t functionAddress;
     uint64_t currRSP;
     uint64_t stackTop;
@@ -23,11 +23,12 @@ typedef struct processControlBlock {
 } processControlBlock;
 
 static processControlBlock * processes[MAX_PROCESSES];
-static uint8_t currentPID = 0;
-static uint8_t haltPID = 0;
+static pid_t currentPID = 0;
+static pid_t haltPID = 0;
 static uint8_t tickets = 0;
 
-static void freeProcess(uint8_t pid);
+static void freeProcess(pid_t pid);
+static uint8_t getTicketsForPID(pid_t pid);
 
 void haltProcess(void) {
     while (1) {
@@ -74,21 +75,39 @@ int loadProcess(uint64_t functionAddress, int argc, char* argv[]) {
     return pid;
 }
 
+static char isValidPID(uint8_t pid){
+    return pid < MAX_PROCESSES && pid != haltPID;
+}
+
+static char isPIDInState(pid_t pid, processState state) {
+    return isValidPID(pid) && processes[pid]->state == state;
+}
+
+static char isSchedulablePID(pid_t pid) {
+    return isPIDInState(pid, READY) && pid != haltPID;
+}
+
+static pid_t getNextReadyPID(pid_t currentPID) {
+    for (pid_t step = 0; step < MAX_PROCESSES; step++) {
+        pid_t nextPID = (currentPID + step + 1) % MAX_PROCESSES;
+        if (isSchedulablePID(nextPID))
+            return nextPID;
+        if (isPIDInState(nextPID, KILLED))
+            freeProcess(nextPID);
+        // else BLOCKED OR ERROR
+    }
+    return haltPID;
+}
+
 uint64_t schedule(uint64_t currRSP) {
     processes[currentPID]->currRSP = currRSP;
-    for (uint8_t i = 0; i < MAX_PROCESSES; i++) {
-        uint8_t pid = (currentPID + i + 1) % MAX_PROCESSES;
-        if (processes[pid]->state == READY) {
-            currentPID = pid;
-            return processes[currentPID]->currRSP;
-        } else if (processes[pid]->state == KILLED) {
-            freeProcess(pid);
-        }
-        // else {
-        //     Blocked or Error...
-        // }
+    if (tickets == 0 || ! isPIDInState(currentPID, READY)) {
+        currentPID = getNextReadyPID(currentPID);
+        tickets = getTicketsForPID(currentPID);
+    } else {
+        tickets--;
     }
-    return processes[haltPID]->currRSP;
+    return processes[currentPID]->currRSP;
 }
 
 void freeProcess(uint8_t pid) {
@@ -100,11 +119,6 @@ void freeProcess(uint8_t pid) {
 int8_t getCurrentPID(void) {
     return currentPID;
 }
-
-static int isValidPID(uint8_t pid){
-    return pid < MAX_PROCESSES && pid != haltPID;
-}
-
 void yieldProcess(void) {
     _int20();
 }
@@ -148,7 +162,7 @@ int nice(pid_t pid, priority_t newPriority) {
     return 0;
 }
 
-static uint8_t getTicketsForProcess(pid_t pid) {
+static uint8_t getTicketsForPID(pid_t pid) {
     if (! isValidPID(pid))
         return 0;
     
@@ -167,6 +181,4 @@ void printProcesses(void) {
             ncPrintChar('\n');
         }
     }
-
-    return NULL;
 }
