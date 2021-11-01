@@ -16,7 +16,7 @@ typedef struct list_t {
 	uint8_t level;
 } list_t;
 
-list_t free_lists[MAX_LEVELS] = {NULL};
+list_t free_lists[MAX_LEVELS];
 
 static void list_init(list_t * list);
 static int list_is_empty(list_t * list);
@@ -65,7 +65,7 @@ void * alloc(size_t desiredSize) {
 	}
 	link = list_pop(&free_lists[level]);
 	link->level = level;
-	memory = (uint64_t) link;
+	memory = link;
 	memory += sizeof(list_t);
 	return (void *) memory;
 }
@@ -87,9 +87,9 @@ void free(void * memory) {
 		uint64_t buddy;
 		
 		if ((index & 1) == 0) {
-			buddy = memory + size;
+			buddy = (uint64_t)(memory + size);
 		} else {
-			buddy = memory - size;
+			buddy = (uint64_t)(memory - size);
 		}
 		buddy_link = NULL;
 		if (!list_is_empty(&free_lists[level]))
@@ -98,7 +98,7 @@ void free(void * memory) {
 		list_init(link);
 		list_push(&free_lists[level], link);
 
-		if (buddy_link == buddy) {
+		if ((uint64_t)buddy_link == buddy) {
 			list_remove(link);
 			list_remove(buddy_link);
 			if ((index & 1) == 0)
@@ -154,7 +154,7 @@ static list_t * list_find(uint64_t addr, uint8_t level) {
 	list_t * aux = &free_lists[level];
 	aux = aux->next;
 	while (aux != NULL) {
-		if (aux == addr) {
+		if ((uint64_t)aux == addr) {
 			return aux;
 		}
 		aux = aux->next;
