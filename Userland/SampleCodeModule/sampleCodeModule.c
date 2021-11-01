@@ -1,4 +1,3 @@
-/* sampleCodeModule.c */
 #include <stdint.h>
 #include <lib.h>
 #include <utils.h>
@@ -10,43 +9,31 @@
 #include <stdarg.h>
 
 #define MAX_COMMAND 19 // Habria que achicarlo
-#define MODULES_SIZE 14
+#define MODULES_SIZE 7
 
 typedef void (*commandType)(void);
 
 void beginProcess(void);
-void killProcess(void);
-void blockProcess(void);
+void kill(void);
+void block(void);
 
 static char * commandStrings[MODULES_SIZE] = {
 	"help",
-	"inforeg",
-	"printmem",
-	"printDate",
-	"divisionByZero",
-	"invalidOpcode",
-	"printFeatures",
-	"printQuadraticRoots",
 	"printpid",
-	"processList",
+	"ps",
 	"beginProcess",
-	"killProcess",
-	"blockProcess",
+	"kill",
+	"block",
+	"mem",
 };
 static commandType commandFunctions[MODULES_SIZE] = {
 	help,
-	inforeg,
-	printmem,
-	printDate,
-	throwDivisionByZeroException,
-	throwInvalidOpcodeException,
-	printFeatures,
-	printQuadraticRoots,
 	printPid,
-	processList,
+	ps,
 	beginProcess,
-	killProcess,
-	blockProcess,
+	kill,
+	block,
+	_memdump,
 };
 
 void checkModule(char * string);
@@ -61,7 +48,7 @@ void beginProcess(void) {
 	createProcess((void *)newProcess, 5, (char * []) {NULL});
 }
 
-void killProcess(void){
+void kill(void){
 	char buffer[20] = {0};
     uint8_t pid;
 	int ans;
@@ -87,7 +74,7 @@ void killProcess(void){
 
 }
 
-void blockProcess(void){
+void block(void){
 	char buffer[20] = {0};
     uint8_t pid;
 	int ans;
