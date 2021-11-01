@@ -53,6 +53,7 @@ void * initializeKernelBinary()
 
 
 int main() {
+
 	load_idt();
 
 	init_screen();
