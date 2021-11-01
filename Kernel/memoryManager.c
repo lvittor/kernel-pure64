@@ -340,14 +340,15 @@ static void insertBlockIntoFreeList( BlockLink_t * pBlockToInsert )
 }
 
 void memoryDump() { 
-    ncPrint("----- Memory Dump -----");
+    ncPrint("----- Heap4 Memory Dump -----");
 	ncNewline();
 	ncPrint("Total Heap Size: ");
-	ncPrintDec(TOTAL_HEAP_SIZE);
+	ncPrintHex(TOTAL_HEAP_SIZE);
+    ncPrintChar('h');
 	ncNewline();
     ncPrint("Total Free Memory: ");
-	ncPrintDec(freeBytesRemaining);
-	ncPrint("Bytes");
+	ncPrintHex(freeBytesRemaining);
+	ncPrint("h Bytes");
 	ncNewline();
     ncPrint("-----------------------------");
     ncNewline();
