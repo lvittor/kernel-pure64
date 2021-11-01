@@ -6,13 +6,6 @@
 #define MAX_PROCESSES   128
 #define PROCESS_STACK_SIZE  0x1000 // 4Kib
 
-typedef enum processState {
-    READY = 0,
-    BLOCKED,
-    ERROR,
-    KILLED
-} processState;
-
 typedef struct processControlBlock {
     processState state;
     uint64_t functionAddress;
@@ -119,6 +112,7 @@ void freeProcess(uint8_t pid) {
 int8_t getCurrentPID(void) {
     return currentPID;
 }
+
 void yieldProcess(void) {
     _int20();
 }
@@ -181,4 +175,10 @@ void printProcesses(void) {
             ncPrintChar('\n');
         }
     }
+}
+
+void setPIDState(uint8_t pid, processState newState) {
+    if (! isValidPID(pid))
+        return;
+    processes[pid]->state = newState;
 }
