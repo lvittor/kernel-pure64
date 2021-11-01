@@ -20,6 +20,7 @@ int8_t getCurrentPID(void);
 int kill(uint8_t pid);
 int block(uint8_t pid);
 int unblock(uint8_t pid);
-struct processControlBlock * getProcesses(void);
+int nice(uint8_t pid);
+void printProcesses(void);
 
 #endif

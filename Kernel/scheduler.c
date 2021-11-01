@@ -27,7 +27,7 @@ static uint8_t currentPID = 0;
 static uint8_t haltPID = 0;
 static uint8_t tickets = 0;
 
-void freeProcess(uint8_t pid);
+static void freeProcess(uint8_t pid);
 
 void haltProcess(void) {
     while (1) {
@@ -76,8 +76,8 @@ int loadProcess(uint64_t functionAddress, int argc, char* argv[]) {
 
 uint64_t schedule(uint64_t currRSP) {
     processes[currentPID]->currRSP = currRSP;
-    for (uint8_t i = 1; i < MAX_PROCESSES; i++) {
-        uint8_t pid = (currentPID + i) % MAX_PROCESSES;
+    for (uint8_t i = 0; i < MAX_PROCESSES; i++) {
+        uint8_t pid = (currentPID + i + 1) % MAX_PROCESSES;
         if (processes[pid]->state == READY) {
             currentPID = pid;
             return processes[currentPID]->currRSP;
@@ -101,7 +101,7 @@ int8_t getCurrentPID(void) {
     return currentPID;
 }
 
-static int validPID(uint8_t pid){
+static int isValidPID(uint8_t pid){
     return pid < MAX_PROCESSES && pid != haltPID;
 }
 
@@ -110,7 +110,7 @@ void yieldProcess(void) {
 }
 
 int kill(uint8_t pid) {
-    if(! validPID(pid))
+    if(! isValidPID(pid))
         return -1;
 
     processes[pid]->state = KILLED;
@@ -122,7 +122,7 @@ int kill(uint8_t pid) {
 }
 
 int block(uint8_t pid){
-    if(! validPID(pid))
+    if(! isValidPID(pid))
         return -1;
 
     if(processes[pid]->state == BLOCKED)

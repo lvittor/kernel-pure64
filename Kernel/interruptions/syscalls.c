@@ -112,7 +112,7 @@ uint64_t sys_mem(uint64_t rdi, uint64_t rsi, uint8_t rdx){
 }
 
 uint64_t sys_processlist(void) {
-	return (uint64_t)getProcesses();
+	printProcesses();
 }
 
 uint8_t sys_createProcess(uint64_t functionAddress, int argc, char* argv[]) {

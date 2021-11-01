@@ -14,6 +14,8 @@
 
 typedef void (*commandType)(void);
 
+uint8_t counter = 0;
+
 void beginProcess(void);
 void killProcess(void);
 void blockProcess(void);
@@ -54,11 +56,12 @@ void checkModule(char * string);
 void newProcess(int argc, char * argv[]) {
 	while(1) {
 		print_f(1, "%d\n", argc);
+		for(uint64_t i = 0; i < (1L<<25); i++);
 	}
 }
 
 void beginProcess(void) {
-	createProcess((void *)newProcess, 5, (char * []) {NULL});
+	createProcess((void *)newProcess, counter++, (char * []) {NULL});
 }
 
 void killProcess(void){
