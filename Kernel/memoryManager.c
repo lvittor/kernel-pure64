@@ -1,3 +1,4 @@
+#ifndef BUDDY
 /*
  * FreeRTOS Kernel V10.4.3 LTS Patch 1
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
@@ -42,11 +43,8 @@
 #include <stdint.h>
 #include "memoryManager.h"
 
-/* Define heap size. */
-#define TOTAL_HEAP_SIZE   0x8000000
-
 /* Known available space for the heap. */
-uint8_t * heapStart = (uint8_t *)0x600000;
+uint8_t * heapStart = (uint8_t *) HEAP_START;
 
 /* Block sizes must not get too small. */
 #define heapMINIMUM_BLOCK_SIZE    ( ( size_t ) ( heapStructSize << 1 ) )
@@ -75,12 +73,6 @@ typedef struct A_BLOCK_LINK
  * adjacent to each other.
  */
 static void insertBlockIntoFreeList( BlockLink_t * pBlockToInsert );
-
-/*
- * Called automatically to setup the required heap structures the first time
- * alloc() is called.
- */
-static void heapInit( void );
 
 /*-----------------------------------------------------------*/
 
@@ -112,12 +104,6 @@ void * alloc( size_t size )
     void * pReturn = NULL;
 
     {
-        /* If this is the first call to malloc then the heap will require
-         * initialisation to setup the list of free blocks. */
-        if( pEndBlock == NULL )
-        {
-            heapInit();
-        }
 
         /* Check the requested block size is not so large that the top bit is
          * set.  The top bit of the block size member of the BlockLink_t structure
@@ -250,7 +236,7 @@ void free( void * address )
 }
 /*-----------------------------------------------------------*/
 
-static void heapInit( void )
+void heapInit(void)
 {
     BlockLink_t * pFirstFreeBlock;
     uint8_t * pucAlignedHeap;
@@ -351,3 +337,4 @@ static void insertBlockIntoFreeList( BlockLink_t * pBlockToInsert )
         pIterator->pNextFreeBlock = pBlockToInsert;
     }
 }
+#endif

@@ -10,6 +10,7 @@ OBJECTS_INTERRUPTIONS=$(SOURCES_INTERRUPTIONS:.c=.o)
 OBJECTS_INTERRUPTIONS_ASM=$(SOURCES_INTERRUPTIONS_ASM:.asm=.o)
 OBJECTS_ASM=$(SOURCES_ASM:.asm=.o)
 LOADERSRC=loader.asm
+MM=MALLOC
 
 LOADEROBJECT=$(LOADERSRC:.asm=.o)
 STATICLIBS=
@@ -23,7 +24,7 @@ $(KERNEL): $(STATICLIBS) $(ALL_OBJECTS)
 	$(LD) $(LDFLAGS) -T kernel.ld --oformat=elf64-x86-64 -o kernel.elf $^
 
 %.o: %.c
-	$(GCC) $(GCCFLAGS) -I./include -I./interruptions -c $< -o $@
+	$(GCC) $(GCCFLAGS) -I./include -I./interruptions -c $< -o $@ -D$(MM)
 
 %.o : %.asm
 	$(ASM) $(ASMFLAGS) $< -o $@

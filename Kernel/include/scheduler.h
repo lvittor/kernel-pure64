@@ -4,7 +4,7 @@
 #include <stdint.h>
 
 #define MAX_PROCESSES   128
-#define PROCESS_STACK_SIZE  0x1000 // 4Kib
+#define PROCESS_STACK_SIZE  0x1000 // 4KiB
 
 int loadProcess(uint64_t functionAddress, int argc, char * argv[]);
 int8_t initScheduler(uint64_t functionAddress, int argc, char* argv[]);

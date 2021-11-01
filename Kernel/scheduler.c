@@ -3,9 +3,6 @@
 #include <interrupts.h>
 #include <naiveConsole.h>
 
-#define MAX_PROCESSES   128
-#define PROCESS_STACK_SIZE  0x1000 // 4Kib
-
 enum processState {
     READY = 0,
     BLOCKED,
