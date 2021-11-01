@@ -3,11 +3,11 @@
 
 #define BYTES_TO_READ 32
 
-void printDate(void);
 void help(void);
-void printmem(void);
-void printFeatures(void);
-void printQuadraticRoots(void);
 void printPid(void);
+void beginProcess(void);
+void kill(void);
+void block(void);
+void nice(void);
 
 #endif
