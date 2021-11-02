@@ -11,6 +11,10 @@
 #define ISALPHA(x) (ISUPPER(x) || ISLOWER(x))
 #define ISDIGIT(x) IN_RANGE(x, '0', '9')
 
+#define STD_IN  0
+#define STD_OUT  1
+#define STD_ERR  2
+
 typedef struct dateType {
 	uint8_t year, month, day;
 	uint8_t hour, minute, second;
@@ -43,7 +47,7 @@ int64_t get_s(char * buffer, uint64_t maxLength);
 
 // ASM
 void print(uint8_t fd, const char * s, uint64_t count);
-int64_t getChar(void);
+int64_t getChar(int fd);
 uint8_t getPid(void);
 void ps(void);
 uint64_t createProcess(void * functionAddress, int argc, char * argv[]);
@@ -55,7 +59,7 @@ void _memdump(void);
 uint64_t _nice(uint8_t pid, uint8_t priority);
 int _open_pipe(int fd[2]);
 int _write_pipe(int fd, char * buffer, int count);
-int _read_pipe(int fd, char * buffer, int count);
+int _read_pipe(int fd);
 int _close_pipe(int fd);
 int _secondsElapsed(void);
 

@@ -21,7 +21,7 @@ typedef struct dateType {
 
 uint64_t sys_exit(void);
 uint64_t sys_write(uint8_t fd, char * buffer, uint64_t count);
-int64_t sys_read(void);
+int64_t sys_read(int fd);
 uint8_t sys_getpid(void);
 void sys_processlist(void);
 uint8_t sys_createProcess(processPrototype * pPP, int argc, char* argv[]);
@@ -38,7 +38,7 @@ SEM_RET sys_close_sem(semid_t sid);
 void sys_print_sem(void);
 int sys_open_pipe(int fd[2]);
 int sys_write_pipe(int fd, char * buffer, int count);
-int sys_read_pipe(int fd, char * buffer, int count);
+int sys_read_pipe(int fd);
 int sys_close_pipe(int fd);
 int sys_secondsElapsed(void);
 
@@ -86,22 +86,27 @@ uint8_t sys_getpid(void) {
 }
 
 uint64_t sys_write(uint8_t fd, char * buffer, uint64_t count) {
-	if (buffer == 0 || count <= 0)
+	if (buffer == NULL || count <= 0)
 		return -1;
-		
-	if (fd > 2)
-		return -1;
-
-	Color * fontColor = (fd == STD_ERR) ? &RED : &WHITE;
-    
-	for (int i = 0; i < count && buffer[i]; i++)
-		ncPrintCharAtt(buffer[i], fontColor, &BLACK);
+	if (fd < 3)
+		fd = getMappedFDFromProcess(getCurrentPID(), fd);
 	
-	return count;
+	if (fd == STD_OUT || fd == STD_ERR) {
+		Color * fontColor = (fd == STD_ERR) ? &RED : &WHITE;
+		for (int i = 0; i < count && buffer[i]; i++)
+			ncPrintCharAtt(buffer[i], fontColor, &BLACK);
+		return count;
+	}
+	
+	return writePipe(fd, buffer, count);
 }
 
-int64_t sys_read(void) {
-  	return getChar();
+int64_t sys_read(int fd) {
+	if (fd < 3)
+		fd = getMappedFDFromProcess(getCurrentPID(), fd);
+	if (fd == STD_IN)
+  		return getChar();
+	return readPipe(fd);
 }
 
 void sys_processlist(void) {
@@ -164,8 +169,8 @@ int sys_write_pipe(int fd, char * buffer, int count) {
 	return writePipe(fd, buffer, count);
 }
 
-int sys_read_pipe(int fd, char * buffer, int count) {
-	return readPipe(fd, buffer, count);
+int sys_read_pipe(int fd) {
+	return readPipe(fd);
 }
 
 int sys_close_pipe(int fd) {

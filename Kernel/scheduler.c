@@ -136,6 +136,7 @@ int8_t getCurrentPID(void) {
 }
 
 void yieldProcess(void) {
+    tickets = 0;
     _int20();
 }
 
@@ -204,4 +205,10 @@ void setPIDState(uint8_t pid, processState newState) {
     if (! isValidPID(pid))
         return;
     processes[pid]->state = newState;
+}
+
+int getMappedFDFromProcess(uint8_t pid, int fd) {
+    if (! isValidPID(pid) || fd < 0 || fd >= 3)
+        return -1;
+    return processes[pid]->fds[fd];
 }

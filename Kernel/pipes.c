@@ -131,22 +131,21 @@ int writePipe(int fd, char * buffer, int count) {
 
 // fd[0]-->[  ]-->fd[1]
 
-int readPipe(int fd, char * buffer, int count) {
-    if (!isValidFD(fd) || count < 0 || buffer == NULL)
+int64_t readPipe(int fd) {
+    if (!isValidFD(fd))
         return -1;
     int pipeIndex = FDToPipe[fd];
     if (pipeIndex == -1 || pipes[pipeIndex]->fdIn != fd)
         return -1;
 
-    for (int i = 0; i < count; i++) {
-        if (waitSemaphore(pipes[pipeIndex]->readSem) != SEM_SUCCESS)
-            return i;
-        buffer[i] = pipes[pipeIndex]->buffer[pipes[pipeIndex]->readPos++];
-        pipes[pipeIndex]->readPos %= MAX_BUFFER;
-        if (postSemaphore(pipes[pipeIndex]->writeSem) != SEM_SUCCESS)
-            return i;
-    }
-    return count;
+    if (waitSemaphore(pipes[pipeIndex]->readSem) != SEM_SUCCESS)
+        return -1;
+    char c = pipes[pipeIndex]->buffer[pipes[pipeIndex]->readPos++];
+    pipes[pipeIndex]->readPos %= MAX_BUFFER;
+    if (postSemaphore(pipes[pipeIndex]->writeSem) != SEM_SUCCESS)
+        return -1;
+
+    return c;
 }
 
 int closePipe(int fd) {

@@ -5,7 +5,7 @@
 
 void help(void);
 void printPid(void);
-void beginProcess(void);
+void beginProcess(int fdin, int fdout, int foreground);
 void kill(void);
 void block(void);
 void nice(void);

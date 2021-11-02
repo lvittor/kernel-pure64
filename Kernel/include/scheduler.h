@@ -40,5 +40,7 @@ void setPIDState(uint8_t pid, processState newState); // Use only inside kernel,
 int nice(pid_t pid, priority_t newPriority);
 void printProcesses(void);
 void yieldProcess(void);
+void yieldProcessTo(uint8_t nextPID);
+int getMappedFDFromProcess(uint8_t pid, int fd);
 
 #endif

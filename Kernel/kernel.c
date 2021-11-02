@@ -5,6 +5,7 @@
 #include <naiveConsole.h>
 #include <idtLoader.h>
 #include <scheduler.h>
+#include <keyboard.h>
 #include <video.h>
 #include <memoryManager.h>
 
@@ -58,6 +59,7 @@ int main() {
 	load_idt();
 	init_screen();
 	heapInit();
+	initKeyboard();
 
 	processPrototype shell = {
         .functionAddress = (void *)sampleCodeModuleAddress,

@@ -1,7 +1,8 @@
 #include <keyboard.h>
 #include <lib.h>
 #include <naiveConsole.h>
-#include <multitasking.h>
+#include <scheduler.h>
+#include <semaphore.h>
 
 #define LEFT_SHIFT  0x2A
 #define LEFT_SHIFT_FLAG 0b00000001
@@ -10,6 +11,8 @@
 #define LEFT_ALT 0x38
 
 #define BUFFER_SIZE 128
+
+#define KEYBOARD_SEM_ID "SEM_KEY"
 
 uint8_t flags = 0;
 
@@ -45,18 +48,18 @@ unsigned char upperScancodeToAscii[128] = {
       
 };
 
+int initKeyboard(void) {
+  if (openSemaphore(KEYBOARD_SEM_ID, 0) != SEM_SUCCESS)
+    return -1;
+  return 0;
+}
+
 static void appendBuffer(char c) {
-  buffer[head++] = c;
-
-  if (head == BUFFER_SIZE)
-    head = 0;
-
-  if (head == tail) { // Si me quedo sin espacio, borro el caracter mas antiguo
-    tail++;
-    if (tail == BUFFER_SIZE)
-      tail = 0;
+  if ((head+1)%BUFFER_SIZE != tail) {
+    buffer[head++] = c;
+    head %= BUFFER_SIZE;
+    postSemaphore(KEYBOARD_SEM_ID);
   }
-
 }
 
 void keyboard_handler() {
@@ -85,11 +88,8 @@ void keyboard_handler() {
 }
 
 int64_t getChar(void) {
-  if (head != tail) {
-    char ans = buffer[tail++];
-    if (tail == BUFFER_SIZE)
-      tail = 0;
-      return ans == 0 ? -1 : ans;
-  }
-  return -1;
+  waitSemaphore(KEYBOARD_SEM_ID);
+  char ans = buffer[tail++];
+  tail %= BUFFER_SIZE;
+  return ans;
 }

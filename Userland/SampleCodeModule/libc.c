@@ -112,7 +112,7 @@ void put_s(uint8_t fd, const char * s) {
 int64_t get_s(char * buffer, uint64_t maxLength) {
     int32_t counter = 0;
     int64_t c;
-    while ((c = getChar()) != '\n') {
+    while ((c = getChar(STD_IN)) != '\n') {
         if (c == -1)
             continue;
         if (counter < maxLength) {

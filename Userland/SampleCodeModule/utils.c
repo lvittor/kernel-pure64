@@ -63,8 +63,16 @@ void newProcess(int argc, char * argv[]) {
 	}
 }
 
-void beginProcess(void) {
-	createProcess((void *)newProcess, counter++, (char * []) {NULL});
+void beginProcess(int fdin, int fdout, int foreground) {
+    processPrototype procPrototype = {
+        .functionAddress = (void *) newProcess,
+        .name = "process",
+        .priority = 0,
+        .state = READY,
+        .fds = {fdin, fdout, 2},
+        .foreground = foreground,
+    };
+	createProcess(&procPrototype, counter++, (char * []) {NULL});
 }
 
 void kill(void){
