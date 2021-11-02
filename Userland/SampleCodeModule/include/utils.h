@@ -10,5 +10,6 @@ void kill(void);
 void block(void);
 void nice(void);
 void loopWrapper(int fdin, int fdout, int foreground);
+void wcWrapper(int fdin, int fdout, int foreground);
 
 #endif

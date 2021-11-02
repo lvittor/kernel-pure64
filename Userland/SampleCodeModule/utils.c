@@ -40,6 +40,31 @@ void loopWrapper(int fdin, int fdout, int foreground) {
     createProcess(&loopPrototype, counter++, (char * []) {NULL});
 }
 
+static void wc(void){
+    int lines = 0;
+    int c;
+    while((c=getChar(STD_IN)) != -1){
+        if(c == '\n')
+            lines++;
+    }
+    print_f(1, "\n%c", c);
+    print_f(1, "\nLa cantidad de lineas que recibi son: %d\n", lines);
+    _kill(getPid());
+} 
+
+void wcWrapper(int fdin, int fdout, int foreground){
+    processPrototype wcPrototype = {
+        .functionAddress = (void *) wc,
+        .name = "wc",
+        .priority = 0,
+        .state = READY,
+        .fds = {fdin, fdout, 2},
+        .foreground = foreground,
+    };
+    
+    createProcess(&wcPrototype, counter++, (char * []) {NULL});
+}
+
 void help() {
     print_f(1, "Los comandos disponibles son:\n");
     print_f(1, " - help: Muestra los comandos disponibles\n");

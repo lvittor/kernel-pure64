@@ -9,6 +9,7 @@
 #define RIGHT_SHIFT 0x36
 #define RIGHT_SHIFT_FLAG 0b00000010
 #define LEFT_ALT 0x38
+#define ESC     0x01
 
 #define BUFFER_SIZE 128
 
@@ -33,7 +34,6 @@ unsigned char lowerScancodeToAscii[128] = {
       0,  ' ',   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,    0,   0,
       0,    0,   0,   0, '-',   0,   0,   0, '+',   0,   0,   0,    0,   0, 
       0,    0,   0,   0,   0,   0    
-
 };
 
 unsigned char upperScancodeToAscii[128] = {
@@ -70,7 +70,9 @@ void keyboard_handler() {
         flags |= LEFT_SHIFT_FLAG;
       } else if (scancode == RIGHT_SHIFT) {
         flags |= RIGHT_SHIFT_FLAG;
-      } else {
+      } else if (scancode == ESC) {
+        appendBuffer(-1);
+      } {
         if ((flags & LEFT_SHIFT_FLAG) || (flags & RIGHT_SHIFT_FLAG))
           //ncPrintChar(upperScancodeToAscii[scancode]); 
           appendBuffer(upperScancodeToAscii[scancode]);
