@@ -9,6 +9,37 @@
 
 uint8_t counter = 0;
 
+static void sleep(int seconds){
+    int start = _secondsElapsed();
+    while(1){
+        int currentSeconds = _secondsElapsed();
+        if(currentSeconds - start >= seconds)
+            return;
+    }
+}
+
+static void loop(void){
+    while(1){
+        uint8_t pid = getPid();
+        print_f(1, "\nMi PID es: %d\n", pid);
+        sleep(3);
+    }
+    _kill(getPid());
+}
+
+void loopWrapper(int fdin, int fdout, int foreground) {
+    processPrototype loopPrototype = {
+        .functionAddress = (void *) loop,
+        .name = "loop",
+        .priority = 0,
+        .state = READY,
+        .fds = {fdin, fdout, 2},
+        .foreground = foreground,
+    };
+    
+    createProcess(&loopPrototype, counter++, (char * []) {NULL});
+}
+
 void help() {
     print_f(1, "Los comandos disponibles son:\n");
     print_f(1, " - help: Muestra los comandos disponibles\n");

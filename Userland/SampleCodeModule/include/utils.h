@@ -9,5 +9,6 @@ void beginProcess(void);
 void kill(void);
 void block(void);
 void nice(void);
+void loopWrapper(int fdin, int fdout, int foreground);
 
 #endif

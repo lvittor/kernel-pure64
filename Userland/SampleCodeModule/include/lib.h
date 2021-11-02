@@ -16,6 +16,22 @@ typedef struct dateType {
 	uint8_t hour, minute, second;
 } dateType;
 
+typedef enum processState {
+    READY = 0,
+    BLOCKED,
+    ERROR,
+    KILLED
+} processState;
+
+typedef struct processPrototype {
+    void * functionAddress;
+    char * name;
+    uint8_t priority;
+    processState state;
+    int fds[3];
+    char foreground;
+} processPrototype;
+
 // C
 int print_f(uint8_t fd, const char * format, ...);
 void put_char(uint8_t fd, const char character);

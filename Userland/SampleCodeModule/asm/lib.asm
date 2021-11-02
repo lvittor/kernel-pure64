@@ -87,27 +87,27 @@ _post_sem:
     int 80h
     ret
 
-_print_sem:
+_close_sem:
     mov rax, 15
     int 80h
     ret
 
-_open_pipe:
+_print_sem:
     mov rax, 16
     int 80h
     ret
 
-_write_pipe:
+_open_pipe:
     mov rax, 17
     int 80h
     ret
 
-_read_pipe:
+_write_pipe:
     mov rax, 18
     int 80h
     ret
 
-_close_pipe:
+_read_pipe:
     mov rax, 19
     int 80h
     ret
