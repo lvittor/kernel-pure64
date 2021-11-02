@@ -58,3 +58,18 @@ int strcmp(const char * a, const char * b) {
 	}
 	return *a - *b;
 }
+
+int strlength(const char * s) {
+	const char * it = s;
+	for (; *it; it++);
+	return it - s;
+}
+
+void strcopy(char *dest, char *src) {
+    while (*src) {
+        *dest = *src;
+        dest++;
+        src++;
+    }
+    *dest = 0;
+}
