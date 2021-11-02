@@ -71,7 +71,7 @@ void keyboard_handler() {
       } else if (scancode == RIGHT_SHIFT) {
         flags |= RIGHT_SHIFT_FLAG;
       } else if (scancode == ESC) {
-        appendBuffer(-1);
+        appendBuffer(EOF);
       } {
         if ((flags & LEFT_SHIFT_FLAG) || (flags & RIGHT_SHIFT_FLAG))
           //ncPrintChar(upperScancodeToAscii[scancode]); 
