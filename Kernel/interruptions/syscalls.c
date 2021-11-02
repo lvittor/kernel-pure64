@@ -9,6 +9,7 @@
 #include <memoryManager.h>
 #include <semaphore.h>
 #include <pipes.h>
+#include <time.h>
 
 #define MAX_MEMORY_MAPPED 0x1000000000
 #define MAX_SYSCALLS 22
@@ -39,6 +40,7 @@ int sys_open_pipe(int fd[2]);
 int sys_write_pipe(int fd, char * buffer, int count);
 int sys_read_pipe(int fd, char * buffer, int count);
 int sys_close_pipe(int fd);
+int sys_secondsElapsed(void);
 
 typedef int64_t (*syscall)(int64_t, int64_t, int64_t);
 
@@ -64,12 +66,12 @@ syscall syscalls[MAX_SYSCALLS] = {
 	(syscall)sys_write_pipe,
 	(syscall)sys_read_pipe,
 	(syscall)sys_close_pipe,
-	NULL,
+	(syscall)sys_secondsElapsed,
 };
 
 uint64_t syscallDispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx) {
-	syscall sc = syscalls[rcx];
-	if (sc == NULL)
+	syscall sc;
+	if (rcx >= MAX_SYSCALLS || (sc = syscalls[rcx]) == NULL)
 		return -1;
 	
 	return sc(rdi, rsi, rdx);
@@ -168,4 +170,8 @@ int sys_read_pipe(int fd, char * buffer, int count) {
 
 int sys_close_pipe(int fd) {
 	return closePipe(fd);
+}
+
+int sys_secondsElapsed(void){
+	return seconds_elapsed();
 }

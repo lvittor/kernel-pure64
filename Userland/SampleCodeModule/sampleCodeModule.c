@@ -23,17 +23,19 @@ static char * commandStrings[MODULES_SIZE] = {
 	"kill",
 	"block",
 	"mem",
-	"nice"
+	"nice",
+	"loop"
 };
 static commandType commandFunctions[MODULES_SIZE] = {
-	help,
-	printPid,
-	ps,
-	beginProcess,
-	kill,
-	block,
-	_memdump,
-	nice
+	(commandType)help,
+	(commandType)printPid,
+	(commandType)ps,
+	(commandType)beginProcess,
+	(commandType)kill,
+	(commandType)block,
+	(commandType)_memdump,
+	(commandType)nice,
+	(commandType)loopWrapper
 };
 
 void checkModule(char * string);

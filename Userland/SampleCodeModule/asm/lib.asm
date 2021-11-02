@@ -13,6 +13,7 @@ GLOBAL _open_pipe
 GLOBAL _write_pipe
 GLOBAL _read_pipe
 GLOBAL _close_pipe
+GLOBAL _secondsElapsed
 
 
 EXTERN print_f
@@ -108,6 +109,16 @@ _read_pipe:
 
 _close_pipe:
     mov rax, 19
+    int 80h
+    ret
+
+_close_pipe:
+    mov rax, 20
+    int 80h
+    ret
+
+_secondsElapsed:
+    mov rax, 21
     int 80h
     ret
 

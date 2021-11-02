@@ -41,6 +41,6 @@ int _open_pipe(int fd[2]);
 int _write_pipe(int fd, char * buffer, int count);
 int _read_pipe(int fd, char * buffer, int count);
 int _close_pipe(int fd);
-
+int _secondsElapsed(void);
 
 #endif
