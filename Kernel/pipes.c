@@ -157,6 +157,10 @@ int closePipe(int fd) {
         pipes[index]->fdIn = -1;
         FDToPipe[pipes[index]->fdIn] = -1;
     } else {
+        if (pipes[index]->fdIn != -1) {
+            char cEOF = -1;
+            writePipe(pipes[index]->fdIn, &cEOF, 1);
+        }
         pipes[index]->fdOut = -1;
         FDToPipe[pipes[index]->fdOut] = -1;
     }

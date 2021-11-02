@@ -9,7 +9,7 @@
 #include <stdarg.h>
 
 #define MAX_COMMAND 19 // Habria que achicarlo
-#define MODULES_SIZE 9
+#define MODULES_SIZE 10
 
 typedef void (*commandType)(int fdin, int fdout, int foreground);
 
@@ -24,7 +24,8 @@ static char * commandStrings[MODULES_SIZE] = {
 	"block",
 	"mem",
 	"nice",
-	"loop"
+	"loop",
+	"wc",
 };
 static commandType commandFunctions[MODULES_SIZE] = {
 	(commandType)help,
@@ -35,7 +36,8 @@ static commandType commandFunctions[MODULES_SIZE] = {
 	(commandType)block,
 	(commandType)_memdump,
 	(commandType)nice,
-	(commandType)loopWrapper
+	(commandType)loopWrapper,
+	(commandType)wcWrapper,
 };
 
 void checkModule(char * string, int fdin, int fdout, int foreground);
