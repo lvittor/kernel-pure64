@@ -56,12 +56,18 @@ void * initializeKernelBinary()
 int main() {
 
 	load_idt();
-
 	init_screen();
-
 	heapInit();
 
-	initScheduler((uint64_t)sampleCodeModuleAddress, 0, (char *[]){NULL});
+	processPrototype shell = {
+        .functionAddress = (void *)sampleCodeModuleAddress,
+        .name = "sh",
+        .priority = 0,
+        .state = READY,
+        .fds = {0, 1, 2},
+        .foreground = 1,
+    };
+	initScheduler(&shell, 0, (char *[]){NULL});
 	
 	ncNewline();
 	ncNewline();

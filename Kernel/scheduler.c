@@ -1,18 +1,21 @@
 #include <scheduler.h>
+#include <lib.h>
 #include <memoryManager.h>
 #include <interrupts.h>
 #include <naiveConsole.h>
-
 #define MAX_PROCESSES   128
 #define PROCESS_STACK_SIZE  0x1000 // 4Kib
 
 typedef struct processControlBlock {
+    char * name;
     processState state;
     uint64_t functionAddress;
     uint64_t currRSP;
     uint64_t stackTop;
     uint64_t baseRSP;
     priority_t priority;
+    int fds[3];
+    char foreground;
 } processControlBlock;
 
 static processControlBlock * processes[MAX_PROCESSES];
@@ -29,12 +32,20 @@ void haltProcess(void) {
     }    
 }
 
-int8_t initScheduler(uint64_t functionAddress, int argc, char* argv[]) {
-    haltPID = loadProcess((uint64_t)haltProcess, 0, (char *[]){NULL});
+int8_t initScheduler(processPrototype * pPP, int argc, char* argv[]) {
+    processPrototype haltPrototype = {
+        .functionAddress = (void *)haltProcess,
+        .name = "halt",
+        .priority = 0,
+        .state = READY,
+        .fds = {0, 1, 2},
+        .foreground = 0,
+    };
+    haltPID = loadProcess(&haltPrototype, 0, (char *[]){NULL});
     if (haltPID == -1)
         return -1;
     
-    int newPID = loadProcess(functionAddress, argc, argv);
+    int newPID = loadProcess(pPP, argc, argv);
     if (newPID == -1)
         return -1;
     
@@ -43,7 +54,7 @@ int8_t initScheduler(uint64_t functionAddress, int argc, char* argv[]) {
     return 0;
 }
 
-int loadProcess(uint64_t functionAddress, int argc, char* argv[]) {
+int loadProcess(processPrototype * pPP, int argc, char* argv[]) {
     int pid = 0;
     for (; pid < MAX_PROCESSES && processes[pid] != NULL; pid++);
     if (pid == MAX_PROCESSES)
@@ -57,19 +68,30 @@ int loadProcess(uint64_t functionAddress, int argc, char* argv[]) {
         free(pPCB);
         return -1;
     }
+    pPCB->name = alloc(strlength(pPP->name)+1);
+    if (pPCB->name == NULL) {
+        free((void *)stackTop);
+        free(pPCB);
+        return -1;
+    }
+    strcopy(pPCB->name, pPP->name);
+    pPCB->name[strlength(pPP->name)] = '\0';
     pPCB->stackTop = stackTop;
-    pPCB->state = READY;
+    pPCB->state = pPP->state;
     pPCB->baseRSP = stackTop + PROCESS_STACK_SIZE - 1;
-    pPCB->functionAddress = functionAddress;
+    pPCB->functionAddress = (uint64_t)pPP->functionAddress;
     pPCB->currRSP = _buildProcessContext(pPCB->baseRSP, pPCB->functionAddress, argc, argv);
-    pPCB->priority = 0;
+    pPCB->priority = pPP->priority;
+    for (int i = 0; i < 3; i++)
+        pPCB->fds[i] = pPP->fds[i];
+    pPCB->foreground = pPP->foreground;
 
     processes[pid] = pPCB;
     return pid;
 }
 
 static char isValidPID(uint8_t pid){
-    return pid < MAX_PROCESSES && pid != haltPID;
+    return pid < MAX_PROCESSES && pid != haltPID && processes[pid] != NULL;
 }
 
 static char isPIDInState(pid_t pid, processState state) {
@@ -170,7 +192,8 @@ void printProcesses(void) {
             ncPrint("Process ");
             ncPrintDec(pid);
             ncPrint(": ");
-            ncPrint("STATE: ");
+            ncPrint(processes[pid]->name);
+            ncPrint(" - STATE: ");
             ncPrintDec(processes[pid]->state);
             ncPrintChar('\n');
         }

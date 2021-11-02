@@ -23,7 +23,7 @@ uint64_t sys_write(uint8_t fd, char * buffer, uint64_t count);
 int64_t sys_read(void);
 uint8_t sys_getpid(void);
 void sys_processlist(void);
-uint8_t sys_createProcess(uint64_t functionAddress, int argc, char* argv[]);
+uint8_t sys_createProcess(processPrototype * pPP, int argc, char* argv[]);
 uint64_t sys_kill(uint8_t pid);
 uint64_t sys_block(uint8_t pid);
 void * sys_alloc(size_t size);
@@ -106,8 +106,8 @@ void sys_processlist(void) {
 	printProcesses();
 }
 
-uint8_t sys_createProcess(uint64_t functionAddress, int argc, char* argv[]) {
-	return loadProcess(functionAddress, argc, argv);
+uint8_t sys_createProcess(processPrototype * pPP, int argc, char* argv[]) {
+	return loadProcess(pPP, argc, argv);
 }
 
 uint64_t sys_kill(uint8_t pid) {
