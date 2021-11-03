@@ -269,10 +269,8 @@ void nice(void)
 			return;
 		}
 	}
-	print_f(STDOUT, "{%s}", buffer);
 	sscan(buffer, "%d", &pid);
-	print_f(STDOUT, "{%d}\n", pid);
-	
+
 	do {
 		print_f(1, "Ingrese la nueva prioridad[0,40):");
 		ans = get_s(buffer, 19);
