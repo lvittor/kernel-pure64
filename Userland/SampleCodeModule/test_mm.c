@@ -51,5 +51,7 @@ void test_mm(void){
         _free(mm_rqs[i].address);
     
     print_f(STDOUT, ".");
-  } 
+  }
+
+  _exit();
 }

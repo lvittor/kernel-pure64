@@ -8,3 +8,4 @@ uint8_t memcheck(void *start, uint8_t value, uint32_t size);
 // Tests
 void test_mm(void);
 void test_processes(void);
+void test_prio(void);

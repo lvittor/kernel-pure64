@@ -102,4 +102,6 @@ void test_processes(void){
     }
     print_f(STDOUT, ".");
   }
+
+  _exit();
 }
