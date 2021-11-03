@@ -163,11 +163,6 @@ void sys_dump_mem(void)
 
 sched_ret_t sys_nice(pid_t pid, priority_t priority)
 {
-	ncPrint("PID: ");
-	ncPrintDec(pid);
-	ncPrint(" prio: ");
-	ncPrintDec(priority);
-	ncNewline();
 	return nice(pid, priority);
 }
 
