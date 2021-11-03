@@ -3,13 +3,13 @@
 #include <utils.h>
 #include <exceptions.h>
 #include <string.h>
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <test_util.h>
 
 #define MAX_COMMAND 64 // Habria que achicarlo
-#define MODULES_SIZE 13
+#define MODULES_SIZE 14
 
 typedef void (*func_t)(void);
 
@@ -92,6 +92,10 @@ static command_t commands[MODULES_SIZE] = {
 	  .function = (func_t)wc,
 	  .builtin = FALSE,
 	  .description = "TODO" },
+	{ .name = "test_mm",
+	  .function = (func_t)test_mm,
+	  .builtin = FALSE,
+	  .description = "Test para el memory manager(bloqueante)." },
 };
 
 int main(int argc, char *argv[])
