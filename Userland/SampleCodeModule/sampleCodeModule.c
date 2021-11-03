@@ -99,7 +99,8 @@ static command_t commands[MODULES_SIZE] = {
 	{ .name = "test_processes",
 	  .function = (func_t)test_processes,
 	  .builtin = FALSE,
-	  .description = "Test para la creación, terminación, bloqueo y desbloqueo de procesos(bloqueante)." },
+	  .description =
+		  "Test para la creación, terminación, bloqueo y desbloqueo de procesos(bloqueante)." },
 	{ .name = "test_prio",
 	  .function = (func_t)test_prio,
 	  .builtin = FALSE,
