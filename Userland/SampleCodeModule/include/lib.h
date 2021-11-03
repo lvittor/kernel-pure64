@@ -83,6 +83,7 @@ int _close_pipe(fd_t fd);
 void _dump_pipes(void);
 int _secondsElapsed(void);
 int _wait(pid_t pid);
+void _yield(void);
 
 sem_ret_t _open_sem(semid_t sid, semvalue_t value);
 sem_ret_t _wait_sem(semid_t sid);

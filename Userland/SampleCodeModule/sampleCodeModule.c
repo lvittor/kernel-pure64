@@ -7,9 +7,10 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <test_util.h>
+#include <about.h>
 
 #define MAX_COMMAND 64 // Habria que achicarlo
-#define MODULES_SIZE 16
+#define MODULES_SIZE 19
 
 typedef void (*func_t)(void);
 
@@ -31,6 +32,7 @@ void nice(void);
 void block(void);
 void sem(void);
 void pipe(void);
+void ack(void);
 
 static command_t commands[MODULES_SIZE] = {
 	{ .name = "help",
@@ -105,6 +107,18 @@ static command_t commands[MODULES_SIZE] = {
 	  .function = (func_t)test_prio,
 	  .builtin = FALSE,
 	  .description = "Test para las prioridades de procesos(bloqueante)." },
+	{ .name = "test_sync",
+	  .function = (func_t)test_sync,
+	  .builtin = FALSE,
+	  .description = "Test para la sincronizacion de procesos(bloqueante)." },
+	{ .name = "test_no_sync",
+	  .function = (func_t)test_no_sync,
+	  .builtin = FALSE,
+	  .description = "Test para la no sincronizacion de procesos(bloqueante)." },
+	{ .name = "ack",
+	  .function = (func_t)ack,
+	  .builtin = TRUE,
+	  .description = "Acknowledgement." },
 };
 
 int main(int argc, char *argv[])
@@ -335,4 +349,12 @@ void sem(void)
 void pipe(void)
 {
 	_dump_pipes();
+}
+
+void ack(void)
+{
+	print_f(STDOUT, "Autores:\n");
+	print_f(STDOUT, "%s\n", mateo);
+	print_f(STDOUT, "%s\n", viti);
+	print_f(STDOUT, "%s\n", kako);
 }

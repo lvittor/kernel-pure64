@@ -12,7 +12,7 @@
 #include <time.h>
 
 #define MAX_MEMORY_MAPPED 0x1000000000
-#define MAX_SYSCALLS 24
+#define MAX_SYSCALLS 25
 
 typedef struct dateType {
 	uint8_t year, month, day;
@@ -50,6 +50,7 @@ void sys_dump_pipes(void);
 
 int sys_seconds_elapsed(void);
 int sys_wait_process(uint8_t pid);
+void sys_yield_process(void);
 
 typedef int64_t (*syscall)(int64_t, int64_t, int64_t);
 
@@ -78,6 +79,7 @@ syscall syscalls[MAX_SYSCALLS] = {
 	(syscall)sys_dump_pipes,
 	(syscall)sys_seconds_elapsed,
 	(syscall)sys_wait_process,
+	(syscall)sys_yield_process,
 };
 
 uint64_t syscallDispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx,
@@ -224,4 +226,9 @@ int sys_seconds_elapsed(void)
 int sys_wait_process(uint8_t pid)
 {
 	return wait_process(pid);
+}
+
+void sys_yield_process(void)
+{
+	yield_process();
 }

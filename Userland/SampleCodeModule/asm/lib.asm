@@ -1,4 +1,4 @@
-GLOBAL _exit, _get_pid, _ps, _create_process, _kill, _block, _nice, _wait
+GLOBAL _exit, _get_pid, _ps, _create_process, _kill, _block, _nice, _wait, _yield
 GLOBAL _print, _get_char
 GLOBAL _alloc, _free, _dump_mem
 GLOBAL _open_pipe, _write_pipe, _read_pipe, _close_pipe, _dump_pipes
@@ -124,6 +124,11 @@ _secondsElapsed:
 
 _wait:
     mov rax, 23
+    int 80h
+    ret
+
+_yield:
+    mov rax, 24
     int 80h
     ret
 

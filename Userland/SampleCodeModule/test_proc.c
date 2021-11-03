@@ -3,13 +3,13 @@
 #include <lib.h>
 
 //TO BE INCLUDED
-void endless_loop()
+static void endless_loop()
 {
 	while (1)
 		;
 }
 
-uint32_t my_create_process(char *name)
+static uint32_t my_create_process(char *name)
 {
 	_process_prototype_t process = {
 		.function_address = (void *)endless_loop,
@@ -22,17 +22,17 @@ uint32_t my_create_process(char *name)
 	return _create_process(&process, 0, (char *[]){ NULL });
 }
 
-uint32_t my_kill(uint32_t pid)
+static uint32_t my_kill(uint32_t pid)
 {
 	return _kill(pid);
 }
 
-uint32_t my_block(uint32_t pid)
+static uint32_t my_block(uint32_t pid)
 {
 	return _block(pid);
 }
 
-uint32_t my_unblock(uint32_t pid)
+static uint32_t my_unblock(uint32_t pid)
 {
 	return _block(pid);
 }
