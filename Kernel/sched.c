@@ -50,8 +50,6 @@ void halt_process(void)
 
 sched_ret_t init_sched(process_prototype_t pPP, int argc, char *argv[])
 {
-	for (pid_t pid = 0; pid < MAX_PROCESSES; pid++)
-		processes[pid] = NULL;
 	_process_prototype_t halt_prototype = {
 		.function_address = (void *)halt_process,
 		.name = "halt",
