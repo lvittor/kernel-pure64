@@ -60,6 +60,7 @@ _free:
 _dump_mem:
     mov rax, 10
     int 80h
+    ret
 
 _nice:
     mov rax, 11
