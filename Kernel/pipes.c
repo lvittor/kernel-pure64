@@ -178,7 +178,7 @@ pipe_ret_t close_pipe(fd_t fd)
 		pipes[idx]->fdout = -1;
 	}
 
-	if (pipes[idx]->fdin == -1 && pipes[idx]->fdout == -1) {
+	if (pipes[idx]->fdin == (fd_t)-1 && pipes[idx]->fdout == (fd_t)-1) {
 		close_sem(pipes[idx]->read_sem);
 		close_sem(pipes[idx]->write_sem);
 		free(pipes[idx]);
