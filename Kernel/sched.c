@@ -21,19 +21,19 @@ typedef struct _pcb_t { // Process Control Block
 
 typedef struct _pcb_t *pcb_t;
 
-static char * process_state_string[] = {
+static char *process_state_string[] = {
 	"READY",
 	"BLOCKED",
-    "ERROR",
+	"ERROR",
 	"KILLED",
 };
 
-static char * process_foreground_string[] = {
+static char *process_foreground_string[] = {
 	"BACK",
 	"FORE",
 };
 
-static pcb_t processes[MAX_PROCESSES] = {NULL};
+static pcb_t processes[MAX_PROCESSES] = { NULL };
 static pid_t curr_pid = 0;
 static pid_t halt_pid = 0;
 static uint8_t tickets = 0;
@@ -109,8 +109,8 @@ pid_t create_process(process_prototype_t pPP, int argc, char *argv[])
 	p_pcb->state = pPP->state;
 	p_pcb->base_rsp = stack_top + PROCESS_STACK_SIZE;
 	p_pcb->function_address = (uint64_t)pPP->function_address;
-	p_pcb->curr_rsp = _buildProcessContext(p_pcb->base_rsp,
-					     p_pcb->function_address, argc, argv);
+	p_pcb->curr_rsp = _buildProcessContext(
+		p_pcb->base_rsp, p_pcb->function_address, argc, argv);
 	p_pcb->priority = pPP->priority;
 	for (int i = 0; i < 3; i++)
 		p_pcb->fds[i] = pPP->fds[i];
@@ -246,7 +246,8 @@ void dump_processes(void)
 	for (int pid = 0; pid < MAX_PROCESSES; pid++) {
 		if (processes[pid] != NULL) {
 			ncPrint(processes[pid]->name);
-			for (int len = strlength(processes[pid]->name); len < 6; len++)
+			for (int len = strlength(processes[pid]->name); len < 6;
+			     len++)
 				ncPrint(" ");
 			ncPrint("    ");
 			int aux = pid / 10;
@@ -256,7 +257,7 @@ void dump_processes(void)
 				numlen++;
 			}
 			ncPrintDec(pid);
-			for (; numlen < 7; numlen++) 
+			for (; numlen < 7; numlen++)
 				ncPrint(" ");
 			ncPrintDec(processes[pid]->priority);
 			ncPrint("       ");
@@ -264,7 +265,8 @@ void dump_processes(void)
 			ncPrint("   ");
 			ncPrintHex(processes[pid]->base_rsp);
 			ncPrint("  ");
-			ncPrint(process_foreground_string[processes[pid]->foreground]);
+			ncPrint(process_foreground_string[processes[pid]
+								  ->foreground]);
 			ncPrint("     ");
 			ncPrint(process_state_string[processes[pid]->state]);
 			ncPrint("   ");
@@ -276,7 +278,6 @@ void dump_processes(void)
 			ncPrintDec(processes[pid]->fds[2]);
 			ncPrint("]");
 			ncPrintChar('\n');
-			
 		}
 	}
 }

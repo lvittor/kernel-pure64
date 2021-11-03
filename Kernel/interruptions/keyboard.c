@@ -18,7 +18,7 @@
 uint8_t flags = 0;
 
 static int buffer[BUFFER_SIZE];
-uint64_t tail = 0, head = 0; 
+uint64_t tail = 0, head = 0;
 
 // https://stanislavs.org/helppc/make_codes.html
 unsigned char lowerScancodeToAscii[128] = {

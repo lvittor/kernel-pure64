@@ -152,7 +152,8 @@ int64_t read_pipe(fd_t fd)
 	int pipe_idx = fd_to_pipe[fd];
 	if (pipe_idx == -1 || pipes[pipe_idx]->fdin != fd)
 		return PIPE_ERROR;
-	if (pipes[pipe_idx]->fdout == (fd_t)-1 && pipes[pipe_idx]->read_pos == pipes[pipe_idx]->write_pos)
+	if (pipes[pipe_idx]->fdout == (fd_t)-1 &&
+	    pipes[pipe_idx]->read_pos == pipes[pipe_idx]->write_pos)
 		return -1;
 	if (wait_sem(pipes[pipe_idx]->read_sem) != SEM_SUCCESS)
 		return PIPE_ERROR;

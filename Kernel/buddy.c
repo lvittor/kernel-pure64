@@ -17,7 +17,7 @@
 
 uint8_t *mem_start = (uint8_t *)HEAP_START;
 
-typedef struct _list_t * list_t;
+typedef struct _list_t *list_t;
 
 typedef struct _list_t {
 	list_t prev, next;
