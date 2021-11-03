@@ -1,17 +1,17 @@
 #include <stdint.h>
 
-void * memset(void * destination, int32_t c, uint64_t length)
+void *memset(void *destination, int32_t c, uint64_t length)
 {
 	uint8_t chr = (uint8_t)c;
-	char * dst = (char*)destination;
+	char *dst = (char *)destination;
 
-	while(length--)
+	while (length--)
 		dst[length] = chr;
 
 	return destination;
 }
 
-void * memcpy(void * destination, const void * source, uint64_t length)
+void *memcpy(void *destination, const void *source, uint64_t length)
 {
 	/*
 	* memcpy does not support overlapping buffers, so always do it
@@ -28,19 +28,16 @@ void * memcpy(void * destination, const void * source, uint64_t length)
 	uint64_t i;
 
 	if ((uint64_t)destination % sizeof(uint32_t) == 0 &&
-		(uint64_t)source % sizeof(uint32_t) == 0 &&
-		length % sizeof(uint32_t) == 0)
-	{
-		uint32_t *d = (uint32_t *) destination;
+	    (uint64_t)source % sizeof(uint32_t) == 0 &&
+	    length % sizeof(uint32_t) == 0) {
+		uint32_t *d = (uint32_t *)destination;
 		const uint32_t *s = (const uint32_t *)source;
 
 		for (i = 0; i < length / sizeof(uint32_t); i++)
 			d[i] = s[i];
-	}
-	else
-	{
-		uint8_t * d = (uint8_t*)destination;
-		const uint8_t * s = (const uint8_t*)source;
+	} else {
+		uint8_t *d = (uint8_t *)destination;
+		const uint8_t *s = (const uint8_t *)source;
 
 		for (i = 0; i < length; i++)
 			d[i] = s[i];
@@ -49,27 +46,34 @@ void * memcpy(void * destination, const void * source, uint64_t length)
 	return destination;
 }
 
-int strcmp(const char * a, const char * b) {
-	if (!a || !b)
-		return a == b;
-	while(a && b && a == b) {
-		a++;
-		b++;
-	}
-	return *a - *b;
+int strcmp(const char *p1, const char *p2)
+{
+	const unsigned char *s1 = (const unsigned char *)p1;
+	const unsigned char *s2 = (const unsigned char *)p2;
+	unsigned char c1, c2;
+	do {
+		c1 = (unsigned char)*s1++;
+		c2 = (unsigned char)*s2++;
+		if (c1 == '\0')
+			return c1 - c2;
+	} while (c1 == c2);
+	return c1 - c2;
 }
 
-int strlength(const char * s) {
-	const char * it = s;
-	for (; *it; it++);
+int strlength(const char *s)
+{
+	const char *it = s;
+	for (; *it; it++)
+		;
 	return it - s;
 }
 
-void strcopy(char *dest, char *src) {
-    while (*src) {
-        *dest = *src;
-        dest++;
-        src++;
-    }
-    *dest = 0;
+void strcopy(char *dest, char *src)
+{
+	while (*src) {
+		*dest = *src;
+		dest++;
+		src++;
+	}
+	*dest = 0;
 }

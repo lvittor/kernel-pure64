@@ -12,6 +12,9 @@ kernel:
 userland:
 	cd Userland; make all
 
+format:
+	find Kernel/ Userland/ -iname *.h -o -iname *.c | xargs clang-format -i
+
 image: kernel bootloader userland
 	cd Image; make all
 

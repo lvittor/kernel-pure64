@@ -1,172 +1,220 @@
 #include <pipes.h>
-#include <memoryManager.h>
-#include <scheduler.h>
-#include <semaphore.h>
+#include <mm.h>
+#include <sched.h>
+#include <sem.h>
+#include <naiveConsole.h>
+#include <stdint.h>
+#include <lib.h>
 
 #define MAX_PIPES 10
 #define SEM_ID_SIZE 3 // Should be able to contain itoa(MAX_PIPES*2)
-#define TOTAL_FDS   (MAX_PIPES * 2 + 3)
+#define TOTAL_FDS (MAX_PIPES * 2 + 3)
 #define MAX_BUFFER 256
 
-typedef struct Pipe {
-    unsigned int fdIn;
-    unsigned int fdOut;
-    char buffer[MAX_BUFFER];
-    unsigned int readPos;
-    unsigned int writePos;
-    char writeSem[SEM_ID_SIZE], readSem[SEM_ID_SIZE];
-} Pipe;
+typedef struct pipe_t {
+	fd_t fdin;
+	fd_t fdout;
+	int buffer[MAX_BUFFER];
+	uint16_t read_pos;
+	uint16_t write_pos;
+	char write_sem[SEM_ID_SIZE], read_sem[SEM_ID_SIZE];
+} pipe_t;
 
-static Pipe * pipes[MAX_PIPES];
-static int FDToPipe[TOTAL_FDS];
+static pipe_t *pipes[MAX_PIPES];
+static int fd_to_pipe[TOTAL_FDS];
 
-int initPipes(void) {
-    for (uint8_t i = 0; i < 3; i++)
-        FDToPipe[i] = MAX_PIPES;
-    for (uint8_t i = 3; i < TOTAL_FDS; i++)
-        FDToPipe[i] = -1;
-    return 0;
+pipe_ret_t init_pipes(void)
+{
+	for (int i = 0; i < 3; i++)
+		fd_to_pipe[i] = MAX_PIPES;
+	for (int i = 3; i < TOTAL_FDS; i++)
+		fd_to_pipe[i] = -1;
+	return PIPE_SUCCESS;
 }
 
-static int isValidFD(int fd) {
-    return fd >= 0 && fd < TOTAL_FDS;
+static int is_valid_fd(fd_t fd)
+{
+	return fd >= 0 && fd < TOTAL_FDS;
 }
 
-static int getFreePipeIndex(void) {
-    for (int i = 0; i < MAX_PIPES; i++) {
-        if (pipes[i] == NULL)
-            return i;
-    }
-    return -1;
+static int get_free_pipe_idx(void)
+{
+	for (int i = 0; i < MAX_PIPES; i++) {
+		if (pipes[i] == NULL)
+			return i;
+	}
+	return PIPE_ERROR;
 }
 
-static int getNextFd() {
-    for (int i = 0; i < TOTAL_FDS; i++) {
-        if (FDToPipe[i] == -1)
-            return i;
-    }
-    return -1;
+static int get_next_fd()
+{
+	for (int i = 0; i < TOTAL_FDS; i++) {
+		if (fd_to_pipe[i] == -1)
+			return i;
+	}
+	return PIPE_ERROR;
 }
 
 // Writes the string value of i into buffer, backwards: i(10) -> buffer("01")
-static void itoa(char * buffer, int i) {
-    buffer[0] = '0';
-    while(i > 0) {
-        buffer[0] = '0' + i%10;
-        i /= 10;
-        buffer++;
-    }
-    buffer[0] = '\0';
+static void itoa(char *buffer, int i)
+{
+	buffer[0] = '0';
+	while (i > 0) {
+		buffer[0] = '0' + i % 10;
+		i /= 10;
+		buffer++;
+	}
+	buffer[0] = '\0';
 }
 
-int openPipe(int fd[2]) {
-    int pipeIndex = getFreePipeIndex();
-    if (pipeIndex == -1)
-        return -1;
-    
-    pipes[pipeIndex] = alloc(sizeof(Pipe));
+pipe_ret_t open_pipe(fd_t fd[2])
+{
+	int pipe_idx = get_free_pipe_idx();
+	if (pipe_idx == -1)
+		return PIPE_ERROR;
 
-    int fd1 = getNextFd();
-    if (fd1 == -1) {
-        free(pipes[pipeIndex]);
-        return -1;
-    }
-    pipes[pipeIndex]->fdIn = fd1;
-    FDToPipe[fd1] = pipeIndex;
+	pipes[pipe_idx] = alloc(sizeof(pipe_t));
 
-    int fd2 = getNextFd();
-    if (fd2 == -1) {
-        free(pipes[pipeIndex]);
-        FDToPipe[fd1] = -1;
-        return -1;
-    }
+	int fd1 = get_next_fd();
+	if (fd1 == -1) {
+		free(pipes[pipe_idx]);
+		pipes[pipe_idx] = NULL;
+		return PIPE_ERROR;
+	}
+	pipes[pipe_idx]->fdin = fd1;
+	fd_to_pipe[fd1] = pipe_idx;
 
-    pipes[pipeIndex]->fdOut = fd2;
-    FDToPipe[fd2] = pipeIndex;
+	int fd2 = get_next_fd();
+	if (fd2 == -1) {
+		free(pipes[pipe_idx]);
+		pipes[pipe_idx] = NULL;
+		fd_to_pipe[fd1] = -1;
+		return PIPE_ERROR;
+	}
 
-    pipes[pipeIndex]->readPos = 0;
-    pipes[pipeIndex]->writePos = 0;
+	pipes[pipe_idx]->fdout = fd2;
+	fd_to_pipe[fd2] = pipe_idx;
 
-    itoa(pipes[pipeIndex]->readSem, pipes[pipeIndex]->fdIn);
-    itoa(pipes[pipeIndex]->writeSem, pipes[pipeIndex]->fdOut);
-    int ans = openSemaphore(pipes[pipeIndex]->readSem, 0);
-    if (ans != SEM_SUCCESS) {
-        free(pipes[pipeIndex]);
-        FDToPipe[fd1] = -1;
-        FDToPipe[fd2] = -1;
-        return -1;
-    }
-    ans = openSemaphore(pipes[pipeIndex]->writeSem, MAX_BUFFER);
-    if (ans != SEM_SUCCESS) {
-        closeSemaphore(pipes[pipeIndex]->readSem);
-        free(pipes[pipeIndex]);
-        FDToPipe[fd1] = -1;
-        FDToPipe[fd2] = -1;
-        return -1;
-    }
-    
-    fd[0] = pipes[pipeIndex]->fdIn;
-    fd[1] = pipes[pipeIndex]->fdOut;
-    return 0;
+	pipes[pipe_idx]->read_pos = 0;
+	pipes[pipe_idx]->write_pos = 0;
+
+	itoa(pipes[pipe_idx]->read_sem, pipes[pipe_idx]->fdin);
+	itoa(pipes[pipe_idx]->write_sem, pipes[pipe_idx]->fdout);
+	int ans = open_sem(pipes[pipe_idx]->read_sem, 0);
+	if (ans != SEM_SUCCESS) {
+		free(pipes[pipe_idx]);
+		pipes[pipe_idx] = NULL;
+		fd_to_pipe[fd1] = -1;
+		fd_to_pipe[fd2] = -1;
+		return PIPE_ERROR;
+	}
+
+	ans = open_sem(pipes[pipe_idx]->write_sem, MAX_BUFFER);
+	if (ans != SEM_SUCCESS) {
+		close_sem(pipes[pipe_idx]->read_sem);
+		free(pipes[pipe_idx]);
+		pipes[pipe_idx] = NULL;
+		fd_to_pipe[fd1] = -1;
+		fd_to_pipe[fd2] = -1;
+		return PIPE_ERROR;
+	}
+
+	fd[0] = pipes[pipe_idx]->fdin;
+	fd[1] = pipes[pipe_idx]->fdout;
+
+	return PIPE_SUCCESS;
 }
 
-int writePipe(int fd, char * buffer, int count) {
-    if (!isValidFD(fd) || count < 0 || buffer == NULL)
-        return -1;
-    int pipeIndex = FDToPipe[fd];
-    if (pipeIndex == -1 || pipes[pipeIndex]->fdOut != fd)
-        return -1;
-        
-    
-    for (int i = 0; i < count; i++) {
-        if (waitSemaphore(pipes[pipeIndex]->writeSem) != SEM_SUCCESS)
-            return i;
-        pipes[pipeIndex]->buffer[pipes[pipeIndex]->writePos++] = buffer[i];
-        pipes[pipeIndex]->writePos %= MAX_BUFFER;
-        if (postSemaphore(pipes[pipeIndex]->readSem) != SEM_SUCCESS)
-            return i;
-    }
-    return count;
+int write_pipe(fd_t fd, char *buffer, int count)
+{
+	if (!is_valid_fd(fd) || count < 0 || buffer == NULL)
+		return PIPE_ERROR;
+	int pipe_idx = fd_to_pipe[fd];
+	if (pipe_idx == -1 || pipes[pipe_idx]->fdout != fd)
+		return PIPE_ERROR;
+
+	for (int i = 0; i < count; i++) {
+		if (wait_sem(pipes[pipe_idx]->write_sem) != SEM_SUCCESS)
+			return i;
+		pipes[pipe_idx]->buffer[pipes[pipe_idx]->write_pos++] =
+			buffer[i];
+		pipes[pipe_idx]->write_pos %= MAX_BUFFER;
+		if (post_sem(pipes[pipe_idx]->read_sem) != SEM_SUCCESS)
+			return i;
+	}
+	return count;
 }
 
-// fd[0]-->[  ]-->fd[1]
+int64_t read_pipe(fd_t fd)
+{
+	if (!is_valid_fd(fd))
+		return PIPE_ERROR;
+	int pipe_idx = fd_to_pipe[fd];
+	if (pipe_idx == -1 || pipes[pipe_idx]->fdin != fd)
+		return PIPE_ERROR;
+	if (pipes[pipe_idx]->fdout == (fd_t)-1 && pipes[pipe_idx]->read_pos == pipes[pipe_idx]->write_pos)
+		return -1;
+	if (wait_sem(pipes[pipe_idx]->read_sem) != SEM_SUCCESS)
+		return PIPE_ERROR;
+	int c = pipes[pipe_idx]->buffer[pipes[pipe_idx]->read_pos++];
+	pipes[pipe_idx]->read_pos %= MAX_BUFFER;
+	if (post_sem(pipes[pipe_idx]->write_sem) != SEM_SUCCESS)
+		return PIPE_ERROR;
 
-int64_t readPipe(int fd) {
-    if (!isValidFD(fd))
-        return -1;
-    int pipeIndex = FDToPipe[fd];
-    if (pipeIndex == -1 || pipes[pipeIndex]->fdIn != fd)
-        return -1;
-
-    if (waitSemaphore(pipes[pipeIndex]->readSem) != SEM_SUCCESS)
-        return -1;
-    char c = pipes[pipeIndex]->buffer[pipes[pipeIndex]->readPos++];
-    pipes[pipeIndex]->readPos %= MAX_BUFFER;
-    if (postSemaphore(pipes[pipeIndex]->writeSem) != SEM_SUCCESS)
-        return -1;
-
-    return c;
+	return c;
 }
 
-int closePipe(int fd) {
-    int index = FDToPipe[fd];
-    if (index == -1)
-        return -1;
-    
-    if (pipes[index]->fdIn == fd) {
-        pipes[index]->fdIn = -1;
-        FDToPipe[pipes[index]->fdIn] = -1;
-    } else {
-        if (pipes[index]->fdIn != -1) {
-            char cEOF = -1;
-            writePipe(pipes[index]->fdIn, &cEOF, 1);
-        }
-        pipes[index]->fdOut = -1;
-        FDToPipe[pipes[index]->fdOut] = -1;
-    }
-    
-    if (pipes[index]->fdIn == -1 && pipes[index]->fdIn == -1) {
-        free(pipes[index]);
-    }
-    return 0;
+pipe_ret_t close_pipe(fd_t fd)
+{
+	int idx = fd_to_pipe[fd];
+	if (idx == -1)
+		return PIPE_ERROR;
+	if (pipes[idx]->fdin == fd) {
+		fd_to_pipe[pipes[idx]->fdin] = -1;
+		pipes[idx]->fdin = -1;
+	} else {
+		write_pipe(pipes[idx]->fdout, "\0", 1);
+		fd_to_pipe[pipes[idx]->fdout] = -1;
+		pipes[idx]->fdout = -1;
+	}
+
+	if (pipes[idx]->fdin == -1 && pipes[idx]->fdout == -1) {
+		close_sem(pipes[idx]->read_sem);
+		close_sem(pipes[idx]->write_sem);
+		free(pipes[idx]);
+		pipes[idx] = NULL;
+	}
+	return PIPE_SUCCESS;
+}
+
+void dump_pipes(void)
+{
+	ncPrint("Pipes\n");
+	for (int i = 0; i < MAX_PIPES; i++) {
+		if (pipes[i] != NULL) {
+			ncPrint("Pipe ");
+			ncPrintDec(i);
+			ncPrint(": ");
+			ncPrint("fdin: ");
+			ncPrintDec(pipes[i]->fdin);
+			ncPrint(", ");
+			ncPrint("fdout: ");
+			ncPrintDec(pipes[i]->fdout);
+			ncPrint(", ");
+			ncPrint("read_pos: ");
+			ncPrintDec(pipes[i]->read_pos);
+			ncPrint(", ");
+			ncPrint("write_pos: ");
+			ncPrintDec(pipes[i]->write_pos);
+			ncPrint(", ");
+			ncPrint("write_sem: \"");
+			ncPrint(pipes[i]->write_sem);
+			ncPrint("\", ");
+			ncPrint("read_sem: \"");
+			ncPrint(pipes[i]->read_sem);
+			ncPrint("\"\n");
+		}
+	}
+	ncNewline();
+	return;
 }

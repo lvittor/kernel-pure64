@@ -5,173 +5,61 @@
 
 #define BUFFER_SIZE 16
 
-#define ISHEXA(x) (((x) >= 'a' && (x) <= 'f') || ((x) >= 'A' && (x) <= 'F') || ISDIGIT(x))
+#define ISHEXA(x)                                                              \
+	(((x) >= 'a' && (x) <= 'f') || ((x) >= 'A' && (x) <= 'F') || ISDIGIT(x))
+
+#define ISVOWEL(c)                                                             \
+	((c) == 'a' || (c) == 'A' || (c) == 'e' || (c) == 'E' || (c) == 'i' || \
+	 (c) == 'I' || (c) == 'o' || (c) == 'O' || (c) == 'u' || (c) == 'U')
 
 uint8_t counter = 0;
 
-static void sleep(int seconds){
-    int start = _secondsElapsed();
-    while(1){
-        int currentSeconds = _secondsElapsed();
-        if(currentSeconds - start >= seconds)
-            return;
-    }
-}
-
-static void loop(void){
-    while(1){
-        uint8_t pid = getPid();
-        print_f(1, "\nMi PID es: %d\n", pid);
-        sleep(3);
-    }
-    _kill(getPid());
-}
-
-void loopWrapper(int fdin, int fdout, int foreground) {
-    processPrototype loopPrototype = {
-        .functionAddress = (void *) loop,
-        .name = "loop",
-        .priority = 0,
-        .state = READY,
-        .fds = {fdin, fdout, 2},
-        .foreground = foreground,
-    };
-    
-    createProcess(&loopPrototype, counter++, (char * []) {NULL});
-}
-
-static void wc(void){
-    int lines = 0;
-    int c;
-    while((c=getChar(STD_IN)) != -1){
-        if(c == '\n')
-            lines++;
-    }
-    print_f(1, "\n%c", c);
-    print_f(1, "\nLa cantidad de lineas que recibi son: %d\n", lines);
-    _kill(getPid());
-} 
-
-void wcWrapper(int fdin, int fdout, int foreground){
-    processPrototype wcPrototype = {
-        .functionAddress = (void *) wc,
-        .name = "wc",
-        .priority = 0,
-        .state = READY,
-        .fds = {fdin, fdout, 2},
-        .foreground = foreground,
-    };
-    
-    createProcess(&wcPrototype, counter++, (char * []) {NULL});
-}
-
-void help() {
-    print_f(1, "Los comandos disponibles son:\n");
-    print_f(1, " - help: Muestra los comandos disponibles\n");
-    print_f(1, " - printpid: Muestra el process id del proceso que llama\n"); // CREO QUE NO VA 
-    print_f(1, " - ps: Muestra el process id de todos los procesos activos\n");
-    print_f(1, " - beginProcess: \n"); // ESTA NO VA EN EL FUTURO
-    print_f(1, " - kill: Mata un proceso dado su ID\n");
-    print_f(1, " - block: Cambia el estado de un proceso entre bloqueado y listo dado su ID\n");
-    print_f(1, " - mem: Imprime el estado de la memoria\n");
-}
-
-void printPid() {
-    uint8_t ans = getPid();
-    print_f(1, "PID: %d", ans);
-}
-
-void newProcess(int argc, char * argv[]) {
-	while(1) {
-		print_f(1, "Userland: %d\n", argc);
-		for(uint64_t i = 0; i < (1L<<25); i++);
+static void sleep(int seconds)
+{
+	int start = _secondsElapsed();
+	while (1) {
+		int currentSeconds = _secondsElapsed();
+		if (currentSeconds - start >= seconds)
+			return;
 	}
 }
 
-void beginProcess(int fdin, int fdout, int foreground) {
-    processPrototype procPrototype = {
-        .functionAddress = (void *) newProcess,
-        .name = "process",
-        .priority = 0,
-        .state = READY,
-        .fds = {fdin, fdout, 2},
-        .foreground = foreground,
-    };
-	createProcess(&procPrototype, counter++, (char * []) {NULL});
+void loop(int argc, char *argv[])
+{
+	pid_t pid = _get_pid();
+	while (1) {
+		print_f(STDOUT, "\nMi PID es: %d\n", pid);
+		sleep(3);
+	}
+	_exit();
 }
 
-void kill(void){
-	char buffer[20] = {0};
-    uint8_t pid;
-	int ans;
-    do {
-        print_f(1, "Ingrese el pid a matar:");
-        ans = get_s(buffer, 19);
-    } while (ans == -1);
-    
-    for (int i = 0; i < ans; i++) {
-        if (buffer[i] < '0' || buffer[i] > '9') {
-            print_f(1, "\nNo es una direccion valida\n");
-            return;
-        }
-    }
-
-    sscan(buffer, "%d", &pid);
-	ans = _kill(pid);
-	if (ans == 0) {
-    	print_f(1, "\nSe mato al proceso %d\n", pid);
-	} else {
-		print_f(2, "\nNo se pudo matar al proceso %d\n", pid);
-	}
-
+void cat(int argc, char *argv[])
+{
+	int c;
+	while ((c = _get_char(STDIN)) != -1)
+		print_f(STDOUT, "%c", c);
+	_exit();
 }
 
-void block(void){
-	char buffer[20] = {0};
-    uint8_t pid;
-	int ans;
-    do {
-        print_f(1, "Ingrese el pid a bloquear:");
-        ans = get_s(buffer, 19);
-    } while (ans == -1);
-    
-    for (int i = 0; i < ans; i++) {
-        if (buffer[i] < '0' || buffer[i] > '9') {
-            print_f(1, "\nNo es una direccion valida\n");
-            return;
-        }
-    }
-
-    sscan(buffer, "%d", &pid);
-	ans = _block(pid);
-	if (ans == 0) {
-    	print_f(1, "\nSe bloqueo al proceso %d\n", pid);
-	} else {
-		print_f(2, "\nNo se pudo bloquear al proceso %d\n", pid);
-	}
+void wc(int argc, char *argv[])
+{
+	int lines = 0;
+	int c;
+	while ((c = _get_char(STDIN)) != -1)
+		if (c == '\n')
+			lines++;
+	print_f(1, "\n");
+	print_f(1, "\nLa cantidad de lineas que recibi son: %d\n", lines);
+	_exit();
 }
 
-void nice(void){
-	char buffer[20] = {0};
-    uint8_t pid;
-	int ans;
-    do {
-        print_f(1, "Ingrese el pid a nicear:");
-        ans = get_s(buffer, 19);
-    } while (ans == -1);
-    
-    for (int i = 0; i < ans; i++) {
-        if (buffer[i] < '0' || buffer[i] > '9') {
-            print_f(1, "\nNo es una direccion valida\n");
-            return;
-        }
-    }
-
-    sscan(buffer, "%d", &pid);
-	ans = _nice(pid, 30);
-	if (ans == 0) {
-    	print_f(1, "\nSe niceo al proceso %d\n", pid);
-	} else {
-		print_f(2, "\nNo se pudo nicear al proceso %d\n", pid);
-	}
+void filter(int argc, char *argv[])
+{
+	int c;
+	while ((c = _get_char(STDIN)) != -1)
+		if (ISVOWEL(c))
+			print_f(STDOUT, "%c", c);
+	print_f(STDOUT, "\n");
+	_exit();
 }

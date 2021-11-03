@@ -40,7 +40,7 @@
  */
 #include <stdlib.h>
 #include <stdint.h>
-#include "memoryManager.h"
+#include <mm.h>
 
 /* Define heap size. */
 #define TOTAL_HEAP_SIZE   2048
@@ -81,7 +81,7 @@ static void insertBlockIntoFreeList( BlockLink_t * pBlockToInsert );
  * Called automatically to setup the required heap structures the first time
  * alloc() is called.
  */
-static void heapInit( void );
+static void heap_init( void );
 
 /*-----------------------------------------------------------*/
 
@@ -117,7 +117,7 @@ void * alloc( size_t size )
          * initialisation to setup the list of free blocks. */
         if( pEndBlock == NULL )
         {
-            heapInit();
+            heap_init();
         }
 
         /* Check the requested block size is not so large that the top bit is
@@ -251,7 +251,7 @@ void free( void * address )
 }
 /*-----------------------------------------------------------*/
 
-static void heapInit( void )
+static void heap_init( void )
 {
     BlockLink_t * pFirstFreeBlock;
     uint8_t * pucAlignedHeap;

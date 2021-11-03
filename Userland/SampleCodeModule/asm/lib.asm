@@ -1,44 +1,38 @@
-GLOBAL print
-GLOBAL getChar
-GLOBAL getPid
-GLOBAL ps
-GLOBAL createProcess
-GLOBAL _kill
-GLOBAL _block
-GLOBAL _alloc
-GLOBAL _free
-GLOBAL _memdump
-GLOBAL _nice
-GLOBAL _open_pipe
-GLOBAL _write_pipe
-GLOBAL _read_pipe
-GLOBAL _close_pipe
+GLOBAL _exit, _get_pid, _ps, _create_process, _kill, _block, _nice, _wait
+GLOBAL _print, _get_char
+GLOBAL _alloc, _free, _dump_mem
+GLOBAL _open_pipe, _write_pipe, _read_pipe, _close_pipe, _dump_pipes
+GLOBAL _open_sem, _wait_sem, _post_sem, _close_sem, _dump_sems
 GLOBAL _secondsElapsed
-
 
 EXTERN print_f
 
-print:
+_exit:
+    mov rax, 0
+    int 80h
+    ret
+
+_print:
     mov rax, 1
     int 80h
     ret
 
-getChar:
+_get_char:
     mov rax, 2
     int 80h
     ret
 
-getPid:
+_get_pid:
     mov rax, 3
     int 80h
     ret
 
-ps: 
+_ps: 
     mov rax, 4
     int 80h
     ret
 
-createProcess: 
+_create_process: 
     mov rax, 5
     int 80h
     ret
@@ -63,7 +57,7 @@ _free:
     int 80h
     ret
 
-_memdump:
+_dump_mem:
     mov rax, 10
     int 80h
 
@@ -92,7 +86,7 @@ _close_sem:
     int 80h
     ret
 
-_print_sem:
+_dump_sems:
     mov rax, 16
     int 80h
     ret
@@ -117,8 +111,18 @@ _close_pipe:
     int 80h
     ret
 
-_secondsElapsed:
+_dump_pipes:
     mov rax, 21
+    int 80h
+    ret
+
+_secondsElapsed:
+    mov rax, 22
+    int 80h
+    ret
+
+_wait:
+    mov rax, 23
     int 80h
     ret
 

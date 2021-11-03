@@ -3,13 +3,14 @@
 
 #define BYTES_TO_READ 32
 
-void help(void);
-void printPid(void);
-void beginProcess(int fdin, int fdout, int foreground);
-void kill(void);
-void block(void);
-void nice(void);
-void loopWrapper(int fdin, int fdout, int foreground);
-void wcWrapper(int fdin, int fdout, int foreground);
+#define FOREGROUND_CHAR '&'
+#define PIPE_CHAR '|'
+
+typedef enum bool_t { FALSE = 0, TRUE } bool_t;
+
+void loop(int argc, char *argv[]);
+void cat(int argc, char *argv[]);
+void wc(int argc, char *argv[]);
+void filter(int argc, char *argv[]);
 
 #endif

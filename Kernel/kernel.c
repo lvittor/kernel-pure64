@@ -4,10 +4,10 @@
 #include <moduleLoader.h>
 #include <naiveConsole.h>
 #include <idtLoader.h>
-#include <scheduler.h>
+#include <sched.h>
 #include <keyboard.h>
 #include <video.h>
-#include <memoryManager.h>
+#include <mm.h>
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -18,32 +18,28 @@ extern uint8_t endOfKernel;
 
 static const uint64_t PageSize = 0x1000;
 
-static void * const sampleCodeModuleAddress = (void*)0x400000;
-static void * const sampleDataModuleAddress = (void*)0x500000;
+static void *const sampleCodeModuleAddress = (void *)0x400000;
+static void *const sampleDataModuleAddress = (void *)0x500000;
 
 typedef int (*EntryPoint)();
 
-
-void clearBSS(void * bssAddress, uint64_t bssSize)
+void clearBSS(void *bssAddress, uint64_t bssSize)
 {
 	memset(bssAddress, 0, bssSize);
 }
 
-void * getStackBase()
+void *getStackBase()
 {
-	return (void*)(
-		(uint64_t)&endOfKernel
-		+ PageSize * 8				//The size of the stack itself, 32KiB
-		- sizeof(uint64_t)			//Begin at the top of the stack
+	return (void *)((uint64_t)&endOfKernel +
+			PageSize * 8 //The size of the stack itself, 32KiB
+			- sizeof(uint64_t) //Begin at the top of the stack
 	);
 }
 
-void * initializeKernelBinary()
+void *initializeKernelBinary()
 {
-	void * moduleAddresses[] = {
-		sampleCodeModuleAddress,
-		sampleDataModuleAddress
-	};
+	void *moduleAddresses[] = { sampleCodeModuleAddress,
+				    sampleDataModuleAddress };
 
 	loadModules(&endOfKernelBinary, moduleAddresses);
 
@@ -52,40 +48,40 @@ void * initializeKernelBinary()
 	return getStackBase();
 }
 
-
-
-int main() {
-
+int main()
+{
 	load_idt();
 	init_screen();
-	heapInit();
-	initKeyboard();
+	heap_init();
+	init_keyboard();
+	init_pipes();
 
-	processPrototype shell = {
-        .functionAddress = (void *)sampleCodeModuleAddress,
-        .name = "sh",
-        .priority = 0,
-        .state = READY,
-        .fds = {0, 1, 2},
-        .foreground = 1,
-    };
-	initScheduler(&shell, 0, (char *[]){NULL});
-	
+	_process_prototype_t shell = {
+		.function_address = (void *)sampleCodeModuleAddress,
+		.name = "sh",
+		.priority = 0,
+		.state = READY,
+		.fds = { 0, 1, 2 },
+		.foreground = 1,
+	};
+	init_sched(&shell, 0, (char *[]){ NULL });
+
 	ncNewline();
 	ncNewline();
 
 	ncPrint("  Sample data module at 0x");
 	ncPrintHex((uint64_t)sampleDataModuleAddress);
-	
+
 	ncNewline();
 	ncPrint("  Sample data module contents: ");
-	ncPrint((char*)sampleDataModuleAddress);
+	ncPrint((char *)sampleDataModuleAddress);
 	ncNewline();
-	
+
 	ncPrint("[Finished]");
 	ncNewline();
 
-	while(1);
+	while (1)
+		;
 
 	return 0;
 }
