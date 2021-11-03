@@ -75,7 +75,8 @@ pid_t create_process(process_prototype_t pPP, int argc, char *argv[])
 {
 	pid_t pid = 0;
 	for (; pid < MAX_PROCESSES && processes[pid] != NULL; pid++)
-		;
+		if (processes[pid]->state == KILLED)
+			free_process(pid);
 	if (pid == MAX_PROCESSES)
 		return SCHED_ERROR;
 

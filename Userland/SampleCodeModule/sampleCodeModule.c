@@ -9,7 +9,7 @@
 #include <test_util.h>
 
 #define MAX_COMMAND 64 // Habria que achicarlo
-#define MODULES_SIZE 14
+#define MODULES_SIZE 15
 
 typedef void (*func_t)(void);
 
@@ -96,6 +96,10 @@ static command_t commands[MODULES_SIZE] = {
 	  .function = (func_t)test_mm,
 	  .builtin = FALSE,
 	  .description = "Test para el memory manager(bloqueante)." },
+	{ .name = "test_processes",
+	  .function = (func_t)test_processes,
+	  .builtin = FALSE,
+	  .description = "Test para la creación, terminación, bloqueo y desbloqueo de procesos(bloqueante)." },
 };
 
 int main(int argc, char *argv[])
