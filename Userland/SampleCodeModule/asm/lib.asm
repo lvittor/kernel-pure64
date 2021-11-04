@@ -1,38 +1,38 @@
-GLOBAL print
-GLOBAL getChar
-GLOBAL getPid
-GLOBAL ps
-GLOBAL createProcess
-GLOBAL _kill
-GLOBAL _block
-GLOBAL _alloc
-GLOBAL _free
-GLOBAL _memdump
-GLOBAL _nice
+GLOBAL _exit, _get_pid, _ps, _create_process, _kill, _block, _nice, _wait, _yield_process
+GLOBAL _print, _get_char, _clear_window
+GLOBAL _alloc, _free, _dump_mem
+GLOBAL _open_pipe, _write_pipe, _read_pipe, _close_pipe, _dump_pipes
+GLOBAL _open_sem, _wait_sem, _post_sem, _close_sem, _dump_sems
+GLOBAL _seconds_elapsed
 
 EXTERN print_f
 
-print:
+_exit:
+    mov rax, 0
+    int 80h
+    ret
+
+_print:
     mov rax, 1
     int 80h
     ret
 
-getChar:
+_get_char:
     mov rax, 2
     int 80h
     ret
 
-getPid:
+_get_pid:
     mov rax, 3
     int 80h
     ret
 
-ps: 
+_ps: 
     mov rax, 4
     int 80h
     ret
 
-createProcess: 
+_create_process: 
     mov rax, 5
     int 80h
     ret
@@ -57,9 +57,10 @@ _free:
     int 80h
     ret
 
-_memdump:
+_dump_mem:
     mov rax, 10
     int 80h
+    ret
 
 _nice:
     mov rax, 11
@@ -81,8 +82,58 @@ _post_sem:
     int 80h
     ret
 
-_print_sem:
+_close_sem:
     mov rax, 15
+    int 80h
+    ret
+
+_dump_sems:
+    mov rax, 16
+    int 80h
+    ret
+
+_open_pipe:
+    mov rax, 17
+    int 80h
+    ret
+
+_write_pipe:
+    mov rax, 18
+    int 80h
+    ret
+
+_read_pipe:
+    mov rax, 19
+    int 80h
+    ret
+
+_close_pipe:
+    mov rax, 20
+    int 80h
+    ret
+
+_dump_pipes:
+    mov rax, 21
+    int 80h
+    ret
+
+_seconds_elapsed:
+    mov rax, 22
+    int 80h
+    ret
+
+_wait:
+    mov rax, 23
+    int 80h
+    ret
+
+_yield_process:
+    mov rax, 24
+    int 80h
+    ret
+
+_clear_window:
+    mov rax, 25
     int 80h
     ret
 

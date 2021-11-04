@@ -37,7 +37,7 @@ GLOBAL _int20
 	pop rax
 %endmacro
 
-; uint64_t _buildContext(uint64_t baseRSP, uint64_t functionAddress, int argc, char * argv[]);
+; uint64_t _buildProcessContext(uint64_t base_rsp, uint64_t function_address, int argc, char *argv[]);
 _buildProcessContext:
     push rbp
     mov rbp, rsp
@@ -76,7 +76,7 @@ _buildProcessContext:
     pop rbp
     ret
 
-; void _openContext(uint64_t baseRSP)
+; void _openProcessContext(uint64_t baseRSP);
 _openProcessContext:
     mov rsp, rdi
     popState

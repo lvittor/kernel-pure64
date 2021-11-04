@@ -3,7 +3,10 @@
 
 #include <stdint.h>
 
+#define EOF -1
+
 void keyboard_handler(void);
-int64_t getChar(void);
+int get_char(void);
+int init_keyboard(void);
 
 #endif
