@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <syscalls.h>
 #include <naiveConsole.h>
 #include <stdint.h>
@@ -12,7 +14,7 @@
 #include <time.h>
 
 #define MAX_MEMORY_MAPPED 0x1000000000
-#define MAX_SYSCALLS 25
+#define MAX_SYSCALLS 26
 
 uint64_t sys_exit(void);
 

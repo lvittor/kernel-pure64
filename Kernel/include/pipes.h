@@ -4,8 +4,8 @@
 #include <stdint.h>
 
 typedef enum pipe_ret_t {
-	PIPE_ERROR = 1,
-	PIPE_SUCCESS = 0,
+	PIPE_ERROR = -1,
+	PIPE_SUCCESS,
 } pipe_ret_t;
 
 typedef uint8_t fd_t;

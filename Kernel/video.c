@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <video.h>
 #include <font.h>
 #include <lib.h>
@@ -49,20 +51,6 @@ static void setPixel(int x, int y, Color *color)
 	screen[0] = color->b;
 	screen[1] = color->g;
 	screen[2] = color->r;
-}
-
-void drawShellBorder(Color *color)
-{
-	for (int j = 0; j < vbeInfo->height; j++)
-		for (int i = -2; i < 3; i++)
-			setPixel(vbeInfo->width / 2 + i, j, color);
-}
-
-void fillScreen(Color *color)
-{
-	for (int i = 0; i < vbeInfo->width; i++)
-		for (int j = 0; j < vbeInfo->height; j++)
-			setPixel(i, j, color);
 }
 
 static void scrollUp(Color *backgroundColor)

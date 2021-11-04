@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #ifndef BUDDY
 /*
  * FreeRTOS Kernel V10.4.3 LTS Patch 1
@@ -103,7 +105,7 @@ static size_t blockAllocatedBit = 0;
 
 void *alloc(size_t size)
 {
-	BlockLink_t *pBlock, *pPreviousBlock, *pNewBlockLink;
+	BlockLink_t *pBlock;
 	void *pReturn = NULL;
 
 	{
@@ -140,7 +142,7 @@ void *alloc(size_t size)
 			if ((size > 0) && (size <= freeBytesRemaining)) {
 				/* Traverse the list from the start	(lowest address) block until
                  * one of adequate size is found. */
-				pPreviousBlock = &startBlock;
+				BlockLink_t *pPreviousBlock = &startBlock;
 				pBlock = startBlock.pNextFreeBlock;
 
 				while ((pBlock->blockSize < size) &&
@@ -172,7 +174,7 @@ void *alloc(size_t size)
                          * block following the number of bytes requested. The void
                          * cast is used to prevent byte alignment warnings from the
                          * compiler. */
-						pNewBlockLink =
+						BlockLink_t *pNewBlockLink =
 							(void *)(((uint8_t *)
 									  pBlock) +
 								 size);

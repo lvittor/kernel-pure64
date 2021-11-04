@@ -55,8 +55,6 @@ extern Color BLACK;
 extern Color RED;
 
 // ESCRIBIR EN PANTALLA
-void fillScreen(Color *color);
-void drawShellBorder(Color *color);
 void drawChar(char c, Color *fontColor, Color *backgroundColor);
 void newLine(Color *backgronudColor);
 void clearWindow(Color *backgroundColor);

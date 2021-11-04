@@ -56,6 +56,7 @@ int sscan(char *buff, char *fmt, ...);
 int64_t strtoint(const char *nptr, char **endptr, register int base);
 double strtodouble(const char *start, char **end);
 int64_t get_s(char *buffer, uint64_t maxLength);
+int atoi(const char *s);
 
 void _exit(void);
 void _clear_window(void);

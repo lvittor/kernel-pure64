@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <stdint.h>
 #include <lib.h>
 #include <utils.h>
@@ -131,9 +133,20 @@ static command_t commands[MODULES_SIZE] = {
 
 int main(int argc, char *argv[])
 {
-	char buffer[MAX_COMMAND + 1]; // CAMBIAAAAAAAAAAAAR
+	char buffer[MAX_COMMAND + 1];
 
-	print_f(STDOUT, ">>>Userland<<<\n");
+	print_f(STDOUT,
+		" *******   ******** **   ** ********     *******    ********\n"
+		"/**////** /**///// /**  ** /**/////     **/////**  **////// \n"
+		"/**   /** /**      /** **  /**         **     //**/**       \n"
+		"/*******  /******* /****   /*******   /**      /**/*********\n"
+		"/**///**  /**////  /**/**  /**////    /**      /**////////**\n"
+		"/**  //** /**      /**//** /**        //**     **        /**\n"
+		"/**   //**/********/** //**/********   //*******   ******** \n"
+		"//     // //////// //   // ////////     ///////   ////////  \n");
+
+	print_f(STDOUT, "\n\n\n");
+
 	help();
 	while (1) {
 		print_f(STDERR, "\n>> ");
@@ -193,7 +206,7 @@ void parseCommand(char *str)
 			return;
 		}
 		if (commands[index1].builtin || commands[index2].builtin) {
-			print_f(STDERR, "Cannot pipe builtin commands.");
+			print_f(STDERR, "Cannot pipe builtin commands.\n");
 			return;
 		}
 		if (_open_pipe(fd) == -1) {
@@ -232,15 +245,6 @@ void parseCommand(char *str)
 
 void help(void)
 {
-	print_f(STDOUT,
-		"  ******** **     ** *******  ******** *******               *******    ********\n"
-		" **////// /**    /**/**////**/**///// /**////**             **/////**  **////// \n"
-		"/**       /**    /**/**   /**/**      /**   /**            **     //**/**       \n"
-		"/*********/**    /**/******* /******* /*******     *****  /**      /**/*********\n"
-		"////////**/**    /**/**////  /**////  /**///**    /////   /**      /**////////**\n"
-		"       /**/**    /**/**      /**      /**  //**           //**     **        /**\n"
-		" ******** //******* /**      /********/**   //**           //*******   ******** \n"
-		"////////   ///////  //       //////// //     //             ///////   ////////  \n");
 	print_f(STDOUT, "The available commands are:\n");
 	for (uint8_t i = 0; i < MODULES_SIZE; i++)
 		print_f(STDOUT, " - %s: %s\n", commands[i].name,
@@ -308,7 +312,7 @@ void nice(void)
 	sscan(buffer, "%d", &pid);
 
 	do {
-		print_f(1, "Ingrese la nueva prioridad[0,40):");
+		print_f(1, "Ingrese la nueva prioridad[0,39): ");
 		ans = get_s(buffer, 19);
 	} while (ans == -1);
 

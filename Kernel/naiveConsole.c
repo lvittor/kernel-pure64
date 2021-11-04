@@ -1,9 +1,11 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <naiveConsole.h>
 #include <video.h>
 
 static uint32_t uintToBase(uint64_t value, char *buffer, uint32_t base);
 
-static char buffer[64] = { '0' };
+static char buffer[64];
 static uint8_t *const video = (uint8_t *)0xB8000;
 static const uint32_t width = 80;
 static const uint32_t height = 25;
@@ -52,13 +54,6 @@ void ncPrintCharAtt(char character, Color *fontColor, Color *backgroundColor)
 		drawChar(character, fontColor, backgroundColor);
 }
 
-// https://stackoverflow.com/questions/28133020/how-to-convert-bcd-to-decimal
-void ncPrintBCD(uint64_t value)
-{
-	int decimal = ((value & 0xF0) >> 4) * 10 + (value & 0x0F);
-	ncPrintDec(decimal);
-}
-
 void ncPrintDec(uint64_t value)
 {
 	ncPrintBase(value, 10);
@@ -67,11 +62,6 @@ void ncPrintDec(uint64_t value)
 void ncPrintHex(uint64_t value)
 {
 	ncPrintBase(value, 16);
-}
-
-void ncPrintBin(uint64_t value)
-{
-	ncPrintBase(value, 2);
 }
 
 void ncPrintBase(uint64_t value, uint32_t base)

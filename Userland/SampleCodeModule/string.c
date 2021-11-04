@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <string.h>
 
 int8_t strcmp(const char *p1, const char *p2)
@@ -41,7 +43,7 @@ char *strcat(char *dest, const char *src)
 
 	while (*dest)
 		dest++;
-	while (*dest++ = *src++)
+	while ((*dest++ = *src++))
 		;
 	return rdest;
 }

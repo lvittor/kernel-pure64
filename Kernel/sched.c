@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <sched.h>
 #include <lib.h>
 #include <mm.h>
@@ -60,13 +62,13 @@ sched_ret_t init_sched(process_prototype_t pPP, int argc, char *argv[])
 		.foreground = 0,
 	};
 	halt_pid = create_process(&halt_prototype, 0, (char *[]){ NULL });
-	if (halt_pid == SCHED_ERROR)
+	if (halt_pid == (pid_t)SCHED_ERROR)
 		return SCHED_ERROR;
 
 	desired_pid = halt_pid;
 
 	int new_pid = create_process(pPP, argc, argv);
-	if (new_pid == SCHED_ERROR)
+	if (new_pid == (pid_t)SCHED_ERROR)
 		return SCHED_ERROR;
 
 	curr_pid = new_pid;
@@ -109,8 +111,8 @@ pid_t create_process(process_prototype_t pPP, int argc, char *argv[])
 	if (argv_copy == NULL) {
 		free(p_pcb->name);
 		free((void *)stack_top);
-		free(p_pcb);
 		free_queue(p_pcb->waiting_queue);
+		free(p_pcb);
 		return SCHED_ERROR;
 	}
 
@@ -119,8 +121,8 @@ pid_t create_process(process_prototype_t pPP, int argc, char *argv[])
 		if (argv_copy[i] == NULL) {
 			free(p_pcb->name);
 			free((void *)stack_top);
-			free(p_pcb);
 			free_queue(p_pcb->waiting_queue);
+			free(p_pcb);
 			free(argv_copy);
 			return SCHED_ERROR;
 		}
@@ -253,7 +255,7 @@ sched_ret_t block(pid_t pid)
 
 static char is_valid_priority(priority_t priority)
 {
-	return priority >= 0 && priority < MAX_PRIORITY;
+	return priority < MAX_PRIORITY;
 }
 
 sched_ret_t nice(pid_t pid, priority_t newPriority)
@@ -295,17 +297,38 @@ void dump_processes(void)
 			ncPrintDec(pid);
 			for (; numlen < 7; numlen++)
 				ncPrint(" ");
+
+			aux = processes[pid]->priority / 10;
+			numlen = 1;
+			while (aux > 0) {
+				aux /= 10;
+				numlen++;
+			}
 			ncPrintDec(processes[pid]->priority);
-			ncPrint("       ");
+			for (; numlen < 8; numlen++)
+				ncPrint(" ");
 			ncPrintHex(processes[pid]->curr_rsp);
 			ncPrint("   ");
 			ncPrintHex(processes[pid]->base_rsp);
 			ncPrint("  ");
 			ncPrint(process_foreground_string[processes[pid]
 								  ->foreground]);
-			ncPrint("     ");
+			ncPrint("    ");
 			ncPrint(process_state_string[processes[pid]->state]);
-			ncPrint("   ");
+			switch (processes[pid]->state) {
+			case 0:
+				ncPrint("    ");
+				break;
+			case 1:
+				ncPrint("  ");
+				break;
+			case 2:
+				ncPrint("    ");
+				break;
+			default:
+				ncPrint("   ");
+				break;
+			}
 			ncPrint("[");
 			ncPrintDec(processes[pid]->fds[0]);
 			ncPrint(", ");
@@ -327,7 +350,7 @@ void set_process_state(pid_t pid, process_state_t newState)
 
 int get_process_fd(pid_t pid, fd_t fd)
 {
-	if (!is_valid_pid(pid) || fd < 0 || fd >= 3)
+	if (!is_valid_pid(pid) || fd >= 3)
 		return SCHED_ERROR;
 	return processes[pid]->fds[fd];
 }

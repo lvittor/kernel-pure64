@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #ifdef BUDDY
 
 #include <mm.h>
@@ -8,9 +10,9 @@
 #include <stdio.h>
 
 #define MAX_LEVELS 21
-#define BLOCKS_PER_LEVEL(level) (1 << (level))
+#define BLOCKS_PER_LEVEL(level) (1l << (level))
 #define SIZE_OF_BLOCKS_AT_LEVEL(level, total_size)                             \
-	((total_size) / (1 << (level)))
+	((total_size) / (1l << (level)))
 #define INDEX_OF_POINTER_IN_LEVEL(pointer, level, memory_start, total_size)    \
 	(((pointer) - (memory_start)) /                                        \
 	 (SIZE_OF_BLOCKS_AT_LEVEL(level, total_size)))
@@ -52,8 +54,6 @@ void *alloc(size_t size)
 	if (level == -1)
 		return NULL;
 	void *memory;
-	void *left;
-	void *right;
 	list_t link;
 
 	int actualLevel = level;
@@ -71,8 +71,8 @@ void *alloc(size_t size)
 		node = (void *)list_pop(&free_lists[actualLevel]);
 		uint64_t blockSize = SIZE_OF_BLOCKS_AT_LEVEL(actualLevel + 1,
 							     TOTAL_HEAP_SIZE);
-		left = node;
-		right = node + blockSize;
+		void *left = node;
+		void *right = (uint8_t *)node + blockSize;
 		list_init(left);
 		list_init(right);
 		list_push(&free_lists[actualLevel + 1], left);
@@ -81,7 +81,7 @@ void *alloc(size_t size)
 	link = list_pop(&free_lists[level]);
 	link->level = level;
 	memory = link;
-	memory += sizeof(_list_t);
+	memory = (uint8_t *)memory + sizeof(_list_t);
 	return (void *)memory;
 }
 
@@ -89,7 +89,7 @@ void free(void *address)
 {
 	if (address == NULL)
 		return;
-	address -= sizeof(_list_t);
+	address = (uint8_t *)address - sizeof(_list_t);
 	list_t link = (list_t)address, buddy_link;
 	uint8_t level = link->level;
 	char stop = 0;
@@ -103,9 +103,9 @@ void free(void *address)
 		uint64_t buddy;
 
 		if ((idx & 1) == 0) {
-			buddy = (uint64_t)(address + size);
+			buddy = (uint64_t)address + size;
 		} else {
-			buddy = (uint64_t)(address - size);
+			buddy = (uint64_t)address - size;
 		}
 
 		buddy_link = NULL;

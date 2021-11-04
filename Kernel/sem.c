@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <sem.h>
 #include <stddef.h>
 #include <mm.h>
@@ -46,6 +48,10 @@ sem_ret_t open_sem(semid_t sid, semvalue_t value)
 	}
 
 	sem_idx = get_free_idx();
+	if (sem_idx == MAX_SEMS) {
+		_release(&sems_lock);
+		return SEM_ENOMEM;
+	}
 	sems[sem_idx] = alloc(sizeof(sem_t));
 	if (sems[sem_idx] == NULL) {
 		_release(&sems_lock);
@@ -143,8 +149,7 @@ sem_ret_t close_sem(semid_t sid)
 
 	while (!is_empty(sems[sem_idx]->waiting_queue)) {
 		queue_value_t wake_process;
-		char success =
-			peek(sems[sem_idx]->waiting_queue, &wake_process);
+		peek(sems[sem_idx]->waiting_queue, &wake_process);
 		dequeue(sems[sem_idx]->waiting_queue);
 		block(wake_process);
 	}

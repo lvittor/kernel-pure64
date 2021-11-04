@@ -19,3 +19,7 @@
 #History
 .bash_history
 .gdb_history
+
+#pvs-studio
+report.tasks
+PVS-Studio.log

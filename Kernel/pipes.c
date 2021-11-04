@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <pipes.h>
 #include <mm.h>
 #include <sched.h>
@@ -34,7 +36,7 @@ pipe_ret_t init_pipes(void)
 
 static int is_valid_fd(fd_t fd)
 {
-	return fd >= 0 && fd < TOTAL_FDS;
+	return fd < TOTAL_FDS;
 }
 
 static int get_free_pipe_idx(void)
@@ -70,13 +72,13 @@ static void itoa(char *buffer, int i)
 pipe_ret_t open_pipe(fd_t fd[2])
 {
 	int pipe_idx = get_free_pipe_idx();
-	if (pipe_idx == -1)
+	if (pipe_idx == PIPE_ERROR)
 		return PIPE_ERROR;
 
 	pipes[pipe_idx] = alloc(sizeof(pipe_t));
 
 	int fd1 = get_next_fd();
-	if (fd1 == -1) {
+	if (fd1 == PIPE_ERROR) {
 		free(pipes[pipe_idx]);
 		pipes[pipe_idx] = NULL;
 		return PIPE_ERROR;
@@ -85,7 +87,7 @@ pipe_ret_t open_pipe(fd_t fd[2])
 	fd_to_pipe[fd1] = pipe_idx;
 
 	int fd2 = get_next_fd();
-	if (fd2 == -1) {
+	if (fd2 == PIPE_ERROR) {
 		free(pipes[pipe_idx]);
 		pipes[pipe_idx] = NULL;
 		fd_to_pipe[fd1] = -1;
