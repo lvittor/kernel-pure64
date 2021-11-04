@@ -54,7 +54,7 @@ void set_process_state(pid_t pid, process_state_t newState);
 sched_ret_t nice(pid_t pid, priority_t newPriority);
 void dump_processes(void);
 void yield_process(void);
-void yieldProcessTo(pid_t nextPID); // no implementada en .c
+void yield_process_to(pid_t pid);
 int get_process_fd(pid_t pid, fd_t fd);
 sched_ret_t wait_process(pid_t pid);
 

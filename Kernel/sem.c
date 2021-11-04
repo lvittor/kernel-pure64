@@ -108,9 +108,12 @@ sem_ret_t post_sem(semid_t sid)
 	if (success) {
 		dequeue(sems[sem_idx]->waiting_queue);
 		block(wake_process);
+		_release(&(sems[sem_idx]->lock));
+		yield_process_to(wake_process);
+	} else {
+		_release(&(sems[sem_idx]->lock));
 	}
 
-	_release(&(sems[sem_idx]->lock));
 	return SEM_SUCCESS;
 }
 

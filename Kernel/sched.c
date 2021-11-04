@@ -36,6 +36,7 @@ static char *process_foreground_string[] = {
 static pcb_t processes[MAX_PROCESSES] = { NULL };
 static pid_t curr_pid = 0;
 static pid_t halt_pid = 0;
+static pid_t desired_pid = 0;
 static uint8_t tickets = 0;
 
 static void free_process(pid_t pid);
@@ -61,6 +62,8 @@ sched_ret_t init_sched(process_prototype_t pPP, int argc, char *argv[])
 	halt_pid = create_process(&halt_prototype, 0, (char *[]){ NULL });
 	if (halt_pid == SCHED_ERROR)
 		return SCHED_ERROR;
+	
+	desired_pid = halt_pid;
 
 	int new_pid = create_process(pPP, argc, argv);
 	if (new_pid == SCHED_ERROR)
@@ -152,7 +155,11 @@ uint64_t schedule(uint64_t curr_rsp)
 {
 	processes[curr_pid]->curr_rsp = curr_rsp;
 	if (tickets == 0 || !is_in_state(curr_pid, READY)) {
-		curr_pid = get_next_ready_pid(curr_pid);
+		if (is_schedulable(desired_pid)) {
+			curr_pid = desired_pid;
+			desired_pid = halt_pid;
+		} else
+			curr_pid = get_next_ready_pid(curr_pid);
 		tickets = get_tickets(curr_pid);
 	} else
 		tickets--;
@@ -183,6 +190,12 @@ void yield_process(void)
 {
 	tickets = 0;
 	_int20();
+}
+
+void yield_process_to(pid_t pid)
+{
+	desired_pid = pid;
+	yield_process();
 }
 
 sched_ret_t kill(pid_t pid)
@@ -299,6 +312,8 @@ sched_ret_t wait_process(pid_t pid)
 {
 	if (!is_valid_pid(pid))
 		return SCHED_ERROR;
+	if (is_in_state(pid, KILLED))
+		return SCHED_SUCCESS;
 	if (!enqueue(processes[pid]->waiting_queue, get_curr_pid()))
 		return SCHED_ERROR;
 	block(get_curr_pid());

@@ -122,6 +122,32 @@ void test_prio(void)
 
 	for (i = 0; i < TOTAL_PROCESSES; i++)
 		my_unblock(pids[i]);
+	
+	bussy_wait(WAIT);
+	print_f(STDOUT, "\nBLOCKING...\n");
+
+	for (i = 0; i < TOTAL_PROCESSES; i++)
+		my_block(pids[i]);
+
+	print_f(STDOUT, "CHANGING PRIORITIES WHILE BLOCKED...\n");
+	for (i = 0; i < TOTAL_PROCESSES; i++) {
+		switch (i % 3) {
+		case 0:
+			my_nice(pids[i], LOW_PRIO); //medium priority
+			break;
+		case 1:
+			my_nice(pids[i], LOW_PRIO); //medium priority
+			break;
+		case 2:
+			my_nice(pids[i], LOW_PRIO); //medium priority
+			break;
+		}
+	}
+
+	print_f(STDOUT, "UNBLOCKING...\n");
+
+	for (i = 0; i < TOTAL_PROCESSES; i++)
+		my_unblock(pids[i]);
 
 	bussy_wait(WAIT);
 	print_f(STDOUT, "\nKILLING...\n");

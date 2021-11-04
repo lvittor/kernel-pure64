@@ -152,16 +152,15 @@ int64_t read_pipe(fd_t fd)
 	int pipe_idx = fd_to_pipe[fd];
 	if (pipe_idx == -1 || pipes[pipe_idx]->fdin != fd)
 		return PIPE_ERROR;
+	if (wait_sem(pipes[pipe_idx]->read_sem) != SEM_SUCCESS)
+		return PIPE_ERROR;
 	if (pipes[pipe_idx]->fdout == (fd_t)-1 &&
 	    pipes[pipe_idx]->read_pos == pipes[pipe_idx]->write_pos)
 		return -1;
-	if (wait_sem(pipes[pipe_idx]->read_sem) != SEM_SUCCESS)
-		return PIPE_ERROR;
 	int c = pipes[pipe_idx]->buffer[pipes[pipe_idx]->read_pos++];
 	pipes[pipe_idx]->read_pos %= MAX_BUFFER;
 	if (post_sem(pipes[pipe_idx]->write_sem) != SEM_SUCCESS)
 		return PIPE_ERROR;
-
 	return c;
 }
 
@@ -174,9 +173,9 @@ pipe_ret_t close_pipe(fd_t fd)
 		fd_to_pipe[pipes[idx]->fdin] = -1;
 		pipes[idx]->fdin = -1;
 	} else {
-		write_pipe(pipes[idx]->fdout, "\0", 1);
 		fd_to_pipe[pipes[idx]->fdout] = -1;
 		pipes[idx]->fdout = -1;
+		post_sem(pipes[idx]->read_sem);
 	}
 
 	if (pipes[idx]->fdin == (fd_t)-1 && pipes[idx]->fdout == (fd_t)-1) {
