@@ -105,6 +105,30 @@ pid_t create_process(process_prototype_t pPP, int argc, char *argv[])
 		return SCHED_ERROR;
 	}
 
+	char **argv_copy = alloc(sizeof(char *) * (argc + 1));
+	if (argv_copy == NULL) {
+		free(p_pcb->name);
+		free((void *)stack_top);
+		free(p_pcb);
+		free_queue(p_pcb->waiting_queue);
+		return SCHED_ERROR;
+	}
+
+	for (int i = 0; i < argc; i++) {
+		argv_copy[i] = alloc(strlength(argv[i]) + 1);
+		if (argv_copy[i] == NULL) {
+			free(p_pcb->name);
+			free((void *)stack_top);
+			free(p_pcb);
+			free_queue(p_pcb->waiting_queue);
+			free(argv_copy);
+			return SCHED_ERROR;
+		}
+		strcopy(argv_copy[i], argv[i]);
+		argv_copy[i][strlength(argv[i])] = '\0';
+	}
+	argv_copy[argc] = NULL;
+
 	strcopy(p_pcb->name, pPP->name);
 	p_pcb->name[strlength(pPP->name)] = '\0';
 	p_pcb->stack_top = stack_top;
@@ -112,7 +136,7 @@ pid_t create_process(process_prototype_t pPP, int argc, char *argv[])
 	p_pcb->base_rsp = stack_top + PROCESS_STACK_SIZE;
 	p_pcb->function_address = (uint64_t)pPP->function_address;
 	p_pcb->curr_rsp = _buildProcessContext(
-		p_pcb->base_rsp, p_pcb->function_address, argc, argv);
+		p_pcb->base_rsp, p_pcb->function_address, argc, argv_copy);
 	p_pcb->priority = pPP->priority;
 	for (int i = 0; i < 3; i++)
 		p_pcb->fds[i] = pPP->fds[i];

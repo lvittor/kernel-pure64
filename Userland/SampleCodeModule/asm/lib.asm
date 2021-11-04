@@ -1,9 +1,9 @@
-GLOBAL _exit, _get_pid, _ps, _create_process, _kill, _block, _nice, _wait, _yield
-GLOBAL _print, _get_char
+GLOBAL _exit, _get_pid, _ps, _create_process, _kill, _block, _nice, _wait, _yield_process
+GLOBAL _print, _get_char, _clear_window
 GLOBAL _alloc, _free, _dump_mem
 GLOBAL _open_pipe, _write_pipe, _read_pipe, _close_pipe, _dump_pipes
 GLOBAL _open_sem, _wait_sem, _post_sem, _close_sem, _dump_sems
-GLOBAL _secondsElapsed
+GLOBAL _seconds_elapsed
 
 EXTERN print_f
 
@@ -117,7 +117,7 @@ _dump_pipes:
     int 80h
     ret
 
-_secondsElapsed:
+_seconds_elapsed:
     mov rax, 22
     int 80h
     ret
@@ -127,8 +127,13 @@ _wait:
     int 80h
     ret
 
-_yield:
+_yield_process:
     mov rax, 24
+    int 80h
+    ret
+
+_clear_window:
+    mov rax, 25
     int 80h
     ret
 

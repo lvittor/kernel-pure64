@@ -16,11 +16,6 @@
 #define STDOUT 1
 #define STDERR 2
 
-typedef struct dateType {
-	uint8_t year, month, day;
-	uint8_t hour, minute, second;
-} dateType;
-
 typedef enum process_state_t {
 	READY = 0,
 	BLOCKED,
@@ -54,7 +49,6 @@ typedef uint8_t pid_t;
 typedef char *semid_t;
 typedef uint64_t semvalue_t;
 
-// C
 int print_f(fd_t fd, const char *format, ...);
 void put_char(fd_t fd, const char character);
 void put_s(fd_t fd, const char *s);
@@ -63,9 +57,9 @@ int64_t strtoint(const char *nptr, char **endptr, register int base);
 double strtodouble(const char *start, char **end);
 int64_t get_s(char *buffer, uint64_t maxLength);
 
-// ASM
 void _exit(void);
-void _print(fd_t fd, const char *s, uint64_t count); // no se usa nunca
+void _clear_window(void);
+void _print(fd_t fd, const char *s, uint64_t count);
 int _get_char(fd_t fd);
 pid_t _get_pid(void);
 void _ps(void);
@@ -81,9 +75,9 @@ int _write_pipe(fd_t fd, char *buffer, int count);
 int _read_pipe(fd_t fd);
 int _close_pipe(fd_t fd);
 void _dump_pipes(void);
-int _secondsElapsed(void);
+int _seconds_elapsed(void);
 int _wait(pid_t pid);
-void _yield(void);
+void _yield_process(void);
 
 sem_ret_t _open_sem(semid_t sid, semvalue_t value);
 sem_ret_t _wait_sem(semid_t sid);

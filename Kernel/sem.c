@@ -52,14 +52,23 @@ sem_ret_t open_sem(semid_t sid, semvalue_t value)
 		return SEM_ENOMEM;
 	}
 
-	sems[sem_idx]->waiting_queue = queue_init();
-	if (sems[sem_idx]->waiting_queue == NULL) {
+	sems[sem_idx]->name = alloc(strlength(sid) + 1);
+	if (sems[sem_idx]->name == NULL) {
 		free(sems[sem_idx]);
 		_release(&sems_lock);
 		return SEM_ENOMEM;
 	}
 
-	sems[sem_idx]->name = sid;
+	sems[sem_idx]->waiting_queue = queue_init();
+	if (sems[sem_idx]->waiting_queue == NULL) {
+		free(sems[sem_idx]->name);
+		free(sems[sem_idx]);
+		_release(&sems_lock);
+		return SEM_ENOMEM;
+	}
+
+	strcopy(sems[sem_idx]->name, sid);
+	sems[sem_idx]->name[strlength(sid)] = '\0';
 	sems[sem_idx]->lock = 0;
 	sems[sem_idx]->value = value;
 	sems[sem_idx]->creator_process = get_curr_pid();
@@ -126,14 +135,25 @@ sem_ret_t close_sem(semid_t sid)
 		return SEM_INVALID;
 	}
 	_acquire(&(sems[sem_idx]->lock));
-	if (get_curr_pid() != sems[sem_idx]->creator_process ||
-	    !is_empty(sems[sem_idx]->waiting_queue)) {
+	if (get_curr_pid() != sems[sem_idx]->creator_process) {
 		_release(&(sems[sem_idx]->lock));
 		_release(&sems_lock);
 		return SEM_INVALID;
 	}
 
+	while (!is_empty(sems[sem_idx]->waiting_queue)) {
+		queue_value_t wake_process;
+		char success =
+			peek(sems[sem_idx]->waiting_queue, &wake_process);
+		dequeue(sems[sem_idx]->waiting_queue);
+		block(wake_process);
+	}
+
+	free_queue(sems[sem_idx]->waiting_queue);
+	free(sems[sem_idx]->name);
 	free(sems[sem_idx]);
+	sems[sem_idx] = (sem_t *)NULL;
+
 	_release(&sems_lock);
 	return SEM_SUCCESS;
 }

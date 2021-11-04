@@ -295,3 +295,8 @@ int64_t strtoint(const char *nptr, char **endptr, register int base)
 		*endptr = (char *)(any ? s - 1 : nptr);
 	return (acc);
 }
+
+int atoi(const char *s)
+{
+	return strtoint(s, NULL, 10);
+}

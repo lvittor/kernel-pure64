@@ -14,15 +14,11 @@
 #define MAX_MEMORY_MAPPED 0x1000000000
 #define MAX_SYSCALLS 25
 
-typedef struct dateType {
-	uint8_t year, month, day;
-	uint8_t hour, minute, second;
-} dateType;
-
 uint64_t sys_exit(void);
 
 uint64_t sys_write(fd_t fd, char *buffer, uint64_t count);
 int64_t sys_read(fd_t fd);
+void sys_clear(void);
 
 pid_t sys_get_curr_pid(void);
 void sys_dump_processes(void);
@@ -80,6 +76,7 @@ syscall syscalls[MAX_SYSCALLS] = {
 	(syscall)sys_seconds_elapsed,
 	(syscall)sys_wait_process,
 	(syscall)sys_yield_process,
+	(syscall)sys_clear,
 };
 
 uint64_t syscallDispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx,
@@ -231,4 +228,9 @@ int sys_wait_process(uint8_t pid)
 void sys_yield_process(void)
 {
 	yield_process();
+}
+
+void sys_clear(void)
+{
+	clearWindow(&BLACK);
 }

@@ -14,11 +14,11 @@
 
 uint8_t counter = 0;
 
-static void sleep(int seconds)
+void sleep(int seconds)
 {
-	int start = _secondsElapsed();
+	int start = _seconds_elapsed();
 	while (1) {
-		int currentSeconds = _secondsElapsed();
+		int currentSeconds = _seconds_elapsed();
 		if (currentSeconds - start >= seconds)
 			return;
 	}

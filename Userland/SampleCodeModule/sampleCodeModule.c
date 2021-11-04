@@ -7,10 +7,11 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <test_util.h>
+#include <phylo.h>
 #include <about.h>
 
 #define MAX_COMMAND 64 // Habria que achicarlo
-#define MODULES_SIZE 19
+#define MODULES_SIZE 20
 
 typedef void (*func_t)(void);
 
@@ -25,6 +26,7 @@ void parseCommand(char *str);
 int getCommandIndex(char *string);
 
 void help(void);
+void clear(void);
 void mem(void);
 void ps(void);
 void kill(void);
@@ -39,7 +41,11 @@ static command_t commands[MODULES_SIZE] = {
 	  .function = (func_t)help,
 	  .builtin = TRUE,
 	  .description =
-		  "muestra una lista con todos los comandos disponibles." },
+		  "Muestra una lista con todos los comandos disponibles." },
+	{ .name = "clear",
+	  .function = (func_t)clear,
+	  .builtin = TRUE,
+	  .description = "Limpia la ventana." },
 	{ .name = "mem",
 	  .function = (func_t)mem,
 	  .builtin = TRUE,
@@ -91,9 +97,9 @@ static command_t commands[MODULES_SIZE] = {
 	  .description =
 		  "Imprime la lista de todos los pipes con sus propiedades: estado, los procesos bloqueados en cada uno." },
 	{ .name = "phylo",
-	  .function = (func_t)wc,
+	  .function = (func_t)initPhilos,
 	  .builtin = FALSE,
-	  .description = "TODO" },
+	  .description = "Resuelve el dilema de los filosofos." },
 	{ .name = "test_mm",
 	  .function = (func_t)test_mm,
 	  .builtin = FALSE,
@@ -239,6 +245,11 @@ void help(void)
 	for (uint8_t i = 0; i < MODULES_SIZE; i++)
 		print_f(STDOUT, " - %s: %s\n", commands[i].name,
 			commands[i].description);
+}
+
+void clear(void)
+{
+	_clear_window();
 }
 
 void mem(void)

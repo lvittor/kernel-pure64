@@ -47,7 +47,7 @@ static void slowInc(int64_t *p, int64_t inc)
 {
 	int64_t aux = *p;
 	aux += inc;
-	_yield();
+	_yield_process();
 	*p = aux;
 }
 

@@ -34,3 +34,24 @@ int strdiv(char *str, char **other, char token)
 	}
 	return -1;
 }
+
+char *strcat(char *dest, const char *src)
+{
+	char *rdest = dest;
+
+	while (*dest)
+		dest++;
+	while (*dest++ = *src++)
+		;
+	return rdest;
+}
+
+void strcopy(char *dest, char *src)
+{
+	while (*src) {
+		*dest = *src;
+		dest++;
+		src++;
+	}
+	*dest = 0;
+}
