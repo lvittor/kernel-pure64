@@ -110,11 +110,13 @@ static command_t commands[MODULES_SIZE] = {
 	{ .name = "test_sync",
 	  .function = (func_t)test_sync,
 	  .builtin = FALSE,
-	  .description = "Test para la sincronizacion de procesos(bloqueante)." },
+	  .description =
+		  "Test para la sincronizacion de procesos(bloqueante)." },
 	{ .name = "test_no_sync",
 	  .function = (func_t)test_no_sync,
 	  .builtin = FALSE,
-	  .description = "Test para la no sincronizacion de procesos(bloqueante)." },
+	  .description =
+		  "Test para la no sincronizacion de procesos(bloqueante)." },
 	{ .name = "ack",
 	  .function = (func_t)ack,
 	  .builtin = TRUE,

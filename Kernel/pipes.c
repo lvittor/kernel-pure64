@@ -132,7 +132,6 @@ int write_pipe(fd_t fd, char *buffer, int count)
 	int pipe_idx = fd_to_pipe[fd];
 	if (pipe_idx == -1 || pipes[pipe_idx]->fdout != fd)
 		return PIPE_ERROR;
-
 	for (int i = 0; i < count; i++) {
 		if (wait_sem(pipes[pipe_idx]->write_sem) != SEM_SUCCESS)
 			return i;

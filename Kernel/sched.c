@@ -62,7 +62,7 @@ sched_ret_t init_sched(process_prototype_t pPP, int argc, char *argv[])
 	halt_pid = create_process(&halt_prototype, 0, (char *[]){ NULL });
 	if (halt_pid == SCHED_ERROR)
 		return SCHED_ERROR;
-	
+
 	desired_pid = halt_pid;
 
 	int new_pid = create_process(pPP, argc, argv);

@@ -122,7 +122,7 @@ void test_prio(void)
 
 	for (i = 0; i < TOTAL_PROCESSES; i++)
 		my_unblock(pids[i]);
-	
+
 	bussy_wait(WAIT);
 	print_f(STDOUT, "\nBLOCKING...\n");
 
