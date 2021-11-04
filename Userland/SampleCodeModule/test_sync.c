@@ -34,6 +34,7 @@ static uint64_t my_sem_close(char *sem_id){
 }
 
 #define TOTAL_PAIR_PROCESSES 2
+#define STRING_N  "1000000"
 #define SEM_ID "sem"
 
 int64_t global = 0;  //shared memory
@@ -53,8 +54,6 @@ static void inc(int argc, char * argv[]) {
   sscan(argv[1], "%d", &value);
   sscan(argv[2], "%d", &N);
 
-  print_f(STDOUT, "{%d}{%d}{%d}\n", sem, value, N);
-
   uint64_t i;
   sem_ret_t ans = my_sem_open(SEM_ID, 1);
   if (sem && ans != SEM_SUCCESS && ans != SEM_EXISTS){
@@ -62,20 +61,15 @@ static void inc(int argc, char * argv[]) {
     return;
   }
   
-  print_f(STDOUT, "Por sumar\n", sem, value, N);
-  
   for (i = 0; i < N; i++){
     if (sem) my_sem_wait(SEM_ID);
     slowInc(&global, value);
-    print_f(STDOUT, ",");
     if (sem) my_sem_post(SEM_ID);
   }
-  print_f(STDOUT, "Ya sume\n");
 
   if (sem) my_sem_close(SEM_ID);
   
   print_f(STDOUT, "Final value: %d\n", global);
-  _dump_pipes();
   _exit();
 }
 
@@ -89,19 +83,19 @@ void test_sync(void){
   char * argvSum[] = {
     "1",
     "1",
-    "100",
+    STRING_N,
     NULL,
   };
   char * argvMinus[] = {
     "1",
     "-1",
-    "100",
+    STRING_N,
     NULL,
   };
 
   for(i = 0; i < TOTAL_PAIR_PROCESSES; i++){
-    print_f(STDERR, "pid:%d\n", my_create_process("inc", 3, argvSum));
-    print_f(STDERR, "pid:%d\n", my_create_process("inc", 3, argvMinus));
+    my_create_process("inc", 3, argvSum);
+    my_create_process("inc", 3, argvMinus);
   }
 
   _exit();

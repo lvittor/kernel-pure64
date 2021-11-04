@@ -70,7 +70,6 @@ sem_ret_t open_sem(semid_t sid, semvalue_t value)
 
 sem_ret_t wait_sem(semid_t sid)
 {
-	ncPrint(".");
 	_acquire(&sems_lock);
 	uint8_t sem_idx = get_idx(sid);
 	if (sem_idx == MAX_SEMS) {
@@ -94,7 +93,6 @@ sem_ret_t wait_sem(semid_t sid)
 
 sem_ret_t post_sem(semid_t sid)
 {
-	ncPrint("*");
 	_acquire(&sems_lock);
 	uint8_t sem_idx = get_idx(sid);
 	if (sem_idx == MAX_SEMS) {
