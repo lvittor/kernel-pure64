@@ -125,16 +125,13 @@ sem_ret_t close_sem(semid_t sid)
 		return SEM_INVALID;
 	}
 	_acquire(&(sems[sem_idx]->lock));
-	if (get_curr_pid() != sems[sem_idx]->creator_process) {
+	if (get_curr_pid() != sems[sem_idx]->creator_process || !is_empty(sems[sem_idx]->waiting_queue)) {
 		_release(&(sems[sem_idx]->lock));
 		_release(&sems_lock);
 		return SEM_INVALID;
 	}
 
-	// Only destroy if there are no processes waiting?
-	// Consider listening queue?
 	free(sems[sem_idx]);
-
 	_release(&sems_lock);
 	return SEM_SUCCESS;
 }
