@@ -86,6 +86,7 @@ void dump_queue(queue_t q)
 	while (it != NULL) {
 		ncPrintDec(it->value);
 		ncPrint(", ");
+		it = it->next;
 	}
 	ncPrintChar(']');
 }
