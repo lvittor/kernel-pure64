@@ -14,9 +14,9 @@ struct sem_t *sems[MAX_SEMS] = { NULL };
 typedef struct sem_t {
 	char *name;
 	lock_t lock;
-	uint8_t creator_process;
+	uint8_t creator_process; // pid_t
 	semvalue_t value;
-	queue_t waiting_queue;
+	queue_t waiting_queue; // los pid_t de los procesos que hicieron un wait con este sem
 } sem_t;
 
 static uint8_t get_idx(semid_t sid)

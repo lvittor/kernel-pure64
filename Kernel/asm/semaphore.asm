@@ -6,7 +6,7 @@ section .text
 _acquire:
     push rax
     mov al, 1
-    xchg al, [rdi]
+    xchg al, [rdi] ; cierra el bus de memoria para que no haya race cnoditions
     cmp al, 0
     jne _acquire
     pop rax

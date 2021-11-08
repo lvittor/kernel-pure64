@@ -4,6 +4,7 @@ GLOBAL _alloc, _free, _dump_mem
 GLOBAL _open_pipe, _write_pipe, _read_pipe, _close_pipe, _dump_pipes
 GLOBAL _open_sem, _wait_sem, _post_sem, _close_sem, _dump_sems
 GLOBAL _seconds_elapsed
+GLOBAL _get_shm
 
 EXTERN print_f
 
@@ -137,6 +138,10 @@ _clear_window:
     int 80h
     ret
 
+_get_shm:
+    mov rax, 26
+    int 80h
+    ret
 
 %macro pushState 0
 	push rax

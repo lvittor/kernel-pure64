@@ -12,9 +12,10 @@
 #include <sem.h>
 #include <pipes.h>
 #include <time.h>
+#include <smh.h>
 
 #define MAX_MEMORY_MAPPED 0x1000000000
-#define MAX_SYSCALLS 26
+#define MAX_SYSCALLS 27
 
 uint64_t sys_exit(void);
 
@@ -50,36 +51,37 @@ int sys_seconds_elapsed(void);
 int sys_wait_process(uint8_t pid);
 void sys_yield_process(void);
 
+shm_t sys_get_shm(int id);
+
 typedef int64_t (*syscall)(int64_t, int64_t, int64_t);
 
-syscall syscalls[MAX_SYSCALLS] = {
-	(syscall)sys_exit,
-	(syscall)sys_write,
-	(syscall)sys_read,
-	(syscall)sys_get_curr_pid,
-	(syscall)sys_dump_processes,
-	(syscall)sys_create_process,
-	(syscall)sys_kill,
-	(syscall)sys_block,
-	(syscall)sys_alloc,
-	(syscall)sys_free,
-	(syscall)sys_dump_mem,
-	(syscall)sys_nice,
-	(syscall)sys_open_sem,
-	(syscall)sys_wait_sem,
-	(syscall)sys_post_sem,
-	(syscall)sys_close_sem,
-	(syscall)sys_dump_sems,
-	(syscall)sys_open_pipe,
-	(syscall)sys_write_pipe,
-	(syscall)sys_read_pipe,
-	(syscall)sys_close_pipe,
-	(syscall)sys_dump_pipes,
-	(syscall)sys_seconds_elapsed,
-	(syscall)sys_wait_process,
-	(syscall)sys_yield_process,
-	(syscall)sys_clear,
-};
+syscall syscalls[MAX_SYSCALLS] = { (syscall)sys_exit,
+				   (syscall)sys_write,
+				   (syscall)sys_read,
+				   (syscall)sys_get_curr_pid,
+				   (syscall)sys_dump_processes,
+				   (syscall)sys_create_process,
+				   (syscall)sys_kill,
+				   (syscall)sys_block,
+				   (syscall)sys_alloc,
+				   (syscall)sys_free,
+				   (syscall)sys_dump_mem,
+				   (syscall)sys_nice,
+				   (syscall)sys_open_sem,
+				   (syscall)sys_wait_sem,
+				   (syscall)sys_post_sem,
+				   (syscall)sys_close_sem,
+				   (syscall)sys_dump_sems,
+				   (syscall)sys_open_pipe,
+				   (syscall)sys_write_pipe,
+				   (syscall)sys_read_pipe,
+				   (syscall)sys_close_pipe,
+				   (syscall)sys_dump_pipes,
+				   (syscall)sys_seconds_elapsed,
+				   (syscall)sys_wait_process,
+				   (syscall)sys_yield_process,
+				   (syscall)sys_clear,
+				   (syscall)sys_get_shm };
 
 uint64_t syscallDispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx,
 			   uint64_t rcx)
@@ -235,4 +237,9 @@ void sys_yield_process(void)
 void sys_clear(void)
 {
 	clearWindow(&BLACK);
+}
+
+shm_t sys_get_shm(int id)
+{
+	return get_shm(id);
 }

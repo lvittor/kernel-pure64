@@ -13,7 +13,7 @@
 #include <about.h>
 
 #define MAX_COMMAND 64 // Habria que achicarlo
-#define MODULES_SIZE 20
+#define MODULES_SIZE 22
 
 typedef void (*func_t)(void);
 
@@ -129,6 +129,14 @@ static command_t commands[MODULES_SIZE] = {
 	  .function = (func_t)ack,
 	  .builtin = TRUE,
 	  .description = "Acknowledgement." },
+	{ .name = "writer",
+	  .function = (func_t)test_shm_writer,
+	  .builtin = FALSE,
+	  .description = "DEFENSA WRITER." },
+	{ .name = "reader",
+	  .function = (func_t)test_shm_reader,
+	  .builtin = FALSE,
+	  .description = "DEFENSA READER." },
 };
 
 int main(int argc, char *argv[])

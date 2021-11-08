@@ -10,6 +10,7 @@
 #include <keyboard.h>
 #include <video.h>
 #include <mm.h>
+#include <smh.h>
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -57,6 +58,7 @@ int main()
 	heap_init();
 	init_keyboard();
 	init_pipes();
+	init_shem(); // DEFENSA
 
 	_process_prototype_t shell = {
 		.function_address = (void *)sampleCodeModuleAddress,

@@ -86,4 +86,7 @@ sem_ret_t _post_sem(semid_t sid);
 sem_ret_t _close_sem(semid_t sid);
 void _dump_sems(void);
 
+//gSHMEM DEFENSA
+void *_get_shm(int id);
+
 #endif

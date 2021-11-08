@@ -65,3 +65,19 @@ void filter(int argc, char *argv[])
 	print_f(STDOUT, "\n");
 	_exit();
 }
+
+// DEFENSA TP
+void test_shm_writer(void)
+{
+	char *p = get_shm(0);
+	*p++ = 'a';
+	*p = '\0';
+	_exit();
+}
+
+void test_shm_reader(void)
+{
+	void *p = get_shm(0);
+	print_f(STDOUT, "El reader leyo: %s", (char *)p);
+	_exit();
+}

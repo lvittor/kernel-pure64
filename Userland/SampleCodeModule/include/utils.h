@@ -13,5 +13,7 @@ void cat(int argc, char *argv[]);
 void wc(int argc, char *argv[]);
 void filter(int argc, char *argv[]);
 void sleep(int seconds);
+void test_shm_writer(void);
+void test_shm_reader(void);
 
 #endif
